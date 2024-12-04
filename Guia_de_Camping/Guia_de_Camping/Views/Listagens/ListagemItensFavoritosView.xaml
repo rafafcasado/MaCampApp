@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Aspbrasil.Views.ListagemItensFavoritosView"
+             BackgroundColor="{DynamicResource BgListagemNoticias}">
+    <ContentView.Content>
+        <StackLayout>
+            <ActivityIndicator x:Name="loaderConteudoInicial" IsRunning="True" IsVisible="True" Color="{DynamicResource CorPrimaria}" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" />
+            <Label x:Name="lbMensagemAviso" FontSize="Medium" TextColor="{DynamicResource CorTextoMenuLateral}" IsVisible="False" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" HorizontalTextAlignment="Center" Margin="15">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="RecarregarConteudo" />
+                </Label.GestureRecognizers>
+            </Label>
+            <ListView x:Name="lvItens"
+                  IsVisible="False"
+                  IsPullToRefreshEnabled="true"
+                  HasUnevenRows="True"
+                  SeparatorVisibility="None"
+                  BackgroundColor="Transparent"
+                  CachingStrategy="RecycleElement"
+				  ItemSelected="Handle_ItemSelected"
+                  VerticalOptions="FillAndExpand" />
+            <StackLayout x:Name="loaderConteudoAdicional" IsVisible="False" BackgroundColor="{DynamicResource BgListagemNoticias}" Padding="15">
+                <ActivityIndicator HeightRequest="25" IsRunning="True" IsVisible="True" Color="{DynamicResource CorPrimaria}" VerticalOptions="End" HorizontalOptions="CenterAndExpand" />
+            </StackLayout>
+        </StackLayout>
+    </ContentView.Content>
+</ContentView>

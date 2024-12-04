@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Aspbrasil.Views.Menu.MasterPageSubItemViewCell">
+    <ViewCell.View>
+        <StackLayout Padding="15">
+            <Label x:Name="lbTexto" FontSize="14" FontAttributes="Bold" />
+        </StackLayout>
+    </ViewCell.View>
+</ViewCell>

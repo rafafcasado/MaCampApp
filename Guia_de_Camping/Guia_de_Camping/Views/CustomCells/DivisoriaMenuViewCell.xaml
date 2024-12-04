@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ViewCell xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Aspbrasil.Views.Menu.DivisoriaMenuViewCell">
+    <ViewCell.View>
+        <BoxView HeightRequest="1" BackgroundColor="#d6d6d6" Margin="15,0" />
+        <!--<StackLayout BackgroundColor="#F5F5F5">
+            <BoxView HeightRequest="1" BackgroundColor="#d6d6d6" />
+            <ContentView Padding="10,15,0,10">
+                <Label x:Name="lbTexto" FontSize="15" />
+            </ContentView>
+            <BoxView HeightRequest="1" BackgroundColor="#d6d6d6" />
+        </StackLayout>-->
+    </ViewCell.View>
+</ViewCell>

@@ -1,0 +1,10 @@
+﻿[*.{cs}]
+
+# IDE0028: Simplificar a inicialização de coleção
+dotnet_diagnostic.IDE0028.severity = none
+
+# Default severity for all analyzer diagnostics
+dotnet_analyzer_diagnostic.severity = none
+
+# CS8601: Possível atribuição de referência nula.
+dotnet_diagnostic.CS8601.severity = silent
