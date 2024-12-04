@@ -1,0 +1,61 @@
+<ContentView
+    x:Class="MaCamp.Views.Listagens.ListagemItensOnlineView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{DynamicResource BgListagemNoticias}">
+
+    <ContentView.Content>
+        <StackLayout>
+            <ActivityIndicator
+                x:Name="loaderConteudoInicial"
+                HorizontalOptions="CenterAndExpand"
+                IsRunning="True"
+                IsVisible="True"
+                VerticalOptions="CenterAndExpand"
+                Color="{DynamicResource CorPrimaria}" />
+
+            <Label
+                x:Name="lbMensagemAviso"
+                Margin="15"
+                FontSize="Medium"
+                HorizontalOptions="CenterAndExpand"
+                HorizontalTextAlignment="Center"
+                IsVisible="False"
+                TextColor="{DynamicResource CorTextoMenuLateral}"
+                VerticalOptions="CenterAndExpand" />
+
+            <!--<Label x:Name="lbAcao" IsVisible="False" FontSize="Large" TextColor="{DynamicResource CorDestaque}" Margin="10" HorizontalTextAlignment="Center" />-->
+
+            <ListView
+                x:Name="lvItens"
+                CachingStrategy="RecycleElement"
+                HasUnevenRows="True"
+                IsPullToRefreshEnabled="true"
+                IsVisible="False"
+                ItemSelected="Handle_ItemSelected"
+                SeparatorVisibility="None"
+                VerticalOptions="FillAndExpand" />
+
+            <StackLayout
+                x:Name="loaderConteudoAdicional"
+                Padding="15"
+                BackgroundColor="{DynamicResource BgListagemNoticias}"
+                IsVisible="False"
+                VerticalOptions="End">
+
+                <ActivityIndicator
+                    HeightRequest="25"
+                    HorizontalOptions="CenterAndExpand"
+                    IsRunning="True"
+                    IsVisible="True"
+                    Color="{DynamicResource CorPrimaria}" />
+            </StackLayout>
+
+            <!--<local:ListViewNonScrollsToTop VerticalOptions="End" ItemsSource="" HeightRequest="53">
+                <local:ListViewNonScrollsToTop.Header>
+                    <local:AdMobView />
+                </local:ListViewNonScrollsToTop.Header>
+            </local:ListViewNonScrollsToTop>-->
+        </StackLayout>
+    </ContentView.Content>
+</ContentView>

@@ -1,0 +1,34 @@
+<pages:PopupPage
+    x:Class="MaCamp.Views.Popups.MensagemPopupPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:animations="clr-namespace:RGPopup.Maui.Animations;assembly=RGPopup.Maui"
+    xmlns:pages="clr-namespace:RGPopup.Maui.Pages;assembly=RGPopup.Maui"
+    BackgroundColor="Transparent"
+    CloseWhenBackgroundIsClicked="False"
+    HasSystemPadding="False"
+    InputTransparent="True">
+
+    <pages:PopupPage.Animation>
+        <animations:MoveAnimation
+            PositionIn="Top"
+            PositionOut="Top" />
+    </pages:PopupPage.Animation>
+
+    <Border
+        x:Name="frMensagem"
+        Padding="10,25,0,10"
+        BackgroundColor="#FFCC00"
+        HeightRequest="40"
+        Stroke="#FFCC00"
+        VerticalOptions="Start">
+
+        <Label
+            x:Name="lbMensagem"
+            FontAttributes="Bold"
+            FontSize="16"
+            TextColor="White"
+            VerticalOptions="End" />
+    </Border>
+
+</pages:PopupPage>

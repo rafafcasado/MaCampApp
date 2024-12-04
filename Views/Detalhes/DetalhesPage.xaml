@@ -1,0 +1,95 @@
+<ContentPage
+    x:Class="MaCamp.Views.Detalhes.DetalhesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui"
+    xmlns:local="clr-namespace:MaCamp.CustomControls"
+    xmlns:localViews="clr-namespace:MaCamp.Views"
+    BackgroundColor="White">
+
+    <Grid>
+        <ScrollView
+            x:Name="svContent"
+            VerticalOptions="FillAndExpand">
+
+            <StackLayout
+                x:Name="slContent"
+                Padding="0,0,0,20"
+                Spacing="0"
+                VerticalOptions="FillAndExpand">
+
+                <Grid
+                    x:Name="grdFotoPrincipal">
+
+                    <ffimageloading:CachedImage
+                        x:Name="imgFotoItem"
+                        Aspect="AspectFill" />
+
+                    <StackLayout
+                        x:Name="slMaisFotos"
+                        Margin="0,0,-2,0"
+                        Padding="5"
+                        BackgroundColor="#70000000"
+                        HeightRequest="30"
+                        HorizontalOptions="End"
+                        InputTransparent="True"
+                        IsVisible="False"
+                        Orientation="Horizontal"
+                        VerticalOptions="Start">
+
+                        <Image
+                            x:Name="imIconeGaleria" />
+                        <!--<Label Text="Mais fotos" TextColor="White" Font="Bold,15" VerticalOptions="Center" />-->
+                    </StackLayout>
+
+                    <ffimageloading:CachedImage
+                        x:Name="imFaixa"
+                        Margin="0,0,0,0"
+                        Aspect="AspectFill"
+                        HorizontalOptions="FillAndExpand"
+                        Source="faixa_gradiente.png"
+                        VerticalOptions="EndAndExpand" />
+                    <Label
+                        x:Name="lbTitulo"
+                        Margin="15"
+                        FontAttributes="Bold"
+                        FontFamily="OpenSans"
+                        FontSize="20"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        TextColor="White"
+                        VerticalOptions="End" />
+                </Grid>
+
+                <local:AdMobBannerView
+                    x:Name="adMobBanner"
+                    BackgroundColor="White" />
+
+                <Grid
+                    Padding="15"
+                    BackgroundColor="White"
+                    VerticalOptions="FillAndExpand">
+
+                    <!--<Label x:Name="lbDescricao" Type="Html" VerticalOptions="Start" />-->
+                    <local:CustomWebView
+                        x:Name="wvDetalhes"
+                        IsVisible="True"
+                        VerticalOptions="FillAndExpand" />
+                    <ActivityIndicator
+                        x:Name="progress"
+                        HeightRequest="20"
+                        HorizontalOptions="CenterAndExpand"
+                        IsRunning="True"
+                        IsVisible="True"
+                        VerticalOptions="CenterAndExpand"
+                        Color="{DynamicResource CorPrimaria}" />
+                </Grid>
+            </StackLayout>
+        </ScrollView>
+
+        <localViews:AnuncioView
+            x:Name="anuncio"
+            Margin="0,10,0,-1"
+            VerticalOptions="End" />
+    </Grid>
+</ContentPage>

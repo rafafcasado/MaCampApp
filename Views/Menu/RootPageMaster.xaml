@@ -1,0 +1,62 @@
+<ContentPage
+    x:Class="MaCamp.Views.Menu.RootPageMaster"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:MaCamp.CustomControls"
+    Title="Master"
+    BackgroundColor="#F5F5F5">
+
+    <local:ListViewNonScrollsToTop
+        x:Name="MenuItemsListView"
+        Margin="0,0,-1,0"
+        HasUnevenRows="true"
+        ItemsSource="{Binding MenuItems}"
+        SeparatorVisibility="None">
+
+        <ListView.Header>
+            <Image
+                Margin="0,0,0,0"
+                Aspect="AspectFill"
+                Source="imagem_topo_menu.jpg" />
+        </ListView.Header>
+
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <ViewCell>
+                    <StackLayout
+                        Padding="15,10"
+                        HorizontalOptions="FillAndExpand">
+                        <Label
+                            FontSize="17"
+                            Text="{Binding Title}"
+                            VerticalOptions="FillAndExpand"
+                            VerticalTextAlignment="Center" />
+                    </StackLayout>
+                </ViewCell>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+
+        <ListView.Footer>
+            <StackLayout
+                Padding="10,30,10,30"
+                Spacing="5">
+
+                <Image
+                    HeightRequest="170"
+                    HorizontalOptions="Center"
+                    Source="logo_patrocinador.jpg">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="AbrirPatrocinador" />
+                    </Image.GestureRecognizers>
+                </Image>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="14"
+                    HorizontalTextAlignment="Center"
+                    Text="Patrocina este aplicativo MaCamp"
+                    TextColor="Black" />
+            </StackLayout>
+        </ListView.Footer>
+    </local:ListViewNonScrollsToTop>
+</ContentPage>

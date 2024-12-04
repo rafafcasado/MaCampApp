@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<KeyStore>
+  <Alias>MaCamp</Alias>
+  <CreationDate>2024-12-04T17:24:56</CreationDate>
+  <PackageName>br.com.macamp.app</PackageName>
+  <PackageFormat>apk</PackageFormat>
+  <Password>123456</Password>
+  <ValidityInfo />
+</KeyStore>

@@ -1,0 +1,25 @@
+<pages:PopupPage
+    x:Class="MaCamp.Views.Popups.FormBuscaPopupPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:campingViews="clr-namespace:MaCamp.Views.Campings"
+    xmlns:pages="clr-namespace:RGPopup.Maui.Pages;assembly=RGPopup.Maui"
+    CloseWhenBackgroundIsClicked="True">
+
+    <Grid
+        x:Name="cvFormBusca"
+        Margin="10"
+        HorizontalOptions="CenterAndExpand"
+        VerticalOptions="CenterAndExpand">
+
+        <campingViews:FormBuscaView
+            x:Name="formBusca" />
+        <Image
+            x:Name="imFechar"
+            Margin="10,20,0,0"
+            HeightRequest="30"
+            HorizontalOptions="End"
+            Source="fechar.png"
+            VerticalOptions="Start" />
+    </Grid>
+</pages:PopupPage>

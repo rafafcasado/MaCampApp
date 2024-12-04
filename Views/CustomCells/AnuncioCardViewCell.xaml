@@ -1,0 +1,59 @@
+<ViewCell
+    x:Class="MaCamp.Views.CustomCells.AnuncioCardViewCell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui">
+
+    <Border
+        Margin="10"
+        Padding="0">
+
+        <StackLayout
+            Padding="0"
+            Spacing="0">
+
+            <Grid
+                x:Name="grFoto"
+                RowSpacing="0">
+
+                <ffimageloading:CachedImage
+                    x:Name="imItem"
+                    Aspect="AspectFill"
+                    LoadingPlaceholder="placeholder.jpg"
+                    Source="{Binding UrlImagem}" />
+                <StackLayout
+                    Margin="0,0,0,10"
+                    Padding="8"
+                    BackgroundColor="{StaticResource CorPrimaria}"
+                    HorizontalOptions="Start"
+                    VerticalOptions="End">
+
+                    <Label
+                        FontSize="13"
+                        Text="PATROCINADO"
+                        TextColor="White" />
+                </StackLayout>
+            </Grid>
+
+            <StackLayout
+                Padding="20"
+                BackgroundColor="{DynamicResource BgTituloCard}">
+
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="20"
+                    Text="{Binding Anuncio.Titulo}"
+                    TextColor="{DynamicResource CorTituloCard}" />
+                <Label
+                    x:Name="lbSubtitulo"
+                    FontSize="14"
+                    Text="{Binding Anuncio.SubTitulo}"
+                    TextColor="{DynamicResource CorSubtituloCard}" />
+            </StackLayout>
+
+            <BoxView
+                BackgroundColor="{DynamicResource CorLinhaDivisaoData}"
+                HeightRequest="1" />
+        </StackLayout>
+    </Border>
+</ViewCell>

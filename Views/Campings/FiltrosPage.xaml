@@ -1,0 +1,432 @@
+<ContentPage
+    x:Class="MaCamp.Views.Campings.FiltrosPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ContentPage.Content>
+
+        <ScrollView>
+
+            <StackLayout
+                Padding="20,20,20,30"
+                Spacing="20">
+
+                <Label
+                    x:Name="lbUsandoLocalizacao"
+                    FontAttributes="Bold"
+                    FontSize="20"
+                    HorizontalTextAlignment="Center"
+                    Text="Selecione as opções que deseja"
+                    TextColor="Gray" />
+
+                <Label
+                    Margin="0,0,0,0"
+                    FontAttributes="Bold"
+                    FontSize="17"
+                    Text="Estabelecimentos"
+                    TextColor="{StaticResource CorPrimaria}" />
+
+                <StackLayout
+                    x:Name="slFiltroEstabelecimentos"
+                    Spacing="5">
+
+                    <StackLayout
+                        x:Name="slFiltroCamping"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="Campings"
+                        Orientation="Horizontal">
+
+                        <Image
+                            HeightRequest="25"
+                            InputTransparent="True"
+                            Source="icone_camping.png"
+                            VerticalOptions="Center" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Camping"
+                            TextColor="Gray"
+                            VerticalOptions="Center" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="FiltroEstabelecimentoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slFiltroApoioRVs"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="PontodeApoioaRV`s"
+                        Orientation="Horizontal">
+
+                        <Image
+                            HeightRequest="25"
+                            InputTransparent="True"
+                            Source="icone_ponto_apoio.png"
+                            VerticalOptions="Center" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Ponto de apoio a RV's"
+                            TextColor="Gray"
+                            VerticalOptions="Center" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="FiltroEstabelecimentoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slFiltroWild"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="CampingSelvagem/WildCamping/Bushcfaft"
+                        Orientation="Horizontal">
+
+                        <Image
+                            HeightRequest="25"
+                            InputTransparent="True"
+                            Source="icone_wild_camping.png"
+                            VerticalOptions="Center" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Wild campings "
+                            TextColor="Gray"
+                            VerticalOptions="Center" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="FiltroEstabelecimentoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slFiltroSemFuncao"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="SemFunçãoCamping/ApoioouFechado"
+                        Orientation="Horizontal">
+
+                        <Image
+                            HeightRequest="25"
+                            InputTransparent="True"
+                            Source="icone_sem_funcao_camping.png"
+                            VerticalOptions="Center" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Sem Função Camping/Apoio ou Fechado"
+                            TextColor="Gray"
+                            VerticalOptions="Center" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="FiltroEstabelecimentoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                </StackLayout>
+
+                <Label
+                    Margin="0,15,0,0"
+                    FontAttributes="Bold"
+                    FontSize="17"
+                    Text="Serviços"
+                    TextColor="{StaticResource CorPrimaria}" />
+
+                <StackLayout
+                    x:Name="slFiltroServicos"
+                    Spacing="5">
+
+                    <StackLayout
+                        x:Name="slAceitaBarracas"
+                        Padding="10,12"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="AceitaBarracas"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Aceita Barracas"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slAceitaRVs"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="AceitaRVs"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Aceita RV's"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slPossuiChales"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="PossuiChalesCabanasOuSuites"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Possui chalés, cabanas ou suites "
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slAceitaAnimais"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="AceitaAnimais"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Aceita animais"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <!--<StackLayout x:Name="slBanheiros" Orientation="Horizontal" BackgroundColor="#F5F5F5" Padding="10" ClassId="Sanitarios">
+                        <Label Text="Possui banheiros" FontSize="Small" FontAttributes="Bold" TextColor="Gray" InputTransparent="True" />
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>-->
+
+                    <StackLayout
+                        x:Name="slPossuiPraiaProxima"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="PossuiPraiaProxima"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Camping Pé na Areia"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slEnergiaEletrica"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="PossuiEnergiaEletrica"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Possui energia elétrica para equipamentos"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slRestaurante"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="Restaurante"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Possui restaurante e/ou lanchonete"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slChurrasqueiraCozinha"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="ChurrasqueiraCozinha"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Possui cozinha coletiva/churrasqueiras"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slTelefoneInternet"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="TelefoneInternet"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Possui telefone/internet"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slPiscina"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="Piscina"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Possui piscina"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slAcessibilidade"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="Acessibilidade"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Possui  alguma acessibilidade"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slAcessoTransporteColetivo"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="Transporte"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Possui acesso por transporte coletivo próximo"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <StackLayout
+                        x:Name="slLocalDetritos"
+                        Padding="10"
+                        BackgroundColor="#F5F5F5"
+                        ClassId="Transporte"
+                        Orientation="Horizontal">
+
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Medium"
+                            InputTransparent="True"
+                            Text="Local de padrão rodoviário para descarga de caixa de detritos"
+                            TextColor="Gray" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ServicoTapped" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                </StackLayout>
+
+                <Button
+                    x:Name="btFiltrar"
+                    BackgroundColor="{StaticResource CorPrimaria}"
+                    Clicked="Filtrar"
+                    HorizontalOptions="FillAndExpand"
+                    Text="FILTRAR"
+                    TextColor="{StaticResource CorTextoSobreCorPrimaria}" />
+
+            </StackLayout>
+
+        </ScrollView>
+
+    </ContentPage.Content>
+</ContentPage>

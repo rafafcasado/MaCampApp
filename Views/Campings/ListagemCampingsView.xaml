@@ -1,0 +1,303 @@
+<ContentView
+    x:Class="MaCamp.Views.Campings.ListagemCampingsView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{DynamicResource BgListagemNoticias}">
+    <ContentView.Content>
+
+        <StackLayout>
+
+            <StackLayout
+                x:Name="slBaixandoCampings"
+                HorizontalOptions="CenterAndExpand"
+                IsVisible="False"
+                VerticalOptions="CenterAndExpand">
+
+                <Label
+                    Margin="15"
+                    FontAttributes="Bold"
+                    FontSize="Medium"
+                    HorizontalOptions="CenterAndExpand"
+                    HorizontalTextAlignment="Center"
+                    Text="A lista de campings está sendo atualizada. Isso pode levar alguns minutos. Por favor aguarde..."
+                    TextColor="{DynamicResource CorTextoMenuLateral}"
+                    VerticalOptions="CenterAndExpand" />
+
+                <Label
+                    Margin="15"
+                    FontSize="Medium"
+                    HorizontalOptions="CenterAndExpand"
+                    HorizontalTextAlignment="Center"
+                    Text="Obs: Após este primeiro carregamento, os campings estarão disponíveis de forma off-line para consulta."
+                    TextColor="{DynamicResource CorTextoMenuLateral}"
+                    VerticalOptions="CenterAndExpand" />
+
+            </StackLayout>
+
+            <ActivityIndicator
+                x:Name="loaderConteudoInicial"
+                HorizontalOptions="CenterAndExpand"
+                IsRunning="True"
+                IsVisible="False"
+                VerticalOptions="CenterAndExpand"
+                Color="{DynamicResource CorPrimaria}" />
+
+            <StackLayout
+                x:Name="slMensagemAviso"
+                HorizontalOptions="CenterAndExpand"
+                IsVisible="False"
+                VerticalOptions="CenterAndExpand">
+
+                <Label
+                    x:Name="lbMensagemAviso"
+                    Margin="15"
+                    FontSize="Medium"
+                    HorizontalTextAlignment="Center"
+                    TextColor="{DynamicResource CorTextoMenuLateral}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="RecarregarConteudo" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <!--<Button x:Name="btCarregarNovamente" Text=" Tentar carregar novamente " TextColor="White" BackgroundColor="{DynamicResource CorDestaque}" HorizontalOptions="CenterAndExpand" Clicked="RecarregarConteudo" />-->
+            </StackLayout>
+
+            <!--<StackLayout x:Name="slBuscaInicial" BackgroundColor="{StaticResource CorDestaque}" Padding="10" Orientation="Horizontal" HorizontalOptions="CenterAndExpand"  VerticalOptions="CenterAndExpand" IsVisible="False">
+                <BoxView WidthRequest="1" HorizontalOptions="StartAndExpand" InputTransparent="True" />
+                <Image Source="icone_filtrar.png" HeightRequest="20" HorizontalOptions="Center" />
+                <Label Text="BUSCAR CAMPINGS" TextColor="{StaticResource CorTextoSobreCorPrimaria}" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalOptions="Center" InputTransparent="True" />
+                <BoxView WidthRequest="1" HorizontalOptions="EndAndExpand" />
+                <StackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="ExibirBuscaCampings" />
+                </StackLayout.GestureRecognizers>
+            </StackLayout>-->
+
+            <Grid
+                x:Name="grBotoesFiltroMapa"
+                IsVisible="False"
+                VerticalOptions="FillAndExpand">
+
+                <ListView
+                    x:Name="lvItens"
+                    BackgroundColor="{DynamicResource BgListagemNoticias}"
+                    CachingStrategy="RecycleElement"
+                    HasUnevenRows="True"
+                    IsPullToRefreshEnabled="False"
+                    IsVisible="False"
+                    ItemSelected="Handle_ItemSelected"
+                    SeparatorVisibility="None"
+                    VerticalOptions="FillAndExpand">
+
+                    <ListView.Header>
+                        <StackLayout
+                            Padding="0,60" />
+                    </ListView.Header>
+
+                </ListView>
+
+                <StackLayout
+                    x:Name="slFiltrosEBusca"
+                    Padding="10"
+                    BackgroundColor="{DynamicResource BgListagemNoticias}"
+                    Spacing="0"
+                    VerticalOptions="Start">
+
+                    <Grid
+                        x:Name="grBuscaAtual"
+                        Margin="0,0,0,5"
+                        Padding="10,5"
+                        BackgroundColor="{DynamicResource CorDestaque}">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition
+                                Width="*" />
+                            <ColumnDefinition
+                                Width="30" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label
+                            x:Name="lbBuscaAtual"
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            FontSize="10"
+                            TextColor="White"
+                            VerticalOptions="Center" />
+                        <Image
+                            Grid.Column="1"
+                            HeightRequest="30"
+                            HorizontalOptions="Center"
+                            InputTransparent="True"
+                            Source="ic_atualizar.png"
+                            VerticalOptions="Center" />
+
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ExibirBusca" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+
+                    <StackLayout
+                        x:Name="slNovaBusca"
+                        Padding="10"
+                        BackgroundColor="{StaticResource CorDestaque}"
+                        HorizontalOptions="CenterAndExpand"
+                        IsVisible="False"
+                        Orientation="Horizontal">
+
+                        <BoxView
+                            HorizontalOptions="StartAndExpand"
+                            InputTransparent="True"
+                            WidthRequest="1" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            HorizontalTextAlignment="Center"
+                            InputTransparent="True"
+                            Text="NOVA BUSCA"
+                            TextColor="{StaticResource CorTextoSobreCorPrimaria}"
+                            VerticalOptions="Center" />
+                        <BoxView
+                            HorizontalOptions="EndAndExpand"
+                            WidthRequest="1" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="ExibirBusca" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                    <Grid
+                        x:Name="grFiltroMapa"
+                        Padding="0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition
+                                Width="*" />
+                            <ColumnDefinition
+                                Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackLayout
+                            Grid.Column="0"
+                            Padding="3"
+                            BackgroundColor="{StaticResource CorDestaque}"
+                            InputTransparent="false"
+                            Orientation="Horizontal">
+
+                            <BoxView
+                                HorizontalOptions="StartAndExpand"
+                                InputTransparent="True"
+                                WidthRequest="1" />
+                            <Image
+                                Margin="0,0,5,0"
+                                HeightRequest="15"
+                                HorizontalOptions="Center"
+                                Source="icone_filtrar.png" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="10"
+                                HorizontalTextAlignment="Center"
+                                InputTransparent="True"
+                                Text="FILTRAR RESULTADOS"
+                                TextColor="{StaticResource CorTextoSobreCorPrimaria}"
+                                VerticalOptions="Center" />
+                            <BoxView
+                                HorizontalOptions="EndAndExpand"
+                                WidthRequest="1" />
+
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Tapped="FiltrarListagem" />
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+
+                        <StackLayout
+                            x:Name="slVerNoMapa"
+                            Grid.Column="1"
+                            Padding="3"
+                            BackgroundColor="{StaticResource CorDestaque}"
+                            InputTransparent="false"
+                            Orientation="Horizontal">
+
+                            <BoxView
+                                HorizontalOptions="StartAndExpand"
+                                WidthRequest="1" />
+                            <Image
+                                Margin="0,0,5,0"
+                                HeightRequest="15"
+                                HorizontalOptions="Center"
+                                InputTransparent="True"
+                                Source="icone_mapa.png" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="10"
+                                HorizontalOptions="Center"
+                                InputTransparent="True"
+                                Text="VER NO MAPA"
+                                TextColor="{StaticResource CorTextoSobreCorPrimaria}"
+                                VerticalOptions="Center" />
+                            <BoxView
+                                HorizontalOptions="EndAndExpand"
+                                WidthRequest="1" />
+
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Tapped="VerNoMapa" />
+                            </StackLayout.GestureRecognizers>
+                        </StackLayout>
+                    </Grid>
+
+                    <StackLayout
+                        x:Name="slAlterarFiltros"
+                        Padding="10"
+                        BackgroundColor="{StaticResource CorDestaque}"
+                        HorizontalOptions="CenterAndExpand"
+                        IsVisible="False"
+                        Orientation="Horizontal">
+
+                        <BoxView
+                            HorizontalOptions="StartAndExpand"
+                            InputTransparent="True"
+                            WidthRequest="1" />
+                        <Image
+                            HeightRequest="20"
+                            HorizontalOptions="Center"
+                            Source="icone_filtrar.png" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            HorizontalTextAlignment="Center"
+                            InputTransparent="True"
+                            Text="FILTRAR RESULTADOS"
+                            TextColor="{StaticResource CorTextoSobreCorPrimaria}"
+                            VerticalOptions="Center" />
+                        <BoxView
+                            HorizontalOptions="EndAndExpand"
+                            WidthRequest="1" />
+
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="FiltrarListagem" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+
+                </StackLayout>
+            </Grid>
+
+            <StackLayout
+                x:Name="loaderConteudoAdicional"
+                Padding="15"
+                BackgroundColor="{DynamicResource BgListagemNoticias}"
+                IsVisible="False"
+                VerticalOptions="End">
+
+                <ActivityIndicator
+                    HeightRequest="25"
+                    HorizontalOptions="CenterAndExpand"
+                    IsRunning="True"
+                    IsVisible="True"
+                    Color="{DynamicResource CorPrimaria}" />
+            </StackLayout>
+        </StackLayout>
+    </ContentView.Content>
+</ContentView>

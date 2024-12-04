@@ -1,0 +1,24 @@
+<pages:PopupPage
+    x:Class="MaCamp.Views.Popups.AnuncioPopupPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:RGPopup.Maui.Pages;assembly=RGPopup.Maui">
+
+    <StackLayout
+        Margin="15"
+        HorizontalOptions="CenterAndExpand"
+        Spacing="20"
+        VerticalOptions="CenterAndExpand">
+
+        <ContentView
+            x:Name="anuncioView"
+            VerticalOptions="FillAndExpand" />
+        <Button
+            BackgroundColor="{StaticResource CorPrimaria}"
+            Clicked="btFechar_Clicked"
+            HorizontalOptions="CenterAndExpand"
+            Text=" Fechar "
+            TextColor="{StaticResource CorTextoSobreCorPrimaria}" />
+    </StackLayout>
+
+</pages:PopupPage>

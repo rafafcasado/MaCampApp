@@ -1,0 +1,16 @@
+<pages:PopupPage
+    x:Class="MaCamp.Views.Popups.LoadingPopupPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:pages="clr-namespace:RGPopup.Maui.Pages;assembly=RGPopup.Maui"
+    CloseWhenBackgroundIsClicked="False">
+
+    <ActivityIndicator
+        x:Name="loader"
+        HeightRequest="70"
+        HorizontalOptions="Center"
+        IsEnabled="True"
+        IsRunning="True"
+        VerticalOptions="Center"
+        WidthRequest="70" />
+</pages:PopupPage>

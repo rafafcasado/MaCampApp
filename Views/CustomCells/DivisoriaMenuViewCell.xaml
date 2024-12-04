@@ -1,0 +1,30 @@
+<ViewCell
+    x:Class="MaCamp.Views.CustomCells.DivisoriaMenuViewCell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ViewCell.View>
+        <BoxView
+            Margin="15,0"
+            BackgroundColor="#d6d6d6"
+            HeightRequest="1" />
+
+        <!--<StackLayout
+            BackgroundColor="#F5F5F5">
+
+            <BoxView
+                BackgroundColor="#d6d6d6"
+                HeightRequest="1" />
+            <ContentView
+                Padding="10,15,0,10">
+                <Label
+                    x:Name="lbTexto"
+                    FontSize="15" />
+            </ContentView>
+            <BoxView
+                BackgroundColor="#d6d6d6"
+                HeightRequest="1" />
+        </StackLayout>-->
+
+    </ViewCell.View>
+</ViewCell>

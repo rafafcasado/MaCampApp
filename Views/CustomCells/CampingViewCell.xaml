@@ -1,0 +1,223 @@
+<ViewCell
+    x:Class="MaCamp.Views.CustomCells.CampingViewCell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui">
+
+    <Border
+        Margin="10"
+        Padding="0"
+        Stroke="Transparent">
+
+        <StackLayout
+            Padding="0"
+            Spacing="0">
+
+            <Grid
+                x:Name="grFoto"
+                RowSpacing="0">
+
+                <ffimageloading:CachedImage
+                    x:Name="imItem"
+                    Aspect="AspectFill"
+                    BackgroundColor="#aee0bb"
+                    ErrorPlaceholder="placeholder.jpg"
+                    LoadingPlaceholder="placeholder.jpg" />
+            </Grid>
+
+            <StackLayout
+                Padding="20"
+                BackgroundColor="{DynamicResource BgTituloCard}">
+
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="20"
+                    Text="{Binding Nome}"
+                    TextColor="{DynamicResource CorTituloCard}" />
+
+                <StackLayout
+                    x:Name="slEstrelas"
+                    Orientation="Horizontal">
+
+                    <ffimageloading:CachedImage
+                        x:Name="estrela1"
+                        HeightRequest="15"
+                        Source="estrela.png" />
+                    <ffimageloading:CachedImage
+                        x:Name="estrela2"
+                        HeightRequest="15"
+                        Source="estrela.png" />
+                    <ffimageloading:CachedImage
+                        x:Name="estrela3"
+                        HeightRequest="15"
+                        Source="estrela.png" />
+                    <ffimageloading:CachedImage
+                        x:Name="estrela4"
+                        HeightRequest="15"
+                        Source="estrela.png" />
+                    <ffimageloading:CachedImage
+                        x:Name="estrela5"
+                        HeightRequest="15"
+                        Source="estrela.png" />
+                </StackLayout>
+
+                <Label
+                    FontSize="14"
+                    Text="{Binding CidadeEstado}"
+                    TextColor="{DynamicResource CorSubtituloCard}" />
+            </StackLayout>
+
+            <Grid
+                Padding="10"
+                VerticalOptions="CenterAndExpand">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="*" />
+                    <ColumnDefinition
+                        Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition
+                        Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border
+                    x:Name="frTipo"
+                    Grid.Column="0"
+                    Margin="5"
+                    Padding="5,10"
+                    BackgroundColor="{StaticResource CorDestaque}">
+
+                    <Border.StrokeShape>
+                        <RoundRectangle
+                            CornerRadius="15" />
+                    </Border.StrokeShape>
+
+                    <Grid
+                        Margin="5,0"
+                        HorizontalOptions="Center"
+                        MinimumHeightRequest="50">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition
+                                Width="Auto" />
+                            <ColumnDefinition
+                                Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ffimageloading:CachedImage
+                            x:Name="imIconeTipo1"
+                            Grid.Column="0"
+                            ErrorPlaceholder="loading_transp.png"
+                            LoadingPlaceholder="loading_transp.png"
+                            WidthRequest="{OnPlatform iOS=15, Default=20}" />
+                        <Label
+                            x:Name="lbTipo1"
+                            Grid.Column="1"
+                            FontSize="{OnPlatform iOS=10, Default=13}"
+                            HorizontalTextAlignment="Center"
+                            LineBreakMode="WordWrap"
+                            TextColor="White"
+                            VerticalTextAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <Border
+                    x:Name="frTipo2"
+                    Grid.Column="1"
+                    Margin="5"
+                    Padding="5,10"
+                    BackgroundColor="{StaticResource CorDestaque}"
+                    IsVisible="False">
+
+                    <Border.StrokeShape>
+                        <RoundRectangle
+                            CornerRadius="15" />
+                    </Border.StrokeShape>
+
+                    <Grid
+                        HorizontalOptions="Center"
+                        MinimumHeightRequest="50">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition
+                                Width="Auto" />
+                            <ColumnDefinition
+                                Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ffimageloading:CachedImage
+                            x:Name="imIconeTipo2"
+                            Grid.Column="0"
+                            ErrorPlaceholder="loading_transp.png"
+                            LoadingPlaceholder="loading_transp.png"
+                            WidthRequest="{OnPlatform iOS=15, Default=20}" />
+                        <Label
+                            x:Name="lbTipo2"
+                            Grid.Column="1"
+                            FontSize="{OnPlatform iOS=10, Default=13}"
+                            HorizontalTextAlignment="Center"
+                            LineBreakMode="WordWrap"
+                            TextColor="White"
+                            VerticalTextAlignment="Center" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <BoxView
+                BackgroundColor="{DynamicResource CorLinhaDivisaoData}"
+                HeightRequest="1" />
+
+            <Grid
+                Padding="20,8"
+                BackgroundColor="{DynamicResource BgRodapeCard}"
+                ColumnSpacing="10"
+                VerticalOptions="End">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="*" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Label
+                    x:Name="lbDistancia"
+                    Grid.Column="0"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    TextColor="{DynamicResource CorTextoRodapeCard}"
+                    VerticalTextAlignment="Center" />
+
+                <ffimageloading:CachedImage
+                    x:Name="imDirecoes"
+                    Grid.Column="1"
+                    HorizontalOptions="End"
+                    IsVisible="False"
+                    Source="ic_directions.png"
+                    WidthRequest="30">
+
+                    <ffimageloading:CachedImage.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="AbrirDirecoes" />
+                    </ffimageloading:CachedImage.GestureRecognizers>
+                </ffimageloading:CachedImage>
+
+                <ffimageloading:CachedImage
+                    Grid.Column="2"
+                    HorizontalOptions="End"
+                    Source="ic_share_orange.png"
+                    WidthRequest="25">
+
+                    <ffimageloading:CachedImage.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="Compartilhar" />
+                    </ffimageloading:CachedImage.GestureRecognizers>
+                </ffimageloading:CachedImage>
+            </Grid>
+        </StackLayout>
+    </Border>
+</ViewCell>

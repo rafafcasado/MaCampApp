@@ -1,0 +1,18 @@
+<ContentPage
+    x:Class="MaCamp.Views.Detalhes.ListagemFotosPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Galeria"
+    BackgroundColor="Black">
+
+    <ContentPage.Content>
+        <ScrollView>
+            <!--<FlexLayout x:Name="flContent" Direction="Row" Wrap="Wrap" JustifyContent="SpaceEvenly" AlignItems="Stretch" AlignContent="Start" />-->
+            <Grid
+                x:Name="grContent"
+                ColumnSpacing="2"
+                RowSpacing="2"
+                VerticalOptions="FillAndExpand" />
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
