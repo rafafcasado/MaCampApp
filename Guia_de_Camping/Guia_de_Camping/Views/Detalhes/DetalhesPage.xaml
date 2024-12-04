@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:htmlLabel="clr-namespace:LabelHtml.Forms.Plugin.Abstractions;assembly=HtmlLabel.Forms.Plugin"
+             xmlns:localViews="clr-namespace:Aspbrasil.Views"
+             xmlns:local="clr-namespace:Aspbrasil.CustomControls"
+             x:Class="Aspbrasil.Views.Detalhes.DetalhesPage"
+             BackgroundColor="White">
+
+    <Grid>
+        <ScrollView x:Name="svContent" VerticalOptions="FillAndExpand">
+            <StackLayout Spacing="0" x:Name="slContent" VerticalOptions="FillAndExpand" Padding="0,0,0,20">
+
+                <Grid x:Name="grdFotoPrincipal">
+                    <ffimageloading:CachedImage x:Name="imgFotoItem" Aspect="AspectFill" />
+
+                    <StackLayout x:Name="slMaisFotos" HeightRequest="30" InputTransparent="True" IsVisible="False" Padding="5" Orientation="Horizontal" BackgroundColor="#70000000"             VerticalOptions="Start" HorizontalOptions="End" Margin="0,0,-2,0">
+                        <Image x:Name="imIconeGaleria" />
+                        <!--<Label Text="Mais fotos" TextColor="White" Font="Bold,15" VerticalOptions="Center" />-->
+                    </StackLayout>
+
+                    <ffimageloading:CachedImage x:Name="imFaixa" Source="faixa_gradiente.png" Margin="0,0,0,0" HorizontalOptions="FillAndExpand" VerticalOptions="EndAndExpand" Aspect="AspectFill" />
+
+                    <Label x:Name="lbTitulo" 
+                            TextColor="White" 
+                            FontAttributes="Bold" 
+                            FontSize="20" 
+                            HorizontalOptions="Center" 
+                            HorizontalTextAlignment="Center" 
+                            VerticalOptions="End" 
+                            Margin="15" 
+                            FontFamily="OpenSans" />
+                    
+                </Grid>
+                
+                <local:AdMobBannerView x:Name="adMobBanner" BackgroundColor="White" />
+                
+
+                <Grid VerticalOptions="FillAndExpand" Padding="15" BackgroundColor="White">
+                    <!--<htmlLabel:HtmlLabel x:Name="lbDescricao" VerticalOptions="Start" />-->
+                    <local:ExtendedWebView x:Name="wvDetalhes" VerticalOptions="FillAndExpand" IsVisible="True"  />
+                    <ActivityIndicator x:Name="progress" IsRunning="True" IsVisible="True" Color="{DynamicResource CorPrimaria}" VerticalOptions="CenterAndExpand" HeightRequest="20" HorizontalOptions="CenterAndExpand" />
+                </Grid>
+
+            </StackLayout>
+        </ScrollView>
+        
+        <localViews:AnuncioView x:Name="anuncio" VerticalOptions="End" Margin="0,10,0,-1" />
+    </Grid>
+</ContentPage>

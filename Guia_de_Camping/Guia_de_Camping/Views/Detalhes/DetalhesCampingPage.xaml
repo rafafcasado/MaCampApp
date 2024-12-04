@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:htmlLabel="clr-namespace:LabelHtml.Forms.Plugin.Abstractions;assembly=HtmlLabel.Forms.Plugin"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:local="clr-namespace:Aspbrasil.CustomControls"
+             xmlns:localViews="clr-namespace:Aspbrasil.Views"
+             xmlns:converter="clr-namespace:Aspbrasil.Models.Converters"
+             x:Class="Aspbrasil.Views.Detalhes.DetalhesCampingPage">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converter:StringToBoolConverter x:Key="stringToBool" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <ScrollView x:Name="svContent" VerticalOptions="FillAndExpand" Padding="0,0,0,50">
+            <StackLayout Spacing="0" x:Name="slContent" VerticalOptions="FillAndExpand">
+
+                <Grid x:Name="grdFotoPrincipal">
+
+                    <ffimageloading:CachedImage x:Name="imgFotoItem" Aspect="AspectFill" />
+
+                    <StackLayout x:Name="slMaisFotos" InputTransparent="True" IsVisible="False" Padding="5" Orientation="Horizontal" BackgroundColor="#60000000" VerticalOptions="Start" HorizontalOptions="End">
+                        <Image x:Name="imIconeGaleria" HeightRequest="25" />
+                        <!--<Label Text="Mais fotos" TextColor="White" Font="Bold,15" VerticalOptions="Center" />-->
+                    </StackLayout>
+
+                    <ffimageloading:CachedImage x:Name="imFaixa" Source="faixa_gradiente.png" Margin="0,0,0,-2" HorizontalOptions="FillAndExpand" VerticalOptions="EndAndExpand" Aspect="AspectFill" IsVisible="True" />
+
+                    <Label x:Name="lbTitulo" 
+                            TextColor="White" 
+                            FontAttributes="Bold" 
+                            FontSize="20" 
+                            HorizontalOptions="Center" 
+                            HorizontalTextAlignment="Center" 
+                            VerticalOptions="End" 
+                            Margin="15" 
+                            FontFamily="OpenSans" />
+                </Grid>
+
+                <Button x:Name="btAbrirMapa" IsVisible="false" Text="  VER NO MAPA  " TextColor="White" HorizontalOptions="Center" />
+
+                <StackLayout Spacing="10" x:Name="slDetalhes" VerticalOptions="FillAndExpand" Padding="15" BackgroundColor="White">
+
+                    <ContentView x:Name="cvTipo" />
+
+                    <StackLayout Spacing="5">
+
+                        <StackLayout x:Name="slEndereco" Orientation="Horizontal" Spacing="20" Padding="20">
+                            <Image Source="icone_endereco.png" HeightRequest="25" />
+                            <Label FontSize="{OnPlatform iOS=13, Default=16}" FontAttributes="Bold" TextColor="Gray" Text="{Binding EnderecoCompleto}" VerticalOptions="Center" />
+                            <Image Source="icone_ir.png" BackgroundColor="White" VerticalOptions="Center"/>
+                        </StackLayout>
+
+
+                        <BoxView HeightRequest="1" BackgroundColor="#20000000" />
+
+                        <StackLayout Spacing="10" IsVisible="{Binding Telefone, Converter={StaticResource stringToBool}}">
+                            <StackLayout x:Name="slTelefone" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="icone_telefone.png" HeightRequest="25" VerticalOptions="Center" />
+                                <StackLayout Spacing="15">
+                                    <Label x:Name="slTelefone1" FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Telefone}" VerticalOptions="Center" IsVisible="{Binding Telefone, Converter={StaticResource stringToBool}}">
+
+                                    </Label>
+                                    <Label x:Name="slTelefone2"  FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Telefone2}" VerticalOptions="Center" IsVisible="{Binding Telefone2, Converter={StaticResource stringToBool}}">
+
+                                    </Label>
+                                    <Label x:Name="slTelefone3"  FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Telefone3}" VerticalOptions="Center" IsVisible="{Binding Telefone3, Converter={StaticResource stringToBool}}">
+       
+                                    </Label>
+                                    <Label x:Name="slTelefone4"  FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Telefone4}" VerticalOptions="Center" IsVisible="{Binding Telefone4, Converter={StaticResource stringToBool}}">
+
+                                    </Label>
+                                </StackLayout>
+                            </StackLayout>
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                        </StackLayout>
+
+                        <StackLayout Spacing="10">
+                            <StackLayout x:Name="slId" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="icone_id.png" HeightRequest="25" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding IdCamping}" VerticalOptions="Center" />
+                            </StackLayout>
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                        </StackLayout>
+
+                        <StackLayout x:Name="slCoordenadas"  Spacing="10">
+                            <StackLayout Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="icone_pin.png" HeightRequest="20" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding LatitudeLongitude, StringFormat='Coordenadas GPS: {0}'}" VerticalOptions="Center" />
+                                <Button Image="copy_paste.png" Clicked="CopiarCoordenadas" BackgroundColor="White" WidthRequest="35" HeightRequest="41"/>
+                            </StackLayout>
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                        </StackLayout>
+
+                        <StackLayout Spacing="10" IsVisible="{Binding Funcionamento, Converter={StaticResource stringToBool}}">
+                            <StackLayout x:Name="slFuncionamento" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="icone_calendario.png" HeightRequest="25" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Funcionamento}" VerticalOptions="Center" />                            
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                            </StackLayout>
+                        </StackLayout>
+
+                        <StackLayout Spacing="10" IsVisible="{Binding Site, Converter={StaticResource stringToBool}}">
+                            <StackLayout x:Name="slSite" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="icone_site.png" HeightRequest="25" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Site}" VerticalOptions="Center" />
+
+                            </StackLayout>
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                        </StackLayout>
+
+                        <StackLayout Spacing="10" IsVisible="{Binding LinkPrecos, Converter={StaticResource stringToBool}}">
+                            <StackLayout x:Name="slPreco" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="iconedolar.png" HeightRequest="30" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding LinkPrecos}" VerticalOptions="Center" />
+
+                            </StackLayout>
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                        </StackLayout>
+
+                        <StackLayout Spacing="10" IsVisible="{Binding Facebook, Converter={StaticResource stringToBool}}">
+                            <StackLayout x:Name="slFacebook" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="iconefacebook.png" HeightRequest="30" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Facebook}" VerticalOptions="Center" />
+                            </StackLayout>
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                        </StackLayout>
+
+                        <StackLayout Spacing="10" IsVisible="{Binding Instagram, Converter={StaticResource stringToBool}}">
+                            <StackLayout x:Name="slInstagram" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="iconeinstagram.png" HeightRequest="30" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Instagram}" VerticalOptions="Center" />
+                            </StackLayout>
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                        </StackLayout>
+
+                        <StackLayout Spacing="10" IsVisible="{Binding Youtube, Converter={StaticResource stringToBool}}">
+                            <StackLayout x:Name="slYoutube" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="youtubeicone.png" HeightRequest="30" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Youtube}" VerticalOptions="Center" />
+                            </StackLayout>
+                            <BoxView HeightRequest="1" BackgroundColor="#40000000" />
+                        </StackLayout>
+
+                        <StackLayout Spacing="10" IsVisible="{Binding Email, Converter={StaticResource stringToBool}}">
+                            <StackLayout x:Name="slEmail" Orientation="Horizontal" Spacing="20" Padding="20">
+                                <Image Source="icone_email.png" HeightRequest="25" />
+                                <Label FontSize="{OnPlatform iOS=13, Default=14}" FontAttributes="Bold" TextColor="Gray" Text="{Binding Email}" VerticalOptions="Center" />
+                                
+                            </StackLayout>
+                            
+                        </StackLayout>
+
+                    </StackLayout>
+
+                </StackLayout>
+
+                <local:AdMobRectangleBannerView />
+
+                <ContentView x:Name="cvComodidades" />
+
+                <Button Text="Avalie e Informe sobre este camping" Clicked="AbrirTelaColaboracao" Margin="20" BackgroundColor="#2ab079" TextColor="White"/>
+
+                <StackLayout Spacing="10" VerticalOptions="FillAndExpand" Padding="15" BackgroundColor="White">
+                    <htmlLabel:HtmlLabel x:Name="lbDescricao" VerticalOptions="Start" />
+                </StackLayout>
+
+                <StackLayout Spacing="10" VerticalOptions="FillAndExpand" Padding="15" BackgroundColor="White">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="ALERTA: O APP MaCamp não se responsabiliza pelos dados constantes no guia. Confirme sempre os pontos mais importantes com os respectivos estabelecimentos antes de iniciar a viagem. Buscamos o máximo de atualizações. Ajude enviando erros e correções através do formulário de avaliação."/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="GoToSO" />
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Clique aqui e veja mais sobre isso em nossos: TERMOS DE USO" TextColor="Blue"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="GoToSO" />
+                        </Label.GestureRecognizers>
+                    </Label>                    
+                </StackLayout>
+
+                </StackLayout>
+        </ScrollView>
+        <localViews:AnuncioView x:Name="anuncio" VerticalOptions="End" Margin="0,0,0,-1" />
+    </Grid>
+</ContentPage>
