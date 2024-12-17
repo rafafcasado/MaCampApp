@@ -7,6 +7,7 @@ namespace MaCamp.Views.CustomCells
         public AnuncioCardViewCell()
         {
             InitializeComponent();
+
             imItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
             imItem.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
         }

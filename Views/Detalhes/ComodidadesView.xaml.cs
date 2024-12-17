@@ -9,6 +9,7 @@ namespace MaCamp.Views.Detalhes
         public ComodidadesView(List<ItemIdentificador> itemIdentificadores)
         {
             InitializeComponent();
+
             var secoes = itemIdentificadores.Where(i => i.Opcao > 0).GroupBy(i => i.Secao);
 
             foreach (var secao in secoes)
@@ -22,13 +23,14 @@ namespace MaCamp.Views.Detalhes
                 };
 
                 slContent.Children.Add(lbTitulo);
+
                 var grupoItens = secao.GroupBy(i => i.Identificador);
 
                 foreach (var grupoItem in grupoItens)
                 {
                     var itens = grupoItem.ToList();
 
-                    var grComodidades = new Grid()
+                    var grComodidades = new Grid
                     {
                         ColumnSpacing = 15,
                         Margin = new Thickness(0, 5)

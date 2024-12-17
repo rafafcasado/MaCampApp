@@ -19,6 +19,7 @@ namespace MaCamp.Platforms.Android.Extenders
             try
             {
                 base.OnPageFinished(view, url);
+
                 var previousHeight = 0;
 
                 if (view != null && Handler.VirtualView is CustomWebView customWebView)

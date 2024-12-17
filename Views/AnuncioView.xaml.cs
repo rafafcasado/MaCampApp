@@ -46,20 +46,23 @@ namespace MaCamp.Views
 
             if (width == 0 || height == 0)
             {
-                if (tipoAnuncio == TipoAnuncio.Popup)
+                switch (tipoAnuncio)
                 {
-                    imAnuncio.WidthRequest = App.SCREEN_WIDTH;
-                    imAnuncio.HeightRequest = App.SCREEN_HEIGHT * 0.8;
-                }
-                else if (tipoAnuncio == TipoAnuncio.Banner)
-                {
-                    imAnuncio.WidthRequest = App.SCREEN_WIDTH;
-                    imAnuncio.HeightRequest = App.SCREEN_WIDTH * 1.2 / 10;
-                }
-                else
-                {
-                    imAnuncio.WidthRequest = App.SCREEN_WIDTH;
-                    imAnuncio.HeightRequest = App.SCREEN_WIDTH * 9 / 21;
+                    case TipoAnuncio.Popup:
+                        imAnuncio.WidthRequest = App.SCREEN_WIDTH;
+                        imAnuncio.HeightRequest = App.SCREEN_HEIGHT * 0.8;
+
+                        break;
+                    case TipoAnuncio.Banner:
+                        imAnuncio.WidthRequest = App.SCREEN_WIDTH;
+                        imAnuncio.HeightRequest = App.SCREEN_WIDTH * 1.2 / 10;
+
+                        break;
+                    default:
+                        imAnuncio.WidthRequest = App.SCREEN_WIDTH;
+                        imAnuncio.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 21);
+
+                        break;
                 }
             }
             else

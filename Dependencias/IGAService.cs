@@ -12,5 +12,5 @@
         public static string Category1 => "Categoria 1";
         public static string Category2 => "Categoria 2";
         public static string Category3 => "Categoria 3";
-    };
+    }
 }

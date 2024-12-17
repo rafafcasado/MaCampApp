@@ -58,7 +58,7 @@ namespace MaCamp.Views.Listagens
             }
         }
 
-        protected async void Handle_ItemAppearing(object? sender, ItemVisibilityEventArgs e)
+        private async void Handle_ItemAppearing(object? sender, ItemVisibilityEventArgs e)
         {
             if (e.Item is Item item)
             {
@@ -130,7 +130,7 @@ namespace MaCamp.Views.Listagens
 
                         tap.Tapped += delegate
                         {
-                            //MessagingCenter.Send(Application.Current, AppConstants.MensagemExibirBuscaCampings);
+                            //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
 
                             if (AppConstants.CurrentPage is RootPage rootPage && rootPage.Detail is NavigationPage navigationPage && navigationPage.CurrentPage is MainPage mainPage)
                             {
@@ -145,7 +145,7 @@ namespace MaCamp.Views.Listagens
                     {
                         fs.Spans.Add(new Span
                         {
-                            Text = "Verifique sua conexão e toque para tentar novamente."
+                            Text = AppConstants.Descricao_SemInternet
                         });
 
                         var tap = new TapGestureRecognizer();
@@ -175,7 +175,7 @@ namespace MaCamp.Views.Listagens
                 });
             }
 
-            await _viewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, TipoListagem.Noticias);
+            await _viewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca);
 
             Dispatcher.Dispatch(() =>
             {
@@ -190,24 +190,27 @@ namespace MaCamp.Views.Listagens
                 }
                 else
                 {
-                    var fs = new FormattedString();
+                    var formattedString = new FormattedString();
 
-                    fs.Spans.Add(new Span
+                    formattedString.Spans.Add(new Span
                     {
                         Text = "Nenhum item disponível.\n\n",
                         FontAttributes = FontAttributes.Bold,
                         FontSize = 20
                     });
 
-                    fs.Spans.Add(new Span
+                    formattedString.Spans.Add(new Span
                     {
                         Text = "Confira sua internet e/ou tente novamente mais tarde."
                     });
 
-                    lbMensagemAviso.FormattedText = fs;
+                    lbMensagemAviso.FormattedText = formattedString;
                     lbMensagemAviso.IsVisible = true;
+
                     var tap = new TapGestureRecognizer();
+
                     tap.Tapped += RecarregarConteudo;
+
                     lbMensagemAviso.GestureRecognizers.Add(tap);
                 }
             });

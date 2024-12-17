@@ -7,19 +7,20 @@ namespace MaCamp.Views.Campings
 {
     public partial class FiltrosPage : ContentPage
     {
+        //public string EstadoSelecionado { get; set; }
+        //public string CidadeSelecionada { get; set; }
+
         //private string ParametroTODAS = " - TODAS - ";
         //private string ParametroTODOS = " - TODOS - ";
         private DBContract DB { get; }
-
-        //public string EstadoSelecionado { get; set; }
-        //public string CidadeSelecionada { get; set; }
-        public List<string> EstabelecimentosSelecionados { get; set; }
-        public List<string> ComodidadesSelecionadas { get; set; }
+        private List<string> EstabelecimentosSelecionados { get; }
+        private List<string> ComodidadesSelecionadas { get; }
         //private bool UsarLocalizacaoUsuario { get; set; }
 
         public FiltrosPage(bool busca = false)
         {
             InitializeComponent();
+
             EstabelecimentosSelecionados = new List<string>();
             ComodidadesSelecionadas = new List<string>();
 
@@ -33,7 +34,7 @@ namespace MaCamp.Views.Campings
                 Title = "Filtros";
             }
 
-            DB = DBContract.NewInstance();
+            DB = DBContract.Instance;
 
             //Task.Run(() =>
             //{
@@ -94,7 +95,7 @@ namespace MaCamp.Views.Campings
         //    {
         //        using (var client = new HttpClient())
         //        {
-        //            string jsonCidades = await client.GetStringAsync(AppConstants.UrlListaCidades);
+        //            string jsonCidades = await client.GetStringAsync(AppConstants.Url_ListaCidades);
         //            cidadesWS = JsonConvert.DeserializeObject<List<Cidade>>(jsonCidades).Where(x => !x.Estado.Contains("_")).ToList();
         //            DB.InserirListaDeModelo(cidadesWS);
         //        }
@@ -394,7 +395,7 @@ namespace MaCamp.Views.Campings
             });
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Filtro Estabelecimentos e Serviços", "Filtrar", valorEstabelecimentos + " - " + valorComodidades);
-            //MessagingCenter.Send(Application.Current, AppConstants.MensagemBuscaRealizada);
+            //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
 
             await Navigation.PopAsync();
         }

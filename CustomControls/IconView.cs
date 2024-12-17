@@ -2,7 +2,7 @@
 {
     public class IconView : View
     {
-        public static readonly BindableProperty ForegroundProperty = BindableProperty.Create(nameof(Foreground), typeof(Color), typeof(IconView), Color.FromArgb("6f6d6d"));
+        private static readonly BindableProperty ForegroundProperty = BindableProperty.Create(nameof(Foreground), typeof(Color), typeof(IconView), Color.FromArgb("6f6d6d"));
 
         public Color Foreground
         {
@@ -10,7 +10,7 @@
             set => SetValue(ForegroundProperty, value);
         }
 
-        public static readonly BindableProperty SourceProperty = BindableProperty.Create(nameof(Source), typeof(string), typeof(IconView), default(string));
+        private static readonly BindableProperty SourceProperty = BindableProperty.Create(nameof(Source), typeof(string), typeof(IconView));
 
         public string Source
         {

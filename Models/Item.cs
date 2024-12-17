@@ -1,4 +1,5 @@
 ﻿using MaCamp.Models.Anuncios;
+using MaCamp.Models.DataAccess;
 using MaCamp.ViewModels;
 using SQLite;
 
@@ -299,7 +300,7 @@ namespace MaCamp.Models
             {
                 if (_identificadores.Count == 0)
                 {
-                    _identificadores = DataAccess.DBContract.NewInstance().ListarItensIdentificadores(i => i.IdItem == IdCamping);
+                    _identificadores = DBContract.Instance.ListarItensIdentificadores(i => i.IdItem == IdCamping);
                 }
 
                 return _identificadores;

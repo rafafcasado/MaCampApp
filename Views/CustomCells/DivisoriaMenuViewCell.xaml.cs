@@ -12,6 +12,7 @@ namespace MaCamp.Views.CustomCells
         protected override void OnBindingContextChanged()
         {
             base.OnBindingContextChanged();
+
             var itemMenu = BindingContext as ItemMenu;
 
             //lbTexto.Text = itemMenu.Titulo;

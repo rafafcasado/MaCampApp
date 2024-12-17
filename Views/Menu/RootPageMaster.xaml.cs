@@ -12,6 +12,7 @@ namespace MaCamp.Views.Menu
         public RootPageMaster()
         {
             InitializeComponent();
+
             BindingContext = new RootPageMasterViewModel();
             MenuItemsListView.ItemTemplate = new MenuTemplateSelector();
             ListView = MenuItemsListView;
@@ -24,7 +25,7 @@ namespace MaCamp.Views.Menu
 
         private void AbrirPatrocinador(object sender, EventArgs e)
         {
-            Launcher.OpenAsync(AppConstants.UrlEasyTransports);
+            Launcher.OpenAsync(AppConstants.Url_EasyTransports);
         }
 
         private class RootPageMasterViewModel : INotifyPropertyChanged

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CommunityToolkit.Maui;
 using FFImageLoading.Maui;
 using MaCamp.CustomControls;
@@ -42,11 +43,7 @@ namespace MaCamp
                 collection.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-            // TODO: Add the entry points to your Apps here.
-            // See also: https://learn.microsoft.com/dotnet/maui/fundamentals/app-lifecycle
-            //builder.Services.AddTransient<AppShell>();
-
-            if (System.Diagnostics.Debugger.IsAttached)
+            if (Debugger.IsAttached)
             {
                 builder.Logging.AddDebug();
             }

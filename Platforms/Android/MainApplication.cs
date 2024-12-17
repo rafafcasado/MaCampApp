@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace MaCamp
+namespace MaCamp.Platforms.Android
 {
     [Application]
     public class MainApplication : MauiApplication

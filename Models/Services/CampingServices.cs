@@ -8,8 +8,8 @@ namespace MaCamp.Models.Services
     {
         public static bool ExistemCampingsBD()
         {
-            var db = DBContract.NewInstance();
-            var valorChaveDownloadConcluido = db.ObterValorChave(AppConstants.ChaveDownloadCampingsCompleto);
+            var db = DBContract.Instance;
+            var valorChaveDownloadConcluido = db.ObterValorChave(AppConstants.Chave_DownloadCampingsCompleto);
             var downloadConcluido = !string.IsNullOrWhiteSpace(valorChaveDownloadConcluido) && Convert.ToBoolean(valorChaveDownloadConcluido);
             var tem = downloadConcluido && db.ObterItem(i => i.IdPost == 0) != null;
 
@@ -42,19 +42,19 @@ namespace MaCamp.Models.Services
                 if (!existemCampingsSalvos || forcarAtualizacao)
                 {
                     App.BAIXANDO_CAMPINGS = true;
-                    var DB = DBContract.NewInstance();
-                    DB.InserirOuSubstituirModelo(new ChaveValor(AppConstants.ChaveDownloadCampingsCompleto, "false", TipoChave.ControleInterno));
+                    var DB = DBContract.Instance;
+                    DB.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "false", TipoChave.ControleInterno));
                     var campings = new List<Item>();
 
                     var chamadasWS = new List<Task>
                     {
                         Task.Run(async () =>
                         {
-                            campings = await new WebService<Item>().Get(AppConstants.UrlListaCampings, 0, string.Empty, string.Empty);
+                            campings = await new WebService<Item>().Get(AppConstants.Url_ListaCampings, 0, string.Empty, string.Empty);
                         }),
                         Task.Run(async () =>
                         {
-                            identificadores = await new WebService<ItemIdentificador>().Get(AppConstants.UrlListaIdentificadores, 1);
+                            identificadores = await new WebService<ItemIdentificador>().Get(AppConstants.Url_ListaIdentificadores, 1);
                         })
                     };
 
@@ -67,11 +67,11 @@ namespace MaCamp.Models.Services
                     DB.InserirListaDeModelo(campings);
                     DB.ApagarItensIdentificadores();
                     DB.InserirListaDeModelo(identificadores);
-                    DB.InserirOuSubstituirModelo(new ChaveValor(AppConstants.ChaveDownloadCampingsCompleto, "true", TipoChave.ControleInterno));
+                    DB.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", TipoChave.ControleInterno));
 
                     DB.InserirOuSubstituirModelo(new ChaveValor
                     {
-                        Chave = AppConstants.ChaveDataUltimaAtualizacaoConteudo,
+                        Chave = AppConstants.Chave_DataUltimaAtualizacaoConteudo,
                         Valor = DateTime.Now.ToString("yyyy/MM/dd")
                     });
 
@@ -95,7 +95,7 @@ namespace MaCamp.Models.Services
                 return campingsFiltrados;
             }
 
-            var DB = DBContract.NewInstance();
+            var DB = DBContract.Instance;
             var campings = DB.ListarItens(i => i.IdPost == 0).OrderBy(i => i.Nome).ToList();
 
             return campings;
@@ -103,7 +103,7 @@ namespace MaCamp.Models.Services
 
         private static async Task<List<Item>> CarregarCampingsFiltradosBD()
         {
-            var DB = DBContract.NewInstance();
+            var DB = DBContract.Instance;
             var valorChaveEstadoSelecionado = DB.ObterValorChave("FILTROS_ESTADO_SELECIONADO");
             var valorChaveCidadeSelecionada = DB.ObterValorChave("FILTROS_CIDADE_SELECIONADA");
             var valorChaveLocalizacaoSelecionada = DB.ObterValorChave("FILTROS_LOCALIZACAO_SELECIONADA");
@@ -174,14 +174,14 @@ namespace MaCamp.Models.Services
 
         public static string MontarUrlImagemTemporaria(string urlImagem)
         {
-            var imagem = AppConstants.UrlDominioTemporario + "carregarImagem.aspx?src=" + urlImagem.Replace(AppConstants.UrlDominioOficial, "");
+            var imagem = AppConstants.Url_DominioTemporario + "carregarImagem.aspx?src=" + urlImagem.Replace(AppConstants.Url_DominioOficial, "");
 
             return imagem;
         }
 
         private static List<int> BuscarIdsCampingsPorCategoriaEComodidades(string categorias, string comodidades, bool possuiFiltroCategoria, bool possuiFiltroComodidades)
         {
-            var db = DBContract.NewInstance();
+            var db = DBContract.Instance;
             var idsCampingsComComodidades = db.ListarIdsCampingsComComodidades(possuiFiltroComodidades, comodidades);
 
             // Se não possui filtro por categorias, ignora essa busca

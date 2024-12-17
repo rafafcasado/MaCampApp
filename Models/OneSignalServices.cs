@@ -51,7 +51,7 @@
         //    {
         //        Dictionary<string, object> additionalData = payload.additionalData;
 
-        //        var sqliteConnection = DBContract.NewInstance();
+        //        var sqliteConnection = DBContract.Instance;
 
         //        sqliteConnection.InserirOuSubstituirModelo(new ChaveValor { Chave = AppConstants.CHAVE_TITULO_NOTIFICACAO, Valor = payload.title });
         //        sqliteConnection.InserirOuSubstituirModelo(new ChaveValor { Chave = AppConstants.CHAVE_MENSAGEM_NOTIFICACAO, Valor = payload.body });

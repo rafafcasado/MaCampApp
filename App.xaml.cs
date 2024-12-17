@@ -4,6 +4,9 @@ using MaCamp.Dependencias;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
 using MaCamp.Models.Services;
+using MaCamp.Resources.Locale;
+using MaCamp.Views;
+using MaCamp.Views.Menu;
 
 namespace MaCamp
 {
@@ -14,7 +17,7 @@ namespace MaCamp
         public static Size ScreenPixelsSize;
         public static Location? LOCALIZACAO_USUARIO { get; set; }
         public static bool EXISTEM_CAMPINGS_DISPONIVEIS { get; set; }
-        public static bool BAIXANDO_CAMPINGS { get; set; } = false;
+        public static bool BAIXANDO_CAMPINGS { get; set; }
 
         public App()
         {
@@ -22,22 +25,13 @@ namespace MaCamp
 
             CarregarTamanhoTela();
 
-            var culture = new CultureInfo("pt-BR");
-
             UserAppTheme = AppTheme.Light;
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
 
             //OneSignalServices.RegisterIOS();
             //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
 
             //Task.Run(() => VerificarDownloadCampings());
             //VerificarDownloadCampings();
-        }
-
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            return new Window(new Views.Menu.RootPage());
         }
 
         protected override void OnHandlerChanged()
@@ -50,12 +44,12 @@ namespace MaCamp
             {
                 DBContract.SqlConnection = sqlite.ObterConexao();
 
-                DBContract.NewInstance().InserirOuSubstituirModelo(new ChaveValor
+                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = "FILTROS_SERVICO_SELECIONADOS",
                     Valor = ""
                 });
-                DBContract.NewInstance().InserirOuSubstituirModelo(new ChaveValor
+                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = "FILTROS_NOME_DO_CAMPING",
                     Valor = ""
@@ -69,7 +63,13 @@ namespace MaCamp
 
                 if (localize != null)
                 {
-                    MaCamp.Resources.Locale.AppLanguage.Culture = localize.ObterCultureInfoDoUsuario();
+                    var culture = localize.ObterCultureInfoDoUsuario();
+
+                    AppLanguage.Culture = culture;
+                    Thread.CurrentThread.CurrentCulture = culture;
+                    Thread.CurrentThread.CurrentUICulture = culture;
+                    CultureInfo.DefaultThreadCurrentCulture = culture;
+                    CultureInfo.DefaultThreadCurrentUICulture = culture;
                 }
             }
         }
@@ -92,6 +92,11 @@ namespace MaCamp
             await CampingServices.BaixarCampings();
         }
 
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new SplashScreen(typeof(RootPage)));
+        }
+
         protected override void OnStart()
         {
             //Task.Run(() => new OneSignalServices(AppConstants.ONESIGNAL_APP_ID).InicializarOneSignal());
@@ -102,39 +107,34 @@ namespace MaCamp
         /// </summary>
         private void CarregarTamanhoTela()
         {
-            if (GetValue(Window.HeightProperty) is int height)
-            {
-                SCREEN_HEIGHT = height;
-            }
+            var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
 
-            if (GetValue(Window.WidthProperty) is int width)
-            {
-                SCREEN_WIDTH = width;
-            }
+            SCREEN_HEIGHT = Convert.ToInt32(displayInfo.Height / displayInfo.Density);
+            SCREEN_WIDTH = Convert.ToInt32(displayInfo.Width / displayInfo.Density);
         }
 
         public static async void ExibirNotificacaoPush()
         {
-            var sqliteConnection = DBContract.NewInstance();
-            var tituloPush = sqliteConnection.ObterValorChave(AppConstants.ChaveTituloNotificacao);
-            var mensagemPush = sqliteConnection.ObterValorChave(AppConstants.ChaveMensagemNotificacao);
-            var itemPush = sqliteConnection.ObterValorChave(AppConstants.ChaveIdItemNotificacao);
+            var sqliteConnection = DBContract.Instance;
+            var tituloPush = sqliteConnection.ObterValorChave(AppConstants.Chave_TituloNotificacao);
+            var mensagemPush = sqliteConnection.ObterValorChave(AppConstants.Chave_MensagemNotificacao);
+            var itemPush = sqliteConnection.ObterValorChave(AppConstants.Chave_IdItemNotificacao);
 
             sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
             {
-                Chave = AppConstants.ChaveTituloNotificacao,
+                Chave = AppConstants.Chave_TituloNotificacao,
                 Valor = null
             });
 
             sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
             {
-                Chave = AppConstants.ChaveMensagemNotificacao,
+                Chave = AppConstants.Chave_MensagemNotificacao,
                 Valor = null
             });
 
             sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
             {
-                Chave = AppConstants.ChaveIdItemNotificacao,
+                Chave = AppConstants.Chave_IdItemNotificacao,
                 Valor = null
             });
 
@@ -183,8 +183,8 @@ namespace MaCamp
 
         public static bool BaixarUltimaVersaoConteudo()
         {
-            var sqliteConnection = DBContract.NewInstance();
-            var dataUltimaAtualizacao = sqliteConnection.ObterValorChave(AppConstants.ChaveDataUltimaAtualizacaoConteudo);
+            var sqliteConnection = DBContract.Instance;
+            var dataUltimaAtualizacao = sqliteConnection.ObterValorChave(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
             var formato = "yyyy/MM/dd";
 
             if (DateTime.TryParseExact(dataUltimaAtualizacao, formato, CultureInfo.InvariantCulture, DateTimeStyles.None, out var data))

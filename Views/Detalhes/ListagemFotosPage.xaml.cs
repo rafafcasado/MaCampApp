@@ -1,4 +1,5 @@
 ﻿using FFImageLoading.Maui;
+using MaCamp.Models.Services;
 
 namespace MaCamp.Views.Detalhes
 {
@@ -9,17 +10,20 @@ namespace MaCamp.Views.Detalhes
             InitializeComponent();
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Listagem de fotos ");
-            grContent.ColumnDefinitions.Add(new ColumnDefinition
-            {
-                Width = GridLength.Star
-            });
 
             grContent.ColumnDefinitions.Add(new ColumnDefinition
             {
                 Width = GridLength.Star
             });
 
-            if (urlsFotos.Count() == 1)
+            grContent.ColumnDefinitions.Add(new ColumnDefinition
+            {
+                Width = GridLength.Star
+            });
+
+            var enumerable = urlsFotos.ToList();
+
+            if (enumerable.Count == 1)
             {
                 grContent.RowDefinitions.Add(new RowDefinition
                 {
@@ -28,7 +32,7 @@ namespace MaCamp.Views.Detalhes
             }
             else
             {
-                for (var i = 0; i < urlsFotos.Count() / 2; i++)
+                for (var i = 0; i < enumerable.Count / 2; i++)
                 {
                     grContent.RowDefinitions.Add(new RowDefinition
                     {
@@ -37,18 +41,17 @@ namespace MaCamp.Views.Detalhes
                 }
             }
 
-            int linha = 0, coluna = 0;
+            var linha = 0;
+            var coluna = 0;
 
-            foreach (var url in urlsFotos)
+            foreach (var url in enumerable)
             {
-                var urlTemp = Models.Services.CampingServices.MontarUrlImagemTemporaria(url);
-
+                var urlTemp = CampingServices.MontarUrlImagemTemporaria(url);
                 var imagem = new CachedImage
                 {
                     Source = urlTemp, HeightRequest = 240, DownsampleHeight = 300, Aspect = Aspect.AspectFill,
                     LoadingPlaceholder = "placeholder.jpg"
                 };
-
                 var abrirFoto = new TapGestureRecognizer();
 
                 abrirFoto.Tapped += async (s, e) =>
@@ -57,11 +60,13 @@ namespace MaCamp.Views.Detalhes
                 };
 
                 imagem.GestureRecognizers.Add(abrirFoto);
+
                 Grid.SetColumn(imagem, coluna);
                 Grid.SetRow(imagem, linha);
 
                 //flContent.Children.Add(imagem);
                 grContent.Children.Add(imagem);
+
                 coluna++;
 
                 if (coluna > 1)

@@ -12,32 +12,27 @@ namespace MaCamp.Views.Popups
         public MensagemPopupPage(string mensagem, bool? sucesso = null)
         {
             InitializeComponent();
+
             lbMensagem.Text = mensagem;
 
             if (sucesso.HasValue)
             {
-                if (sucesso.Value)
-                {
-                    frMensagem.BackgroundColor = Color.FromArgb("#43A047");
-                    frMensagem.Stroke = new SolidColorBrush(Color.FromArgb("#43A047"));
-                }
-                else
-                {
-                    frMensagem.BackgroundColor = Color.FromArgb("#B91919");
-                    frMensagem.Stroke = new SolidColorBrush(Color.FromArgb("#B91919"));
-                }
+                frMensagem.BackgroundColor = Color.FromArgb(sucesso.Value ? "#43A047" : "#B91919");
+                frMensagem.Stroke = new SolidColorBrush(Color.FromArgb(sucesso.Value ? "#43A047" : "#B91919"));
             }
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+
             await HidePopup();
         }
 
         private async Task HidePopup()
         {
             await Task.Delay(4000);
+
             Navigation.RemovePage(this);
         }
     }

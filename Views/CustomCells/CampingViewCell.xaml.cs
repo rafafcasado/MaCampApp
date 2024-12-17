@@ -1,81 +1,53 @@
 ﻿using MaCamp.Models;
+using MaCamp.Models.Services;
 
 namespace MaCamp.Views.CustomCells
 {
     public partial class CampingViewCell : ViewCell
     {
-        private Item? ItemAtual;
+        private Item? ItemAtual { get; set; }
 
         public CampingViewCell()
         {
             InitializeComponent();
+
             imItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
             imItem.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
 
             imIconeTipo1.Error += delegate
             {
-                Dispatcher.Dispatch(() =>
-                {
-                    imIconeTipo1.IsVisible = false;
-                });
+                Dispatcher.Dispatch(() => imIconeTipo1.IsVisible = false);
             };
 
             imIconeTipo2.Error += delegate
             {
-                Dispatcher.Dispatch(() =>
-                {
-                    imIconeTipo2.IsVisible = false;
-                });
+                Dispatcher.Dispatch(() => imIconeTipo2.IsVisible = false);
             };
 
             imIconeTipo1.Success += delegate
             {
-                Dispatcher.Dispatch(() =>
-                {
-                    imIconeTipo1.IsVisible = true;
-                });
+                Dispatcher.Dispatch(() => imIconeTipo1.IsVisible = true);
             };
 
             imIconeTipo2.Success += delegate
             {
-                Dispatcher.Dispatch(() =>
-                {
-                    imIconeTipo2.IsVisible = true;
-                });
+                Dispatcher.Dispatch(() => imIconeTipo2.IsVisible = true);
             };
         }
 
         protected override void OnBindingContextChanged()
         {
-            ItemAtual = BindingContext as Item;
-
-            if (ItemAtual == null)
+            if (BindingContext is Item itemAtual)
             {
-                return;
-            }
+                ItemAtual = itemAtual;
+                imItem.Source = string.IsNullOrWhiteSpace(itemAtual.LinkUltimaFoto) ? "placeholder.jpg" : CampingServices.MontarUrlImagemTemporaria(itemAtual.LinkUltimaFoto);
+                imDirecoes.IsVisible = (itemAtual.Latitude != 0) & (itemAtual.Longitude != 0);
 
-            if (string.IsNullOrWhiteSpace(ItemAtual.LinkUltimaFoto))
-            {
-                imItem.Source = "placeholder.jpg";
-            }
-            else
-            {
-                imItem.Source = Models.Services.CampingServices.MontarUrlImagemTemporaria(ItemAtual.LinkUltimaFoto);
-            }
+                Task.Run(() => CalcularDistancia());
+                Task.Run(() => ExibirEstrelasETipos());
 
-            if ((ItemAtual.Latitude != 0) & (ItemAtual.Longitude != 0))
-            {
-                imDirecoes.IsVisible = true;
+                base.OnBindingContextChanged();
             }
-            else
-            {
-                imDirecoes.IsVisible = false;
-            }
-
-            Task.Run(() => CalcularDistancia());
-            Task.Run(() => ExibirEstrelasETipos());
-
-            base.OnBindingContextChanged();
         }
 
         private void ExibirEstrelasETipos()

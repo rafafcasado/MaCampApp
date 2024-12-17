@@ -1,4 +1,5 @@
-﻿using MaCamp.AppSettings;
+﻿using System.Diagnostics;
+using MaCamp.AppSettings;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
 
@@ -9,6 +10,7 @@ namespace MaCamp.Views.Campings
         public CampingsPage()
         {
             InitializeComponent();
+
             Title = "Campings";
 
             // ToolbarItems.Add(new ToolbarItem("Buscar campings", "icone_busca.png", async () =>
@@ -17,9 +19,9 @@ namespace MaCamp.Views.Campings
             //}));
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Página do Camping: ");
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MensagemExibirBuscaCampings);
+            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_ExibirBuscaCampings);
 
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MensagemExibirBuscaCampings, (r) =>
+            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_ExibirBuscaCampings, r =>
             {
                 Dispatcher.Dispatch(() =>
                 {
@@ -27,11 +29,11 @@ namespace MaCamp.Views.Campings
                 });
             });
 
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MensagemBuscaRealizada);
+            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada);
 
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MensagemBuscaRealizada, (r) =>
+            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada, r =>
             {
-                DBContract.NewInstance().InserirOuSubstituirModelo(new ChaveValor("BUSCA_INICIAL_REALIZADA", "true", TipoChave.ControleInterno));
+                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor("BUSCA_INICIAL_REALIZADA", "true", TipoChave.ControleInterno));
 
                 Dispatcher.Dispatch(() =>
                 {
@@ -45,7 +47,7 @@ namespace MaCamp.Views.Campings
 
         private void CarregarConteudo()
         {
-            var buscaInicialRealizada = DBContract.NewInstance().ObterValorChave("BUSCA_INICIAL_REALIZADA");
+            var buscaInicialRealizada = DBContract.Instance.ObterValorChave("BUSCA_INICIAL_REALIZADA");
 
             if (buscaInicialRealizada != null)
             {
@@ -55,7 +57,7 @@ namespace MaCamp.Views.Campings
             {
                 var valorEstabelecimentos = "Campings,PontodeApoioaRV`s,CampingSelvagem/WildCamping/Bushcfaft,SemFunçãoCamping/ApoioouFechado";
 
-                DBContract.NewInstance().InserirOuSubstituirModelo(new ChaveValor
+                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = "FILTROS_ESTABELECIMENTO_SELECIONADOS",
                     Valor = valorEstabelecimentos
@@ -76,16 +78,19 @@ namespace MaCamp.Views.Campings
                         Text = "O primeiro acesso requer conexão com a internet.\n\n", FontAttributes = FontAttributes.Bold,
                         FontSize = 20
                     });
-
                     fs.Spans.Add(new Span
                     {
-                        Text = "Verifique sua conexão e toque para tentar novamente."
+                        Text = AppConstants.Descricao_SemInternet
                     });
 
                     lbMensagemAviso.FormattedText = fs;
+
                     var carregarNovamente = new TapGestureRecognizer();
+
                     carregarNovamente.Tapped += (s, e) => CarregarConteudo();
+
                     lbMensagemAviso.GestureRecognizers.Add(carregarNovamente);
+
                     BackgroundColor = Color.FromArgb("#E4E4E4");
                     cvContent.Content = lbMensagemAviso;
 
@@ -125,7 +130,7 @@ namespace MaCamp.Views.Campings
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
         }
     }

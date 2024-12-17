@@ -13,6 +13,7 @@ namespace MaCamp.Views.Campings
         public MapaPage(bool usarFiltros = true)
         {
             InitializeComponent();
+
             Title = "Mapa";
             NavigationPage.SetBackButtonTitle(this, "");
 
@@ -126,14 +127,18 @@ namespace MaCamp.Views.Campings
             {
                 IsShowingUser = true
             };
-
             var identificadoresPermitidos = new List<string>
             {
-                "campingemreformas", "empresa", "destaque", "campinginformal", "campingemsituacaoincerta",
-                "pontodeapoioarvs", "campingselvagemwildcampingbushcraft", "semfuncaocampingapoiooufechado",
+                "campingemreformas",
+                "empresa",
+                "destaque",
+                "campinginformal",
+                "campingemsituacaoincerta",
+                "pontodeapoioarvs",
+                "campingselvagemwildcampingbushcraft",
+                "semfuncaocampingapoiooufechado",
                 "campingemfuncionamento"
             };
-
             var positionsCampings = new List<Location>();
 
             foreach (var item in itens)
@@ -164,7 +169,7 @@ namespace MaCamp.Views.Campings
                 }
             }
 
-            //var valorChaveEstadoSelecionado = DBContract.NewInstance().ObterValorChave("FILTROS_ESTADO_SELECIONADO");
+            //var valorChaveEstadoSelecionado = DBContract.Instance.ObterValorChave("FILTROS_ESTADO_SELECIONADO");
 
             //if (valorChaveEstadoSelecionado != null && valorChaveEstadoSelecionado != null)
             //{

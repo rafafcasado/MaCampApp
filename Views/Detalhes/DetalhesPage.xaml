@@ -71,7 +71,7 @@
                     VerticalOptions="FillAndExpand">
 
                     <!--<Label x:Name="lbDescricao" Type="Html" VerticalOptions="Start" />-->
-                    <local:CustomWebView
+                    <WebView
                         x:Name="wvDetalhes"
                         IsVisible="True"
                         VerticalOptions="FillAndExpand" />

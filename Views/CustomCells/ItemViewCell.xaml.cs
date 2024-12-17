@@ -1,5 +1,6 @@
 ﻿using MaCamp.AppSettings;
 using MaCamp.Models;
+using MaCamp.Models.Services;
 
 namespace MaCamp.Views.CustomCells
 {
@@ -11,7 +12,7 @@ namespace MaCamp.Views.CustomCells
         {
             InitializeComponent();
 
-            imItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
+            //imItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
             imItem.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
             //imPlay.HeightRequest = App.SCREEN_HEIGHT / 10;
         }
@@ -27,9 +28,11 @@ namespace MaCamp.Views.CustomCells
                     testeLabel.IsVisible = false;
                 }
 
-                if (itemAtual.image != null && itemAtual.image.Contains(AppConstants.UrlDominioOficial))
+                if (itemAtual.image != null && itemAtual.image.Contains(AppConstants.Url_DominioOficial))
                 {
-                    imItem.Source = Models.Services.CampingServices.MontarUrlImagemTemporaria(itemAtual.image);
+                    var urlImagem = CampingServices.MontarUrlImagemTemporaria(itemAtual.image);
+
+                    imItem.Source = urlImagem;
                 }
 
                 grFoto.IsVisible = !string.IsNullOrWhiteSpace(itemAtual.image);

@@ -159,5 +159,21 @@ namespace MaCamp.AppSettings
             // Move o mapa para a região calculada
             map.MoveToRegion(region);
         }
+
+        public static Task ColorTo(this VisualElement self, Color fromColor, Color toColor, Action<Color> callback, uint duration)
+        {
+            var animation = new Animation(v =>
+            {
+                var red = Convert.ToSingle(fromColor.Red + (toColor.Red - fromColor.Red) * v);
+                var green = Convert.ToSingle(fromColor.Green + (toColor.Green - fromColor.Green) * v);
+                var blue = Convert.ToSingle(fromColor.Blue + (toColor.Blue - fromColor.Blue) * v);
+                var alpha = Convert.ToSingle(fromColor.Alpha + (toColor.Alpha - fromColor.Alpha) * v);
+
+                callback(new Color(red, green, blue, alpha));
+            });
+
+            return Task.Run(() => self.Animate("ColorTo", animation, 16, duration, Easing.Linear));
+        }
+
     }
 }

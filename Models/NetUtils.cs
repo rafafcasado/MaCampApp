@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace MaCamp.Models
@@ -16,7 +17,7 @@ namespace MaCamp.Models
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("FALHOU: " + e.ToString());
+                Debug.WriteLine("FALHOU: " + e);
             }
 
             return string.Empty;

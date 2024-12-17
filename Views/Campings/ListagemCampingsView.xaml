@@ -31,7 +31,6 @@
                     Text="Obs: Após este primeiro carregamento, os campings estarão disponíveis de forma off-line para consulta."
                     TextColor="{DynamicResource CorTextoMenuLateral}"
                     VerticalOptions="CenterAndExpand" />
-
             </StackLayout>
 
             <ActivityIndicator
@@ -54,6 +53,7 @@
                     FontSize="Medium"
                     HorizontalTextAlignment="Center"
                     TextColor="{DynamicResource CorTextoMenuLateral}">
+
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer
                             Tapped="RecarregarConteudo" />
@@ -170,6 +170,7 @@
                     <Grid
                         x:Name="grFiltroMapa"
                         Padding="0,5">
+
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition
                                 Width="*" />

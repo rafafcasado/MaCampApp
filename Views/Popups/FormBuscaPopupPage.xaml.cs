@@ -10,8 +10,8 @@ namespace MaCamp.Views.Popups
         {
             InitializeComponent();
 
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MensagemBuscaRealizada);
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MensagemBuscaRealizada, async (r) =>
+            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada);
+            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada, async r =>
             {
                 await Navigation.PopPopupAsync();
             });
@@ -19,6 +19,7 @@ namespace MaCamp.Views.Popups
             var fecharPopup = new TapGestureRecognizer();
 
             fecharPopup.Tapped += btFechar_Clicked;
+
             imFechar.GestureRecognizers.Add(fecharPopup);
         }
 
@@ -26,7 +27,7 @@ namespace MaCamp.Views.Popups
         {
             base.OnDisappearing();
 
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MensagemBuscaRealizada);
+            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada);
         }
 
         private async void btFechar_Clicked(object? sender, EventArgs e)

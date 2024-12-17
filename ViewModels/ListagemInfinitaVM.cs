@@ -15,7 +15,7 @@ namespace MaCamp.ViewModels
 
         public ListagemInfinitaVM()
         {
-            DB = DBContract.NewInstance();
+            DB = DBContract.Instance;
             Itens = new ObservableCollection<Item>();
             WebService = new WebService<Item>();
         }
@@ -44,7 +44,7 @@ namespace MaCamp.ViewModels
                 var idLocal = Itens.Count;
                 var anuncios = (await AnuncioDA.ObterAnuncios(pagina == 1)).Where(a => a.Tipo == TipoAnuncio.Nativo).ToList();
 
-                listaItensCampings.ForEach(item =>
+                listaItensCampings.Take(3).ForEach(item =>
                 {
                     item.IdLocal = ++idLocal;
                     Itens.Add(item);

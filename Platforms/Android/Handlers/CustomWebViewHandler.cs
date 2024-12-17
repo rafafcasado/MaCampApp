@@ -14,6 +14,7 @@ namespace MaCamp.Handlers
         protected override WebView CreatePlatformView()
         {
             NativeWebView = new WebView(Context);
+
             NativeWebView.SetWebViewClient(new ExtendedWebViewClient(this));
             NativeWebView.SetWebChromeClient(new ExtendedWebChromeClient());
 

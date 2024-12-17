@@ -10,6 +10,7 @@ namespace MaCamp.Views
         public TipoEstabelecimentoView(List<ItemIdentificador> identificadores)
         {
             InitializeComponent();
+
             var tipos = identificadores.Where(x => x.Opcao == 0).ToList();
             var tamanhoIcone = DeviceInfo.Platform == DevicePlatform.iOS ? 15 : 20;
             var tamanhoFonte = DeviceInfo.Platform == DevicePlatform.iOS ? 10 : 13;
@@ -51,10 +52,14 @@ namespace MaCamp.Views
 
                 slTipo.Children.Add(icone);
                 slTipo.Children.Add(lbNome);
+
                 frTipo.Content = slTipo;
+
                 Grid.SetColumn(frTipo, coluna);
                 Grid.SetRow(frTipo, linha);
+
                 flTipos.Children.Add(frTipo);
+
                 coluna++;
 
                 if (coluna == 2)

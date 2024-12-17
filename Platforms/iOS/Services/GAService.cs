@@ -14,11 +14,6 @@ namespace MaCamp.Platforms.iOS.Services
         const string AllowTrackingKey = "AllowTracking";
         private static GAService? thisRef;
 
-        public GAService()
-        {
-            // no code req'd
-        }
-
         public static GAService? GetGASInstance()
         {
             if (thisRef == null)

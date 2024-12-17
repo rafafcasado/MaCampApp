@@ -7,6 +7,7 @@ namespace MaCamp.Views.Popups
         public LoadingPopupPage(Color corLoader)
         {
             InitializeComponent();
+
             loader.Color = corLoader;
         }
 

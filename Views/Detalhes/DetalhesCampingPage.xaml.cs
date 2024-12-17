@@ -2,6 +2,7 @@
 using MaCamp.AppSettings;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
+using MaCamp.Models.Services;
 
 namespace MaCamp.Views.Detalhes
 {
@@ -12,19 +13,22 @@ namespace MaCamp.Views.Detalhes
         public DetalhesCampingPage(Item item)
         {
             InitializeComponent();
-            Title = AppConstants.NomeApp;
+
             NavigationPage.SetBackButtonTitle(this, string.Empty);
+
+            Title = AppConstants.NomeApp;
             ItemAtual = item;
             BindingContext = ItemAtual;
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Detalhes - " + item.Nome);
+
             if (!string.IsNullOrWhiteSpace(item.LinkUltimaFoto))
             {
                 imgFotoItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
                 imgFotoItem.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
 
                 //imgFotoItem.Source = item.LinkUltimaFoto;
-                imgFotoItem.Source = Models.Services.CampingServices.MontarUrlImagemTemporaria(item.LinkUltimaFoto);
+                imgFotoItem.Source = CampingServices.MontarUrlImagemTemporaria(item.LinkUltimaFoto);
 
                 //imgFotoItem.Source = "https://img.freepik.com/fotos-premium/cachorro-andando-na-rua_41691-381.jpg?w=1380";
 
@@ -52,7 +56,7 @@ namespace MaCamp.Views.Detalhes
 
             lbTitulo.Text = item.Nome?.ToUpper() ?? string.Empty;
 
-            Task.Delay(500).ContinueWith((r) =>
+            Task.Delay(500).ContinueWith(r =>
             {
                 if (item.Descricao != null)
                 {
@@ -69,7 +73,18 @@ namespace MaCamp.Views.Detalhes
             });
 
             ConfigurarToolbar(item);
+
             var abrirMapa = new TapGestureRecognizer();
+            var abrirSite = new TapGestureRecognizer();
+            var abrirPreco = new TapGestureRecognizer();
+            var abrirFacebook = new TapGestureRecognizer();
+            var abrirInstragram = new TapGestureRecognizer();
+            var abrirYoutube = new TapGestureRecognizer();
+            var abrirEmail = new TapGestureRecognizer();
+            var abrirTelefone = new TapGestureRecognizer();
+            var abrirTelefone2 = new TapGestureRecognizer();
+            var abrirTelefone3 = new TapGestureRecognizer();
+            var abrirTelefone4 = new TapGestureRecognizer();
 
             if (item.Latitude == 0 && item.Longitude == 0)
             {
@@ -88,106 +103,27 @@ namespace MaCamp.Views.Detalhes
                 };
             }
 
+            abrirSite.Tapped += (s, e) => AbrirURI2(s, ItemAtual.Site);
+            abrirPreco.Tapped += (s, e) => AbrirURI2(s, ItemAtual.LinkPrecos);
+            abrirFacebook.Tapped += (s, e) => AbrirURI2(s, ItemAtual.Facebook);
+            abrirInstragram.Tapped += (s, e) => AbrirURI2(s, ItemAtual.Instagram);
+            abrirYoutube.Tapped += (s, e) => AbrirURI2(s, ItemAtual.Youtube);
+            abrirEmail.Tapped += (s, e) => AbrirMail2(s, ItemAtual.Email);
+            abrirTelefone.Tapped += (s, e) => AbrirTelefone2(s, ItemAtual.Telefone);
+            abrirTelefone2.Tapped += (s, e) => AbrirTelefone2(s, ItemAtual.Telefone2);
+            abrirTelefone3.Tapped += (s, e) => AbrirTelefone2(s, ItemAtual.Telefone3);
+            abrirTelefone4.Tapped += (s, e) => AbrirTelefone2(s, ItemAtual.Telefone4);
+
             slEndereco.GestureRecognizers.Add(abrirMapa);
-            var abrirSite = new TapGestureRecognizer();
-
-            {
-                abrirSite.Tapped += (s, e) =>
-                {
-                    AbrirURI2(s, ItemAtual.Site);
-                };
-            }
-
             slSite.GestureRecognizers.Add(abrirSite);
-            var abrirPreco = new TapGestureRecognizer();
-
-            {
-                abrirPreco.Tapped += (s, e) =>
-                {
-                    AbrirURI2(s, ItemAtual.LinkPrecos);
-                };
-            }
-
             slPreco.GestureRecognizers.Add(abrirPreco);
-            var abrirFacebook = new TapGestureRecognizer();
-
-            {
-                abrirFacebook.Tapped += (s, e) =>
-                {
-                    AbrirURI2(s, ItemAtual.Facebook);
-                };
-            }
-
             slFacebook.GestureRecognizers.Add(abrirFacebook);
-            var abrirInstragram = new TapGestureRecognizer();
-
-            {
-                abrirInstragram.Tapped += (s, e) =>
-                {
-                    AbrirURI2(s, ItemAtual.Instagram);
-                };
-            }
-
             slInstagram.GestureRecognizers.Add(abrirInstragram);
-            var abrirYoutube = new TapGestureRecognizer();
-
-            {
-                abrirYoutube.Tapped += (s, e) =>
-                {
-                    AbrirURI2(s, ItemAtual.Youtube);
-                };
-            }
-
             slYoutube.GestureRecognizers.Add(abrirYoutube);
-            var abrirEmail = new TapGestureRecognizer();
-
-            {
-                abrirEmail.Tapped += (s, e) =>
-                {
-                    AbrirMail2(s, ItemAtual.Email);
-                };
-            }
-
             slEmail.GestureRecognizers.Add(abrirEmail);
-            var abrirTelefone = new TapGestureRecognizer();
-
-            {
-                abrirTelefone.Tapped += (s, e) =>
-                {
-                    AbrirTelefone2(s, ItemAtual.Telefone);
-                };
-            }
-
             slTelefone1.GestureRecognizers.Add(abrirTelefone);
-            var abrirTelefone2 = new TapGestureRecognizer();
-
-            {
-                abrirTelefone2.Tapped += (s, e) =>
-                {
-                    AbrirTelefone2(s, ItemAtual.Telefone2);
-                };
-            }
-
             slTelefone2.GestureRecognizers.Add(abrirTelefone2);
-            var abrirTelefone3 = new TapGestureRecognizer();
-
-            {
-                abrirTelefone3.Tapped += (s, e) =>
-                {
-                    AbrirTelefone2(s, ItemAtual.Telefone3);
-                };
-            }
-
             slTelefone3.GestureRecognizers.Add(abrirTelefone3);
-            var abrirTelefone4 = new TapGestureRecognizer();
-
-            {
-                abrirTelefone4.Tapped += (s, e) =>
-                {
-                    AbrirTelefone2(s, ItemAtual.Telefone4);
-                };
-            }
-
             slTelefone4.GestureRecognizers.Add(abrirTelefone4);
         }
 
@@ -203,10 +139,10 @@ namespace MaCamp.Views.Detalhes
                 {
                     item.Favoritado = true;
 
-                    DBContract.NewInstance().InserirOuSubstituirModelo(item);
+                    DBContract.Instance.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
-                    //MessagingCenter.Send(Application.Current, AppConstants.MensagemAtualizarListagemFavoritos);
+                    //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
                 }));
             }
             else
@@ -217,10 +153,10 @@ namespace MaCamp.Views.Detalhes
                 {
                     item.Favoritado = false;
 
-                    DBContract.NewInstance().InserirOuSubstituirModelo(item);
+                    DBContract.Instance.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
-                    //MessagingCenter.Send(Application.Current, AppConstants.MensagemAtualizarListagemFavoritos);
+                    //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
                 }));
             }
 
@@ -349,7 +285,7 @@ namespace MaCamp.Views.Detalhes
 
         protected void GoToSO(object sender, EventArgs e)
         {
-            Launcher.TryOpenAsync(AppConstants.UrlTermoUso);
+            Launcher.TryOpenAsync(AppConstants.Url_TermoUso);
         }
     }
 }

@@ -6,7 +6,7 @@
         {
             var grid = new Grid();
 
-            var contentView = new ContentView()
+            var contentView = new ContentView
             {
                 Padding = 20,
                 HorizontalOptions = LayoutOptions.Start,

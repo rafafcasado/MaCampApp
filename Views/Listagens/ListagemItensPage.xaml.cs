@@ -13,6 +13,7 @@ namespace MaCamp.Views.Listagens
         public ListagemItensPage()
         {
             InitializeComponent();
+
             Title = AppLanguage.Titulo_Favoritos;
 
             Appearing += (sender, e) =>
@@ -32,6 +33,7 @@ namespace MaCamp.Views.Listagens
         public ListagemItensPage(string endpoint, string? nome, TipoListagem tipoListagem = TipoListagem.Noticias, string tag = "")
         {
             InitializeComponent();
+
             Title = nome;
 
             Appearing += (sender, e) =>
@@ -44,9 +46,10 @@ namespace MaCamp.Views.Listagens
             if (tipoListagem == TipoListagem.Camping)
             {
                 cvListagemItens.Content = new ListagemCampingsView(endpoint);
-                MessagingCenter.Unsubscribe<Application>(this, AppConstants.MensagemAtualizarListagemCampings);
 
-                MessagingCenter.Subscribe<Application>(this, AppConstants.MensagemAtualizarListagemCampings, (s) =>
+                MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_AtualizarListagemCampings);
+
+                MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_AtualizarListagemCampings, s =>
                 {
                     cvListagemItens.Content = new ListagemCampingsView(endpoint);
                 });

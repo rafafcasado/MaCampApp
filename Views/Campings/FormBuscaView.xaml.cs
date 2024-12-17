@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using MaCamp.AppSettings;
 using MaCamp.Models;
@@ -24,7 +25,7 @@ namespace MaCamp.Views.Campings
             ParametroTODAS = " - TODAS - ";
             ParametroTODOS = " - TODOS - ";
             //CampingsTodos = " ";
-            DB = DBContract.NewInstance();
+            DB = DBContract.Instance;
 
             Task.Run(() =>
             {
@@ -70,7 +71,7 @@ namespace MaCamp.Views.Campings
 
                 try
                 {
-                    var jsonCidades = await client.GetStringAsync(AppConstants.UrlListaCidades);
+                    var jsonCidades = await client.GetStringAsync(AppConstants.Url_ListaCidades);
                     cidadesWS = JsonConvert.DeserializeObject<List<Cidade>>(jsonCidades)?.Where(x => x.Estado != null && !x.Estado.Contains("_")).ToList() ?? new List<Cidade>();
                 }
                 catch (Exception ex)
@@ -153,7 +154,7 @@ namespace MaCamp.Views.Campings
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
 
             loader.IsVisible = loader.IsRunning = false;
@@ -185,7 +186,7 @@ namespace MaCamp.Views.Campings
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Usar minha localização", "Buscando campings próximos");
 
-            //MessagingCenter.Send(Application.Current, AppConstants.MensagemBuscaRealizada);
+            //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
         }
 
         private void btBuscar_Clicked(object sender, EventArgs e)
@@ -218,7 +219,7 @@ namespace MaCamp.Views.Campings
 
             pkUF.SelectedItem = null;
 
-            //MessagingCenter.Send(Application.Current, AppConstants.MensagemBuscaRealizada);
+            //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
         }
 
         private string RemoveDiacritics(string text)

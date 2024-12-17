@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-
-  <style name="MainTheme" parent="MainTheme.Base">
-  </style>
   <!-- Base theme applied no matter what API -->
-  <style name="MainTheme.Base" parent="Theme.MaterialComponents.Light.DarkActionBar">
+  <style name="Theme.Main" parent="Theme.MaterialComponents.Light.DarkActionBar">
     <!--If you are using revision 22.1 please use just windowNoTitle. Without android:-->
     <item name="windowNoTitle">true</item>
     <!--We will be using the toolbar so no need to show ActionBar-->
-    <item name="windowActionBar">false</item>
+    <item name="windowActionBar">true</item>
     <!-- Set theme colors from http://www.google.com/design/spec/style/color.html#color-color-palette -->
     <!-- colorPrimary is used for the default action bar background -->
     <item name="colorPrimary">@color/colorPrimary</item>
@@ -20,9 +17,11 @@
     <item name="colorAccent">@color/colorAccent</item>
     <!-- You can also set colorControlNormal, colorControlActivated
          colorControlHighlight and colorSwitchThumbNormal. -->
-    <item name="windowActionModeOverlay">true</item>
+    <item name="windowActionModeOverlay">false</item>
+	<item name="android:windowIsTranslucent">true</item>
+	<item name="android:windowSplashScreenAnimationDuration">0</item>
 
-    <item name="android:datePickerDialogTheme">@style/AppCompatDialogStyle</item>
+	<item name="android:datePickerDialogTheme">@style/AppCompatDialogStyle</item>
   </style>
 
   <style name="AppCompatDialogStyle" parent="Theme.AppCompat.Light.Dialog">

@@ -15,7 +15,7 @@ namespace MaCamp.Views.CustomCells
 
             if (BindingContext is ItemMenu itemMenu)
             {
-                lbTexto.Text = itemMenu.Titulo;
+                lbTexto.Text = itemMenu.Titulo ?? string.Empty;
                 lbTexto.TextColor = Color.FromArgb(itemMenu.HexCorTexto);
             }
         }

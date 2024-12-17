@@ -10,14 +10,15 @@ namespace MaCamp.Views.Detalhes
 {
     public partial class FormularioColaboracaoCampingPage : ContentPage
     {
-        private string NomeDoCamping;
-        private int IdDoCamping;
+        private string NomeDoCamping { get; }
+        private int IdDoCamping { get; }
 
         public FormularioColaboracaoCampingPage(string nomeDoCamping, int idDoCamping)
         {
+            InitializeComponent();
+
             NomeDoCamping = nomeDoCamping;
             IdDoCamping = idDoCamping;
-            InitializeComponent();
 
             try
             {
@@ -38,9 +39,10 @@ namespace MaCamp.Views.Detalhes
         private void DadosColaborador()
         {
             var DB = new DBContract();
-            etEmail.Text = DB.Consultar().Email;
-            etNome.Text = DB.Consultar().Nome;
-            Equipamento.Text = DB.Consultar().Equipamento;
+
+            etEmail.Text = DB.Consultar().Email ?? string.Empty;
+            etNome.Text = DB.Consultar().Nome ?? string.Empty;
+            Equipamento.Text = DB.Consultar().Equipamento ?? string.Empty;
         }
 
         private async void EnviarColaboracao(object sender, EventArgs e)
@@ -79,33 +81,30 @@ namespace MaCamp.Views.Detalhes
                 var DB = new DBContract();
                 DB.InserirOuSubstituirModelo(colaboracao);
                 await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
+                using var client = new HttpClient();
+                var jsonColaboracao = JsonConvert.SerializeObject(colaboracao);
+                var content = new StringContent(jsonColaboracao, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(AppConstants.Url_EnviarEmail, content);
+                await Navigation.PopPopupAsync();
 
-                using (var client = new HttpClient())
+                if (response.IsSuccessStatusCode)
                 {
-                    var jsonColaboracao = JsonConvert.SerializeObject(colaboracao);
-                    var content = new StringContent(jsonColaboracao, Encoding.UTF8, "application/json");
-                    var response = await client.PostAsync(AppConstants.UrlEnviarEmail, content);
-                    await Navigation.PopPopupAsync();
+                    var alert = await DisplayAlert("Colaboração enviada!", "Envie suas fotos para adicionar ao APP MaCamp via whatsapp", "Enviar imagens agora", "Agora não");
 
-                    if (response.IsSuccessStatusCode)
+                    if (alert)
                     {
-                        var alert = await DisplayAlert("Colaboração enviada!", "Envie suas fotos para adicionar ao APP MaCamp via whatsapp", "Enviar imagens agora", "Agora não");
-
-                        if (alert == true)
-                        {
-                            await Launcher.OpenAsync("https://api.whatsapp.com/send?phone=5511950490907&text=ENVIE%20FOTOS%20DAS%20INSTALA%C3%87%C3%95ES%20DO%20CAMPING.%20Evite%20fotos%20de%20galera%2C%20selfies%20e%20de%20crian%C3%A7as.%20N%C3%83O%20ESQUE%C3%87A%20DE%20MENCIONAR%20SEU%20NOME%20E%20%20QUAL%20CAMPING!");
-                        }
-
-                        etNome.Text = string.Empty;
-                        etEmail.Text = string.Empty;
-                        etValorPagoPorDiaria.Text = string.Empty;
-                        Equipamento.Text = string.Empty;
-                        Informacao.Text = string.Empty;
+                        await Launcher.OpenAsync("https://api.whatsapp.com/send?phone=5511950490907&text=ENVIE%20FOTOS%20DAS%20INSTALA%C3%87%C3%95ES%20DO%20CAMPING.%20Evite%20fotos%20de%20galera%2C%20selfies%20e%20de%20crian%C3%A7as.%20N%C3%83O%20ESQUE%C3%87A%20DE%20MENCIONAR%20SEU%20NOME%20E%20%20QUAL%20CAMPING!");
                     }
-                    else
-                    {
-                        await DisplayAlert("Aviso", "Colaboracao não enviada, tente novamente mais tarde.", "OK");
-                    }
+
+                    etNome.Text = string.Empty;
+                    etEmail.Text = string.Empty;
+                    etValorPagoPorDiaria.Text = string.Empty;
+                    Equipamento.Text = string.Empty;
+                    Informacao.Text = string.Empty;
+                }
+                else
+                {
+                    await DisplayAlert("Aviso", "Colaboracao não enviada, tente novamente mais tarde.", "OK");
                 }
             }
             else

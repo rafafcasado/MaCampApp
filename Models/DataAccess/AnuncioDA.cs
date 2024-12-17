@@ -11,7 +11,7 @@ namespace MaCamp.Models.DataAccess
         {
             if (_anuncios.Count == 0 || forcarAtualizacao)
             {
-                _anuncios = await new WebService<Anuncio>().Get(AppConstants.UrlAnuncios, 1);
+                _anuncios = await new WebService<Anuncio>().Get(AppConstants.Url_Anuncios, 1);
             }
 
             return _anuncios;

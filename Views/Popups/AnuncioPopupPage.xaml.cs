@@ -13,6 +13,7 @@ namespace MaCamp.Views.Popups
             var fecharPopup = new TapGestureRecognizer();
 
             anuncioView.Content = new AnuncioView(TipoAnuncio.Popup);
+
             fecharPopup.Tapped += btFechar_Clicked;
 
             //imFechar.GestureRecognizers.Add(fecharPopup);

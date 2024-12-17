@@ -10,9 +10,9 @@ namespace MaCamp.Models.Services
         {
             try
             {
-                var DB = DBContract.NewInstance();
+                var DB = DBContract.Instance;
                 using var client = new HttpClient();
-                var jsonCidades = await client.GetStringAsync(AppConstants.UrlListaCidades);
+                var jsonCidades = await client.GetStringAsync(AppConstants.Url_ListaCidades);
                 var cidadesWS = JsonConvert.DeserializeObject<List<Cidade>>(jsonCidades)?.Where(x => x.Estado != null && !x.Estado.Contains("_")).ToList();
 
                 if (cidadesWS != null)

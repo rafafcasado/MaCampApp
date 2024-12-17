@@ -1,6 +1,7 @@
 ﻿using MaCamp.AppSettings;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
+using MaCamp.Models.Services;
 
 namespace MaCamp.Views.Detalhes
 {
@@ -9,6 +10,7 @@ namespace MaCamp.Views.Detalhes
         public DetalhesPage(Item item)
         {
             InitializeComponent();
+
             Title = AppConstants.NomeApp;
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Detalhes - " + item.Titulo);
@@ -20,7 +22,7 @@ namespace MaCamp.Views.Detalhes
 
                 if (item.URLImagem != null)
                 {
-                    imgFotoItem.Source = Models.Services.CampingServices.MontarUrlImagemTemporaria(item.URLImagem);
+                    imgFotoItem.Source = CampingServices.MontarUrlImagemTemporaria(item.URLImagem);
                 }
 
                 //List<Arquivo> arquivosGaleria = db.BuscarArquivosGaleria(item.IdItem);
@@ -64,7 +66,7 @@ namespace MaCamp.Views.Detalhes
 
                     item.Visualizado = true;
 
-                    DBContract.NewInstance().InserirOuSubstituirModelo(item);
+                    DBContract.Instance.InserirOuSubstituirModelo(item);
                 }
             });
 
@@ -90,6 +92,13 @@ namespace MaCamp.Views.Detalhes
             };
 
             wvDetalhes.Source = htmlSource;
+            wvDetalhes.Loaded += WvDetalhes_Loaded;
+        }
+
+        private void WvDetalhes_Loaded(object? sender, EventArgs e)
+        {
+            progress.IsVisible = false;
+            progress.IsRunning = false;
         }
 
         public static async Task AbrirMapa(string uriArquivoKml)

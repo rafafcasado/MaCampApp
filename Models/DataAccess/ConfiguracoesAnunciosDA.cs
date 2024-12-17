@@ -12,7 +12,7 @@ namespace MaCamp.Models.DataAccess
         {
             if (Configs == null || forcarAtualizacao)
             {
-                var jsonconfigs = await new HttpClient().GetStringAsync(AppConstants.UrlConfiguracoesAnuncios);
+                var jsonconfigs = await new HttpClient().GetStringAsync(AppConstants.Url_ConfiguracoesAnuncios);
                 Configs = JsonConvert.DeserializeObject<ConfiguracoesAnuncios>(jsonconfigs);
             }
 

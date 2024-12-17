@@ -31,6 +31,7 @@ namespace MaCamp.Views.Campings
         public ListagemCampingsView(string endpointListagem, string tag = "", string parametrosBusca = "")
         {
             InitializeComponent();
+
             NavigationPage.SetBackButtonTitle(this, "");
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Listagem de Campings");
@@ -43,12 +44,13 @@ namespace MaCamp.Views.Campings
 
             //lvItens.ItemTemplate = new DataTemplate(typeof(CampingViewCell));
             lvItens.ItemTemplate = new ItemDataTemplateSelector();
+
             lvItens.ItemAppearing += Handle_ItemAppearing;
 
             //lvItens.RefreshCommand = new Command((obj) =>
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MensagemBuscarCampingsAtualizados);
+            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_BuscarCampingsAtualizados);
 
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MensagemBuscarCampingsAtualizados, (s) =>
+            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscarCampingsAtualizados, s =>
             {
                 Task.Run(async () =>
                 {
@@ -110,7 +112,7 @@ namespace MaCamp.Views.Campings
             }
         }
 
-        protected async void Handle_ItemAppearing(object? sender, ItemVisibilityEventArgs e)
+        private async void Handle_ItemAppearing(object? sender, ItemVisibilityEventArgs e)
         {
             if (!esconderPermitido)
             {
@@ -134,11 +136,13 @@ namespace MaCamp.Views.Campings
                 if (!viewFiltroAberta && (itemAtual.IdLocal <= 2 || idUltimoItemExibido > itemAtual.IdLocal))
                 {
                     await slFiltrosEBusca.TranslateTo(0, 0);
+
                     viewFiltroAberta = true;
                 }
                 else if (viewFiltroAberta && itemAtual.IdLocal > 2 && idUltimoItemExibido < itemAtual.IdLocal)
                 {
                     await slFiltrosEBusca.TranslateTo(0, -slFiltrosEBusca.Height);
+
                     viewFiltroAberta = false;
                 }
 
@@ -184,7 +188,7 @@ namespace MaCamp.Views.Campings
             {
                 if (forcandoAtualizacao)
                 {
-                    await AppConstants.CurrentPage.DisplayAlert("Internet não disponível", "Para atualizar a listagem de campings, conecte-se à internet e tente novamente.", "OK");
+                    await AppConstants.CurrentPage.DisplayAlert(AppConstants.Titulo_SemInternet, "Para atualizar a listagem de campings, conecte-se à internet e tente novamente.", "OK");
 
                     return;
                 }
@@ -246,7 +250,7 @@ namespace MaCamp.Views.Campings
 
             Dispatcher.Dispatch(() =>
             {
-                var DB = DBContract.NewInstance();
+                var DB = DBContract.Instance;
                 var valorChaveUsarLocalizacaoUsuario = DB.ObterValorChave("FILTROS_LOCALIZACAO_SELECIONADA");
                 var valorChaveBuscaCamping = DB.ObterValorChave("FILTROS_NOME_DO_CAMPING");
 
@@ -344,7 +348,7 @@ namespace MaCamp.Views.Campings
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                await AppConstants.CurrentPage.DisplayAlert("Este conteúdo requer conexão com a internet", "Verifique sua conexão e/ou tente novamente mais tarde.", "OK");
+                await AppConstants.CurrentPage.DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
 
                 return;
             }

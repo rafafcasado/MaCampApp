@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Text;
 using MaCamp.AppSettings;
 using SQLite;
@@ -7,22 +8,24 @@ namespace MaCamp.Models.DataAccess
 {
     public class DBContract
     {
+        public static DBContract Instance
+        {
+            get
+            {
+                if (DbContract == null)
+                {
+                    DbContract = new DBContract();
+                    Initialize();
+                }
+
+                return DbContract;
+            }
+        }
         public static SQLiteConnection? SqlConnection { get; set; }
 
         private static DBContract? DbContract { get; set; }
         private static object Lock => new object();
         //private static Mutex Mutex => new Mutex();
-
-        public static DBContract NewInstance()
-        {
-            if (DbContract == null)
-            {
-                DbContract = new DBContract();
-                Initialize();
-            }
-
-            return DbContract;
-        }
 
         private static void Initialize()
         {
@@ -56,7 +59,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return 0;
                 }
@@ -90,7 +93,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return 0;
                 }
@@ -120,7 +123,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return 0;
                 }
@@ -150,7 +153,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return null;
                 }
@@ -180,7 +183,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return default;
                 }
@@ -377,7 +380,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return new List<RetornoIdItem>();
                 }
@@ -407,7 +410,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return new List<Item>();
                 }
@@ -450,7 +453,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
                 }
                 //finally
                 //{
@@ -482,7 +485,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception e)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + e);
+                    Debug.WriteLine("<<Exceção>> " + e);
 
                     return new List<Item>();
                 }
@@ -512,7 +515,7 @@ namespace MaCamp.Models.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("<<Exceção>> " + ex);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return new List<ItemIdentificador>();
                 }

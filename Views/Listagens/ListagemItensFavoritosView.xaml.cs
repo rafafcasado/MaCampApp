@@ -11,14 +11,17 @@ namespace MaCamp.Views.Listagens
         public ListagemItensFavoritosView()
         {
             InitializeComponent();
+
             NavigationPage.SetBackButtonTitle(this, "");
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Campings Favoritos");
+
             lvItens.ItemTemplate = new DataTemplate(typeof(CampingViewCell));
-            lvItens.RefreshCommand = new Command((obj) => RecarregarConteudo(null, null));
+            lvItens.RefreshCommand = new Command(obj => RecarregarConteudo(null, null));
+
             Task.Run(() => CarregarConteudo());
 
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MensagemAtualizarListagemFavoritos, (s) =>
+            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_AtualizarListagemFavoritos, s =>
             {
                 RecarregarConteudo(null, null);
             });
@@ -57,7 +60,7 @@ namespace MaCamp.Views.Listagens
 
         private void CarregarConteudo()
         {
-            var itensFavoritos = DBContract.NewInstance().ListarItens(i => i.Favoritado);
+            var itensFavoritos = DBContract.Instance.ListarItens(i => i.Favoritado);
 
             Dispatcher.Dispatch(() =>
             {
