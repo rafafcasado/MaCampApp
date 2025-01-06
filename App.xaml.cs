@@ -47,12 +47,12 @@ namespace MaCamp
                 DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = "FILTROS_SERVICO_SELECIONADOS",
-                    Valor = ""
+                    Valor = string.Empty
                 });
                 DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = "FILTROS_NOME_DO_CAMPING",
-                    Valor = ""
+                    Valor = string.Empty
                 });
             }
 

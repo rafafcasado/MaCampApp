@@ -836,6 +836,7 @@
     <Style
         ApplyToDerivedTypes="True"
         TargetType="Page">
+
         <Setter
             Property="Padding"
             Value="0" />
@@ -848,6 +849,7 @@
     <Style
         ApplyToDerivedTypes="True"
         TargetType="Shell">
+
         <Setter
             Property="Shell.BackgroundColor"
             Value="{AppThemeBinding Light={StaticResource White},

@@ -49,7 +49,8 @@ namespace MaCamp.Views.Menu
                     case TipoAcaoMenu.AbrirBuscaCamping:
                         mainPage.SelectedItem = null;
                         mainPage.SelectedItem = mainPage.Children[0];
-                        //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
+
+                        MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
 
                         break;
                     case TipoAcaoMenu.AbrirNoticias:
@@ -131,7 +132,7 @@ namespace MaCamp.Views.Menu
 
                         mainPage.SelectedItem = mainPage.Children[0];
 
-                        //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscarCampingsAtualizados);
+                        MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscarCampingsAtualizados);
 
                         break;
                     case TipoAcaoMenu.Configuracoes:

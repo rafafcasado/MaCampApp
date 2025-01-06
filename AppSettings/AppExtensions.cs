@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Maui.Maps;
 using Map = Microsoft.Maui.Controls.Maps.Map;
@@ -100,7 +102,7 @@ namespace MaCamp.AppSettings
 
         public static string RemoveSpecialCharacteres(this string value, bool removeSpaces = false)
         {
-            var textoAlterado = "";
+            var textoAlterado = string.Empty;
             var regexPattern = "\\p{P}+";
 
             if (removeSpaces)
@@ -108,7 +110,7 @@ namespace MaCamp.AppSettings
                 regexPattern = "[\\W]";
             }
 
-            var textoSemCaracteresEspeciais = Regex.Replace(value, regexPattern, "");
+            var textoSemCaracteresEspeciais = Regex.Replace(value, regexPattern, string.Empty);
 
             foreach (var charactere in textoSemCaracteresEspeciais)
             {
@@ -175,5 +177,27 @@ namespace MaCamp.AppSettings
             return Task.Run(() => self.Animate("ColorTo", animation, 16, duration, Easing.Linear));
         }
 
+        public static string RemoveDiacritics(this string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return text;
+            }
+
+            var stFormD = text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+
+            foreach (var caracter in stFormD)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(caracter);
+
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(caracter);
+                }
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
     }
 }

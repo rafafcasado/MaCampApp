@@ -130,7 +130,7 @@ namespace MaCamp.Views.Listagens
 
                         tap.Tapped += delegate
                         {
-                            //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
+                            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
 
                             if (AppConstants.CurrentPage is RootPage rootPage && rootPage.Detail is NavigationPage navigationPage && navigationPage.CurrentPage is MainPage mainPage)
                             {

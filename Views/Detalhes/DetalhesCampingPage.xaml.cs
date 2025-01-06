@@ -142,7 +142,7 @@ namespace MaCamp.Views.Detalhes
                     DBContract.Instance.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
-                    //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
                 }));
             }
             else
@@ -156,7 +156,7 @@ namespace MaCamp.Views.Detalhes
                     DBContract.Instance.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
-                    //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
                 }));
             }
 

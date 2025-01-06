@@ -2,7 +2,7 @@
 
 <resources>
   <!-- Base theme applied no matter what API -->
-  <style name="Theme.Main" parent="Theme.MaterialComponents.Light.DarkActionBar">
+  <style name="Theme.Main" parent="Theme.MaterialComponents.Light.NoActionBar">
     <!--If you are using revision 22.1 please use just windowNoTitle. Without android:-->
     <item name="windowNoTitle">true</item>
     <!--We will be using the toolbar so no need to show ActionBar-->
@@ -17,9 +17,12 @@
     <item name="colorAccent">@color/colorAccent</item>
     <!-- You can also set colorControlNormal, colorControlActivated
          colorControlHighlight and colorSwitchThumbNormal. -->
+    <item name="windowActionBarOverlay">true</item>
     <item name="windowActionModeOverlay">false</item>
 	<item name="android:windowIsTranslucent">true</item>
 	<item name="android:windowSplashScreenAnimationDuration">0</item>
+    <item name="android:windowContentOverlay">@null</item>
+    <item name="android:windowBackground">#2ab079</item>
 
 	<item name="android:datePickerDialogTheme">@style/AppCompatDialogStyle</item>
   </style>

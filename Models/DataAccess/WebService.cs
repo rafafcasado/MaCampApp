@@ -16,9 +16,9 @@ namespace MaCamp.Models.DataAccess
         // Page e Limit precisam possuir um valor padrão (não podem ser enviados sem valor)
         private int PAGE_V = 1;
         private static int LIMIT_V => AppConstants.QuantidadeNoticiasPorLote;
-        private string TAG_V = "";
-        private string QUERY_V = "";
-        //private string NIGHTVIEW_V = "";
+        private string TAG_V = string.Empty;
+        private string QUERY_V = string.Empty;
+        //private string NIGHTVIEW_V = string.Empty;
 
         public async Task<List<T>> Get(string endPoint, int pagina, string tag = "", string? parametrosBusca = "")
         {

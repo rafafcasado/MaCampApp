@@ -2,6 +2,7 @@
 using MaCamp.Models;
 using MaCamp.Views.Campings;
 using MaCamp.Views.Listagens;
+using AndroidSpecific = Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
 
 namespace MaCamp.Views
 {
@@ -16,7 +17,13 @@ namespace MaCamp.Views
             // BarItemColor = "#40000000"
             // BarSelectedItemColor = "White"
 
-            NavigationPage.SetBackButtonTitle(this, "");
+            SelectedTabColor = Colors.White;
+            UnselectedTabColor = Colors.Black;
+
+            NavigationPage.SetBackButtonTitle(this, string.Empty);
+
+            AndroidSpecific.TabbedPage.SetToolbarPlacement(this, AndroidSpecific.ToolbarPlacement.Bottom);
+            AndroidSpecific.Application.SetWindowSoftInputModeAdjust(this, AndroidSpecific.WindowSoftInputModeAdjust.Resize);
 
             //if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             //{
@@ -59,6 +66,10 @@ namespace MaCamp.Views
         protected override void OnAppearing()
         {
             base.OnAppearing();
+
+            var value = DeviceInfo.Platform == DevicePlatform.Android ? 34 : 0;
+
+            this.Padding = new Thickness(0, value, 0, value);
 
             App.ExibirNotificacaoPush();
         }

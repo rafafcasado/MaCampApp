@@ -11,7 +11,7 @@ namespace MaCamp.Models.Converters
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return value is bool ? "-" : "";
+            return value is bool ? "-" : string.Empty;
         }
     }
 }

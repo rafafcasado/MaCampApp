@@ -236,7 +236,7 @@ namespace MaCamp.Models.DataAccess
 
         public List<int> ListarIdsCampingsComCategorias(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
         {
-            var queryIdsInCampingsComComodidade = "";
+            var queryIdsInCampingsComComodidade = string.Empty;
 
             if (possuiFiltroComodidades && idsCampingsComComodidades.Count > 0)
             {

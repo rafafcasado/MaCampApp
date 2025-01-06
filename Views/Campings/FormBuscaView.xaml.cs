@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Globalization;
-using System.Text;
 using MaCamp.AppSettings;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
@@ -83,7 +81,6 @@ namespace MaCamp.Views.Campings
             }
 
             var gruposCidadePorUF = cidadesWS.GroupBy(c => c.Estado).ToList();
-
             var estados = new List<string>
             {
                 ParametroTODOS
@@ -186,7 +183,7 @@ namespace MaCamp.Views.Campings
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Usar minha localização", "Buscando campings próximos");
 
-            //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
+            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
         }
 
         private void btBuscar_Clicked(object sender, EventArgs e)
@@ -209,7 +206,7 @@ namespace MaCamp.Views.Campings
                 Valor = "false"
             });
 
-            NomeDoCamping = RemoveDiacritics(etNomeDoCamping.Text);
+            NomeDoCamping = etNomeDoCamping.Text.RemoveDiacritics();
 
             DB.InserirOuSubstituirModelo(new ChaveValor
             {
@@ -219,30 +216,7 @@ namespace MaCamp.Views.Campings
 
             pkUF.SelectedItem = null;
 
-            //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
-        }
-
-        private string RemoveDiacritics(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                return text;
-            }
-
-            var stFormD = text.Normalize(NormalizationForm.FormD);
-            var sb = new StringBuilder();
-
-            foreach (var caracter in stFormD)
-            {
-                var uc = CharUnicodeInfo.GetUnicodeCategory(caracter);
-
-                if (uc != UnicodeCategory.NonSpacingMark)
-                {
-                    sb.Append(caracter);
-                }
-            }
-
-            return sb.ToString().Normalize(NormalizationForm.FormC);
+            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
         }
     }
 }

@@ -395,7 +395,7 @@ namespace MaCamp.Views.Campings
             });
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Filtro Estabelecimentos e Serviços", "Filtrar", valorEstabelecimentos + " - " + valorComodidades);
-            //MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
+            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
 
             await Navigation.PopAsync();
         }
