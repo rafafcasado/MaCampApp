@@ -218,57 +218,43 @@ namespace MaCamp.Views.Campings
                     {
                         case "AceitaBarracas":
                             DeselecionarView(slAceitaBarracas);
-
                             break;
                         case "AceitaRVs":
                             DeselecionarView(slAceitaRVs);
-
                             break;
                         case "PossuiChalesCabanasOuSuites":
                             DeselecionarView(slPossuiChales);
-
                             break;
                         case "AceitaAnimais":
                             DeselecionarView(slAceitaAnimais);
-
                             break;
                         case "Restaurante":
                             DeselecionarView(slRestaurante);
-
                             break;
                         case "ChurrasqueiraCozinha":
                             DeselecionarView(slChurrasqueiraCozinha);
-
                             break;
                         case "TelefoneInternet":
                             DeselecionarView(slTelefoneInternet);
-
                             break;
                         case "Piscina":
                             DeselecionarView(slPiscina);
-
                             break;
                         case "Acessibilidade":
                             DeselecionarView(slAcessibilidade);
-
                             break;
                         case "Transporte":
                             DeselecionarView(slAcessoTransporteColetivo);
-
                             break;
                         case "Esgoto":
                             DeselecionarView(slLocalDetritos);
-
                             break;
                         case "PossuiEnergiaEletrica":
                             DeselecionarView(slEnergiaEletrica);
-
                             break;
                         case "PossuiPraiaProxima":
                             DeselecionarView(slPossuiPraiaProxima);
-
                             break;
-
                             //case "Sanitarios":
                             //    SelecionarView(slBanheiros);
                             //    break;

@@ -93,12 +93,23 @@ namespace MaCamp.Views.Detalhes
 
             wvDetalhes.Source = htmlSource;
             wvDetalhes.Loaded += WvDetalhes_Loaded;
+            wvDetalhes.Navigating += WvDetalhes_Navigating;
         }
 
         private void WvDetalhes_Loaded(object? sender, EventArgs e)
         {
             progress.IsVisible = false;
             progress.IsRunning = false;
+        }
+
+        private async void WvDetalhes_Navigating(object? sender, WebNavigatingEventArgs e)
+        {
+            if (e.Url.StartsWith("http"))
+            {
+                e.Cancel = true;
+
+                await Launcher.OpenAsync(e.Url);
+            }
         }
 
         public static async Task AbrirMapa(string uriArquivoKml)

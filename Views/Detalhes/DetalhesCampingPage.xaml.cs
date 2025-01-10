@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 using MaCamp.AppSettings;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
@@ -238,35 +239,38 @@ namespace MaCamp.Views.Detalhes
             }
         }
 
-        //private void AbrirURI(object sender, TappedEventArgs e)
+        //private async void AbrirURI(object sender, TappedEventArgs e)
         //{
         //    if (e.Parameter is string parameter)
         //    {
-        //        Launcher.TryOpenAsync(parameter);
+        //        await Launcher.TryOpenAsync(parameter);
         //    }
         //}
 
-        private void AbrirURI2(object? sender, string? url)
+        private async void AbrirURI2(object? sender, string? url)
         {
             if (url != null)
             {
-                Launcher.TryOpenAsync(url);
+                await Launcher.TryOpenAsync(url);
             }
         }
 
-        private void AbrirMail2(object? sender, string? email)
+        private async void AbrirMail2(object? sender, string? email)
         {
-            Launcher.TryOpenAsync("mailto:" + email);
+            await Launcher.TryOpenAsync("mailto:" + email);
         }
 
-        //private void AbrirTelefone(object? sender, TappedEventArgs e)
+        //private async void AbrirTelefone(object? sender, TappedEventArgs e)
         //{
-        //    Launcher.TryOpenAsync("tel:" + e.Parameter?.ToString()?.Replace(".", "").Replace("(", "").Replace(")", ""));
+        //    await Launcher.TryOpenAsync("tel:" + e.Parameter?.ToString()?.Replace(".", "").Replace("(", "").Replace(")", ""));
         //}
 
-        private void AbrirTelefone2(object? sender, string? telefone)
+        private async void AbrirTelefone2(object? sender, string? telefone)
         {
-            Launcher.TryOpenAsync("tel:" + telefone?.Replace(".", "").Replace("(", "").Replace(")", ""));
+            if (telefone != null)
+            {
+                await Launcher.TryOpenAsync("tel:" + Regex.Replace(telefone, @"[.\(\)\s]", ""));
+            }
         }
 
         private async void AbrirTelaColaboracao(object sender, EventArgs? e)
@@ -283,9 +287,9 @@ namespace MaCamp.Views.Detalhes
             await DisplayAlert("Coordenadas Copiadas", "Basta colar essa informação no seu aplicativo de mapas favorito.", "Ok");
         }
 
-        protected void GoToSO(object sender, EventArgs e)
+        protected async void GoToSO(object sender, EventArgs e)
         {
-            Launcher.TryOpenAsync(AppConstants.Url_TermoUso);
+            await Launcher.TryOpenAsync(AppConstants.Url_TermoUso);
         }
     }
 }

@@ -71,9 +71,9 @@
                     VerticalOptions="FillAndExpand">
 
                     <!--<Label x:Name="lbDescricao" Type="Html" VerticalOptions="Start" />-->
-                    <WebView
+                    <local:CustomWebView
                         x:Name="wvDetalhes"
-                        IsVisible="True"
+                        HorizontalOptions="FillAndExpand"
                         VerticalOptions="FillAndExpand" />
                     <ActivityIndicator
                         x:Name="progress"

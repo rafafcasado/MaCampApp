@@ -44,7 +44,7 @@ namespace MaCamp.ViewModels
                 var idLocal = Itens.Count;
                 var anuncios = (await AnuncioDA.ObterAnuncios(pagina == 1)).Where(a => a.Tipo == TipoAnuncio.Nativo).ToList();
 
-                listaItensCampings.Take(3).ForEach(item =>
+                listaItensCampings.ForEach(item =>
                 {
                     item.IdLocal = ++idLocal;
                     Itens.Add(item);
@@ -109,7 +109,8 @@ namespace MaCamp.ViewModels
                     {
                         if (countAnuncio == 1)
                         {
-                            var anuncios = (await AnuncioDA.ObterAnuncios(pagina == 1)).Where(a => a.Tipo == TipoAnuncio.Nativo).ToList();
+                            var listaAnuncios = await AnuncioDA.ObterAnuncios(pagina == 1);
+                            var anuncios = listaAnuncios.Where(a => a.Tipo == TipoAnuncio.Nativo).ToList();
 
                             if (anuncios.Count > 0)
                             {

@@ -8,13 +8,24 @@ namespace MaCamp.Handlers
 {
     public partial class CustomWebViewHandler : WebViewHandler
     {
+        public static IPropertyMapper<IWebView, CustomWebViewHandler> CustomMapper =
+        new PropertyMapper<IWebView, CustomWebViewHandler>(WebViewHandler.Mapper)
+        {
+            [nameof(Microsoft.Maui.Controls.WebView.Source)] = MapSource
+        };
+
         private static CustomWebView? CustomWebView { get; set; }
         private WebView? NativeWebView { get; set; }
+
+        public CustomWebViewHandler() : base(CustomMapper)
+        {
+        }
 
         protected override WebView CreatePlatformView()
         {
             NativeWebView = new WebView(Context);
 
+            NativeWebView.Settings.JavaScriptEnabled = true;
             NativeWebView.SetWebViewClient(new ExtendedWebViewClient(this));
             NativeWebView.SetWebChromeClient(new ExtendedWebChromeClient());
 
@@ -28,6 +39,21 @@ namespace MaCamp.Handlers
             if (view is CustomWebView customWebView)
             {
                 CustomWebView = customWebView;
+            }
+        }
+
+        private static void MapSource(CustomWebViewHandler handler, IWebView webView)
+        {
+            if (handler.NativeWebView != null)
+            {
+                if (webView.Source is HtmlWebViewSource htmlSource)
+                {
+                    handler.NativeWebView.LoadDataWithBaseURL(null, htmlSource.Html, "text/html", "utf-8", null);
+                }
+                else if (webView.Source is UrlWebViewSource urlSource)
+                {
+                    handler.NativeWebView.LoadUrl(urlSource.Url);
+                }
             }
         }
 
