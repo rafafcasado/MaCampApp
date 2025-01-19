@@ -410,13 +410,9 @@
     </Style>
 
     <Style
-        TargetType="ListView">
+        TargetType="RefreshView">
         <Setter
-            Property="SeparatorColor"
-            Value="{AppThemeBinding Light={StaticResource Gray200},
-                                    Dark={StaticResource Gray500}}" />
-        <Setter
-            Property="RefreshControlColor"
+            Property="RefreshColor"
             Value="{AppThemeBinding Light={StaticResource Gray900},
                                     Dark={StaticResource Gray200}}" />
     </Style>

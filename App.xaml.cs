@@ -38,7 +38,7 @@ namespace MaCamp
         {
             base.OnHandlerChanged();
 
-            var sqlite = Handler?.MauiContext?.Services.GetService<ISQLite>();
+            var sqlite = Handler.MauiContext?.Services.GetService<ISQLite>();
 
             if (sqlite != null)
             {
@@ -46,12 +46,12 @@ namespace MaCamp
 
                 DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
-                    Chave = "FILTROS_SERVICO_SELECIONADOS",
+                    Chave = AppConstants.Filtro_ServicoSelecionados,
                     Valor = string.Empty
                 });
                 DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
-                    Chave = "FILTROS_NOME_DO_CAMPING",
+                    Chave = AppConstants.Filtro_NomeCamping,
                     Valor = string.Empty
                 });
             }
@@ -151,33 +151,19 @@ namespace MaCamp
                 //    string idLoja = itemPush.Split('_')[0];
                 //    string idPedido = itemPush.Split('_')[1];
 
-                //    Pedido pedido = null;
-                //    using (var client = new HttpClient())
+                //var pedido = NetUtils.GetAsync<Pedido>($"{AppConstants.URL_API}/PedidosAPI/GetPedido?idOS={idPedido}&idLoja={idLoja}");
+
+                //if (pedido != null)
+                //{
+                //    Current?.Dispatcher.Dispatch(async () =>
                 //    {
-                //        try
+                //        bool abrir = await AppConstants.CurrentPage.DisplayAlert($"{tituloPush}", $"{mensagemPush} - Deseja visualizar agora?", "Sim", "N�o");
+                //        if (abrir)
                 //        {
-                //            string url = $"{AppConstants.URL_API}/PedidosAPI/GetPedido?idOS={idPedido}&idLoja={idLoja}";
-                //            string jsonPedido = await client.GetStringAsync(url);
-
-                //            pedido = JsonConvert.DeserializeObject<Pedido>(jsonPedido);
+                //            await AppConstants.CurrentPage.Navigation.PushAsync(new DetalhesPedidoPage(pedido));
                 //        }
-                //        catch (Exception ex)
-                //        {
-                //            Console.WriteLine(ex.Message);
-                //        }
-
-                //        if (pedido != null)
-                //        {
-                //            Current.Dispatcher.Dispatch(async () =>
-                //            {
-                //                bool abrir = await AppConstants.CurrentPage.DisplayAlert($"{tituloPush}", $"{mensagemPush} - Deseja visualizar agora?", "Sim", "N�o");
-                //                if (abrir)
-                //                {
-                //                    await AppConstants.CurrentPage.Navigation.PushAsync(new DetalhesPedidoPage(pedido));
-                //                }
-                //            });
-                //        }
-                //  }
+                //    });
+                //}
             }
         }
 

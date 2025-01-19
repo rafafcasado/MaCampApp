@@ -58,5 +58,17 @@ namespace MaCamp.AppSettings
         public static string Chave_RecarregarHtmlLogin => "RecarregarHTMLLogin";
         public static string Chave_DownloadCampingsCompleto => "DownloadCampingsCompleto";
         public static string Chave_DataUltimaAtualizacaoConteudo => "DataUltimaAtualizacaoConteudo";
+
+        // Filtros
+        public static string Filtro_NomeCamping => "FILTROS_NOME_DO_CAMPING";
+        public static string Filtro_EstadoSelecionado => "FILTROS_ESTADO_SELECIONADO";
+        public static string Filtro_CidadeSelecionada => "FILTROS_CIDADE_SELECIONADA";
+        public static string Filtro_LocalizacaoSelecionada => "FILTROS_LOCALIZACAO_SELECIONADA";
+        public static string Filtro_ServicoSelecionados => "FILTROS_SERVICO_SELECIONADOS";
+        public static string Filtro_EstabelecimentoSelecionados => "FILTROS_ESTABELECIMENTO_SELECIONADOS";
+
+        public static string Busca_InicialRealizada => "BUSCA_INICIAL_REALIZADA";
+        public static string Quantidade_AberturasDetalhes => "QTD_ABERTURAS_DETALHES";
+        public static string Atualizar_ProgressoWebView => "ATUALIZAR_PROGRESSO_WEBVIEW";
     }
 }

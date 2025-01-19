@@ -1,9 +1,8 @@
-﻿using System.Text;
-using MaCamp.AppSettings;
+﻿using MaCamp.AppSettings;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
+using MaCamp.Utils;
 using MaCamp.Views.Popups;
-using Newtonsoft.Json;
 using RGPopup.Maui.Extensions;
 
 namespace MaCamp.Views.Detalhes
@@ -27,6 +26,7 @@ namespace MaCamp.Views.Detalhes
             catch
             {
                 etEmail.Text = string.Empty;
+                etWhatsApp.Text = string.Empty;
                 etNome.Text = string.Empty;
                 Equipamento.Text = string.Empty;
                 Informacao.Text = string.Empty;
@@ -71,23 +71,24 @@ namespace MaCamp.Views.Detalhes
                 {
                     Nome = etNome.Text,
                     Email = etEmail.Text,
+                    WhatsApp = etWhatsApp.Text,
                     Camping = NomeDoCamping,
                     IDCamping = IdDoCamping,
                     Informacao = Informacao.Text,
                     ValorPagoDiaria = etValorPagoPorDiaria.Text,
                     Equipamento = Equipamento.Text
                 };
-
                 var DB = new DBContract();
+
                 DB.InserirOuSubstituirModelo(colaboracao);
+
                 await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
-                using var client = new HttpClient();
-                var jsonColaboracao = JsonConvert.SerializeObject(colaboracao);
-                var content = new StringContent(jsonColaboracao, Encoding.UTF8, "application/json");
-                var response = await client.PostAsync(AppConstants.Url_EnviarEmail, content);
+
+                var response = await AppNet.PostAsync(AppConstants.Url_EnviarEmail, colaboracao);
+
                 await Navigation.PopPopupAsync();
 
-                if (response.IsSuccessStatusCode)
+                if (response)
                 {
                     var alert = await DisplayAlert("Colaboração enviada!", "Envie suas fotos para adicionar ao APP MaCamp via whatsapp", "Enviar imagens agora", "Agora não");
 
@@ -98,6 +99,7 @@ namespace MaCamp.Views.Detalhes
 
                     etNome.Text = string.Empty;
                     etEmail.Text = string.Empty;
+                    etWhatsApp.Text = string.Empty;
                     etValorPagoPorDiaria.Text = string.Empty;
                     Equipamento.Text = string.Empty;
                     Informacao.Text = string.Empty;

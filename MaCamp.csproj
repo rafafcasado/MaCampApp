@@ -33,6 +33,10 @@
 	  <AndroidPackageFormat>apk</AndroidPackageFormat>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android34.0|AnyCPU'">
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" BaseSize="500,500" Color="#512BD4" />
@@ -61,6 +65,7 @@
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 		<PackageReference Include="FFImageLoadingCompat.Maui" Version="0.1.1" />
+		<PackageReference Include="FluentIcons.Maui" Version="1.1.271" />
 		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -81,12 +86,42 @@
 	  <Compile Update="Platforms\iOS\MauiProgramExtensions.cs">
 	    <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
 	  </Compile>
+	  <Compile Update="Views\CustomViews\AdMobRectangleContentView.xaml.cs">
+	    <DependentUpon>AdMobRectangleContentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\CustomViews\AnuncioCardContentView.xaml.cs">
+	    <DependentUpon>AnuncioCardContentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\CustomViews\AnuncioContentView.xaml.cs">
+	    <DependentUpon>AnuncioContentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\CustomViews\CampingContentView.xaml.cs">
+	    <DependentUpon>CampingContentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\CustomViews\DivisoriaMenuContentView.xaml.cs">
+	    <DependentUpon>DivisoriaMenuContentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\CustomViews\ItemContentView.xaml.cs">
+	    <DependentUpon>ItemContentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\CustomViews\MasterPageItemContentView.xaml.cs">
+	    <DependentUpon>MasterPageItemContentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\CustomViews\MasterPageSubItemContentView.xaml.cs">
+	    <DependentUpon>MasterPageSubItemContentView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\CustomViews\ZoomableView.xaml.cs">
+	    <DependentUpon>ZoomableView.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\SplashScreen.xaml.cs">
 	    <DependentUpon>SplashScreen.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Views\CustomViews\ZoomableView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\SplashScreen.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

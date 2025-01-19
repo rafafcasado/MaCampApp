@@ -1,6 +1,6 @@
 ﻿using MaCamp.AppSettings;
 using MaCamp.Models.Anuncios;
-using Newtonsoft.Json;
+using MaCamp.Utils;
 
 namespace MaCamp.Models.DataAccess
 {
@@ -12,8 +12,9 @@ namespace MaCamp.Models.DataAccess
         {
             if (Configs == null || forcarAtualizacao)
             {
-                var jsonconfigs = await new HttpClient().GetStringAsync(AppConstants.Url_ConfiguracoesAnuncios);
-                Configs = JsonConvert.DeserializeObject<ConfiguracoesAnuncios>(jsonconfigs);
+                var configs = await AppNet.GetAsync<ConfiguracoesAnuncios>(AppConstants.Url_ConfiguracoesAnuncios);
+
+                Configs = configs;
             }
 
             return Configs;

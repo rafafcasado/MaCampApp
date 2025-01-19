@@ -53,8 +53,16 @@
 
         //        var sqliteConnection = DBContract.Instance;
 
-        //        sqliteConnection.InserirOuSubstituirModelo(new ChaveValor { Chave = AppConstants.CHAVE_TITULO_NOTIFICACAO, Valor = payload.title });
-        //        sqliteConnection.InserirOuSubstituirModelo(new ChaveValor { Chave = AppConstants.CHAVE_MENSAGEM_NOTIFICACAO, Valor = payload.body });
+        //        sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+        //        { 
+        //            Chave = AppConstants.CHAVE_TITULO_NOTIFICACAO,
+        //            Valor = payload.title
+        //        });
+        //        sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+        //        {
+        //            Chave = AppConstants.CHAVE_MENSAGEM_NOTIFICACAO,
+        //            Valor = payload.body
+        //        });
 
         //        if (additionalData != null && additionalData.Count > 0)
         //        {
@@ -67,7 +75,11 @@
 
         //        if (payload.launchURL != null)
         //        {
-        //            sqliteConnection.InserirOuSubstituirModelo(new ChaveValor { Chave = AppConstants.CHAVE_URL_NOTIFICACAO, Valor = payload.launchURL });
+        //            sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+        //            {
+        //                Chave = AppConstants.CHAVE_URL_NOTIFICACAO,
+        //                Valor = payload.launchURL
+        //            });
         //        }
 
         //        if (tentarAbrir)
@@ -75,9 +87,9 @@
         //            App.ExibirNotificacaoPush();
         //        }
         //    }
-        //    catch (System.Exception e)
+        //    catch (System.Exception ex)
         //    {
-        //        System.Diagnostics.Debug.WriteLine(e.StackTrace);
+        //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
         //    }
         //}
     }

@@ -10,6 +10,7 @@ namespace MaCamp.Models
 
         public string? Nome { get; set; }
         public string? Email { get; set; }
+        public string? WhatsApp { get; set; }
 
         [Ignore]
         public string? Informacao { get; set; }

@@ -1,6 +1,6 @@
 ﻿using MaCamp.Models;
 
-namespace MaCamp.Views.CustomCells
+namespace MaCamp.Views.CustomViews
 {
     public class ItemDataTemplateSelector : DataTemplateSelector
     {
@@ -12,11 +12,11 @@ namespace MaCamp.Views.CustomCells
 
         public ItemDataTemplateSelector()
         {
-            ItemTemplate = new DataTemplate(typeof(ItemViewCell));
-            CampingTemplate = new DataTemplate(typeof(CampingViewCell));
-            AnuncioTemplate = new DataTemplate(typeof(AnuncioViewCell));
-            AdMobRectangleTemplate = new DataTemplate(typeof(AdMobRectangleViewCell));
-            AnuncioCardTemplate = new DataTemplate(typeof(AnuncioCardViewCell));
+            ItemTemplate = new DataTemplate(typeof(ItemContentView));
+            CampingTemplate = new DataTemplate(typeof(CampingContentView));
+            AnuncioTemplate = new DataTemplate(typeof(AnuncioContentView));
+            AdMobRectangleTemplate = new DataTemplate(typeof(AdMobRectangleContentView));
+            AnuncioCardTemplate = new DataTemplate(typeof(AnuncioCardContentView));
         }
 
         protected override DataTemplate OnSelectTemplate(object itemAtual, BindableObject container)

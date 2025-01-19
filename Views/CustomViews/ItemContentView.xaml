@@ -1,18 +1,22 @@
-<ViewCell
-    x:Class="MaCamp.Views.CustomCells.ItemViewCell"
+<ContentView
+    x:Class="MaCamp.Views.CustomViews.ItemContentView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui">
 
     <Border
-        Margin="10"
+        Margin="10,5,10,5"
         Padding="0"
         Stroke="Transparent">
 
+        <Border.StrokeShape>
+            <RoundRectangle
+                CornerRadius="5" />
+        </Border.StrokeShape>
+
         <!--<Grid>-->
         <StackLayout
-            Padding="0"
-            Spacing="0">
+            Padding="0">
 
             <Grid
                 x:Name="grFoto"
@@ -44,7 +48,7 @@
                     FontSize="20"
                     Text="{Binding Nome}"
                     TextColor="{DynamicResource CorTituloCard}" />
-                <!--                <Label x:Name="lbSubtitulo" TextColor="{DynamicResource CorSubtituloCard}" FontSize="14" />-->
+                <!--<Label x:Name="lbSubtitulo" TextColor="{DynamicResource CorSubtituloCard}" FontSize="14" />-->
             </StackLayout>
 
             <BoxView
@@ -54,14 +58,8 @@
             <Grid
                 x:Name="testeLabel"
                 Padding="20,8"
-                BackgroundColor="{DynamicResource BgRodapeCard}">
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition
-                        Width="*" />
-                    <ColumnDefinition
-                        Width="Auto" />
-                </Grid.ColumnDefinitions>
+                BackgroundColor="White"
+                ColumnDefinitions="*,Auto">
 
                 <Label
                     Grid.Column="0"
@@ -88,4 +86,4 @@
             <BoxView BackgroundColor="{DynamicResource CorVisualizada}" VerticalOptions="Fill" HorizontalOptions="FillAndExpand" IsVisible="{Binding Visualizado}" />
         </Grid>-->
     </Border>
-</ViewCell>
+</ContentView>

@@ -1,9 +1,13 @@
 ﻿using System.Collections.ObjectModel;
+using FluentIcons.Common;
+using FluentIcons.Maui;
 using MaCamp.AppSettings;
+using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.ViewModels;
 using MaCamp.Views.Detalhes;
 using Microsoft.Maui.Controls.Maps;
+using Microsoft.Maui.Maps;
 using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace MaCamp.Views.Campings
@@ -16,6 +20,7 @@ namespace MaCamp.Views.Campings
 
             Title = "Mapa";
             NavigationPage.SetBackButtonTitle(this, "");
+            BackgroundColor = Colors.White;
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView(Title);
 
@@ -24,6 +29,7 @@ namespace MaCamp.Views.Campings
                 IsRunning = true,
                 IsVisible = true,
                 HeightRequest = 35,
+                WidthRequest = 35,
                 Color = AppColors.CorPrimaria,
                 HorizontalOptions = LayoutOptions.CenterAndExpand,
                 VerticalOptions = LayoutOptions.CenterAndExpand
@@ -83,6 +89,37 @@ namespace MaCamp.Views.Campings
                     }
                 }
             });
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            DeviceDisplay.KeepScreenOn = true;
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+
+            DeviceDisplay.KeepScreenOn = false;
+        }
+
+        private void OnToggleButtonClicked(object sender, EventArgs e)
+        {
+            if (cvMapa.Content is Map map)
+            {
+                var isStreet = map.MapType == MapType.Street;
+
+                map.MapType = isStreet ? MapType.Satellite : MapType.Street;
+                toggleButton.Text = isStreet ? "Satélite" : "Terreno";
+                toggleButton.BackgroundColor = isStreet ? Colors.White : Color.FromArgb("#b8bdcb");
+                toggleButton.ImageSource = new SymbolImageSource
+                {
+                    Symbol = Symbol.Map,
+                    IconVariant = isStreet ? IconVariant.Filled : IconVariant.Regular
+                };
+            }
         }
 
         private async Task<bool> VerificarPermissaoLocalizacao()
@@ -149,27 +186,28 @@ namespace MaCamp.Views.Campings
 
                     if (tipos.Any())
                     {
-                        //var imagem = "pointer_" + tipos[0].Identificador?.Replace("`", "").Replace("çã", "ca").Replace("/", "").ToLower() + "_small.png";
-
-                        var pin = new Pin
+                        var identificador = tipos.FirstOrDefault()?.Identificador ?? string.Empty;
+                        var imagem = "pointer_" + identificador.Replace("`", "").Replace("çã", "ca").Replace("/", "").ToLower() + "_small.png";
+                        var pin = new StylishPin
                         {
                             Label = item.Nome ?? string.Empty,
                             Type = PinType.Generic,
 
-                            //Icon = BitmapDescriptorFactory.FromBundle(imagem),
+                            ImageSource = imagem,
                             Address = item.EnderecoCompleto,
                             Location = new Location(latitude, longitude),
-                            MarkerId = item
+                            Data = item
                         };
 
                         pin.InfoWindowClicked += PinOnInfoWindowClicked;
+
                         map.Pins.Add(pin);
                         positionsCampings.Add(new Location(latitude, longitude));
                     }
                 }
             }
 
-            //var valorChaveEstadoSelecionado = DBContract.Instance.ObterValorChave("FILTROS_ESTADO_SELECIONADO");
+            //var valorChaveEstadoSelecionado = DBContract.Instance.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
 
             //if (valorChaveEstadoSelecionado != null && valorChaveEstadoSelecionado != null)
             //{
@@ -192,12 +230,13 @@ namespace MaCamp.Views.Campings
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 cvMapa.Content = map;
+                toggleButton.IsVisible = true;
             });
         }
 
         private async void PinOnInfoWindowClicked(object? sender, PinClickedEventArgs e)
         {
-            if (sender is Pin pin && pin.MarkerId is Item item)
+            if (sender is StylishPin stylishPin && stylishPin.Data is Item item)
             {
                 await Navigation.PushAsync(new DetalhesCampingPage(item));
             }

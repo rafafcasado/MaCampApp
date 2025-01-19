@@ -59,8 +59,11 @@ namespace MaCamp.ViewModels
                             {
                                 Itens.Add(new Item
                                 {
-                                    DeveAbrirExternamente = true, UrlExterna = anuncioEscolhido.UrlExterna,
-                                    IdLocal = idLocal++, EhAnuncio = true, Anuncio = anuncioEscolhido
+                                    DeveAbrirExternamente = true,
+                                    UrlExterna = anuncioEscolhido.UrlExterna,
+                                    IdLocal = idLocal++,
+                                    EhAnuncio = true,
+                                    Anuncio = anuncioEscolhido
                                 });
                             }
 
@@ -76,7 +79,10 @@ namespace MaCamp.ViewModels
                     {
                         Itens.Add(new Item
                         {
-                            DeveAbrirExternamente = true, UrlExterna = "", IdLocal = idLocal++, EhAdMobRetangulo = true
+                            DeveAbrirExternamente = true,
+                            UrlExterna = "",
+                            IdLocal = idLocal++,
+                            EhAdMobRetangulo = true
                         });
 
                         countAdMob = 14;
@@ -140,7 +146,9 @@ namespace MaCamp.ViewModels
                         {
                             Itens.Add(new Item
                             {
-                                DeveAbrirExternamente = true, UrlExterna = "", IdLocal = idLocal++,
+                                DeveAbrirExternamente = true,
+                                UrlExterna = "",
+                                IdLocal = idLocal++,
                                 EhAdMobRetangulo = true
                             });
 

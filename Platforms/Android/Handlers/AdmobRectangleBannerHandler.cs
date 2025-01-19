@@ -15,8 +15,8 @@ namespace MaCamp.Handlers
                 AdSize = AdSize.MediumRectangle,
                 AdUnitId = AppConstants.AdmobIdBannerAndroid
             };
-
             var builder = new AdRequest.Builder();
+
             adView.LoadAd(builder.Build());
             VirtualView.HeightRequest = 250;
 

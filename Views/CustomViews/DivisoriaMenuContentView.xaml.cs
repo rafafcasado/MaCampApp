@@ -1,10 +1,10 @@
 ﻿using MaCamp.Views.Menu;
 
-namespace MaCamp.Views.CustomCells
+namespace MaCamp.Views.CustomViews
 {
-    public partial class MasterPageSubItemViewCell : ViewCell
+    public partial class DivisoriaMenuContentView : ContentView
     {
-        public MasterPageSubItemViewCell()
+        public DivisoriaMenuContentView()
         {
             InitializeComponent();
         }
@@ -15,8 +15,8 @@ namespace MaCamp.Views.CustomCells
 
             if (BindingContext is ItemMenu itemMenu)
             {
-                lbTexto.Text = itemMenu.Titulo ?? string.Empty;
-                lbTexto.TextColor = Color.FromArgb(itemMenu.HexCorTexto);
+                //lbTexto.Text = itemMenu.Titulo;
+                //lbTexto.TextColor = Color.FromHex(itemMenu.HexCorTexto);
             }
         }
     }

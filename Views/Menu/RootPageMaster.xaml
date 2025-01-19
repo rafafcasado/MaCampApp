@@ -6,23 +6,22 @@
     Title="Master"
     BackgroundColor="#F5F5F5">
 
-    <local:ListViewNonScrollsToTop
+    <local:CollectionViewNonScrollsToTop
         x:Name="MenuItemsListView"
         Margin="0,0,-1,0"
-        HasUnevenRows="true"
         ItemsSource="{Binding MenuItems}"
-        SeparatorVisibility="None">
+        SelectionMode="Single">
 
-        <ListView.Header>
+        <CollectionView.Header>
             <Image
                 Margin="0,0,0,0"
                 Aspect="AspectFill"
                 Source="imagem_topo_menu.jpg" />
-        </ListView.Header>
+        </CollectionView.Header>
 
-        <ListView.ItemTemplate>
+        <CollectionView.ItemTemplate>
             <DataTemplate>
-                <ViewCell>
+                <ContentView>
                     <StackLayout
                         Padding="15,10"
                         HorizontalOptions="FillAndExpand">
@@ -32,11 +31,11 @@
                             VerticalOptions="FillAndExpand"
                             VerticalTextAlignment="Center" />
                     </StackLayout>
-                </ViewCell>
+                </ContentView>
             </DataTemplate>
-        </ListView.ItemTemplate>
+        </CollectionView.ItemTemplate>
 
-        <ListView.Footer>
+        <CollectionView.Footer>
             <StackLayout
                 Padding="10,30,10,30"
                 Spacing="5">
@@ -57,6 +56,6 @@
                     Text="Patrocina este aplicativo MaCamp"
                     TextColor="Black" />
             </StackLayout>
-        </ListView.Footer>
-    </local:ListViewNonScrollsToTop>
+        </CollectionView.Footer>
+    </local:CollectionViewNonScrollsToTop>
 </ContentPage>

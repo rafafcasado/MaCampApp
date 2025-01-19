@@ -1,78 +1,61 @@
 ﻿using FFImageLoading.Maui;
+using MaCamp.AppSettings;
 using MaCamp.Models.Services;
+using Microsoft.Maui.Controls.Shapes;
 
 namespace MaCamp.Views.Detalhes
 {
     public partial class ListagemFotosPage : ContentPage
     {
-        public ListagemFotosPage(IEnumerable<string> urlsFotos)
+        public ListagemFotosPage(List<string> urlsFotos)
         {
             InitializeComponent();
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Listagem de fotos ");
 
-            grContent.ColumnDefinitions.Add(new ColumnDefinition
-            {
-                Width = GridLength.Star
-            });
+            Padding = new Thickness(1);
+            BackgroundColor = Colors.White;
 
-            grContent.ColumnDefinitions.Add(new ColumnDefinition
-            {
-                Width = GridLength.Star
-            });
+            var largura = App.SCREEN_WIDTH / layout.Children.Count - 10;
 
-            var enumerable = urlsFotos.ToList();
-
-            if (enumerable.Count == 1)
+            for (var i = 0; i < urlsFotos.Count; i++)
             {
-                grContent.RowDefinitions.Add(new RowDefinition
+                var url = urlsFotos[i];
+                var layoutIndex = i % layout.Children.Count;
+                var random = new Random();
+                var altura = largura + random.Next(50, 150);
+                var frame = new Border
                 {
-                    Height = App.SCREEN_HEIGHT / 3
-                });
-            }
-            else
-            {
-                for (var i = 0; i < enumerable.Count / 2; i++)
-                {
-                    grContent.RowDefinitions.Add(new RowDefinition
+                    HeightRequest = altura,
+                    WidthRequest = largura,
+                    BackgroundColor = AppColors.CorPrimaria,
+                    StrokeShape = new RoundRectangle
                     {
-                        Height = App.SCREEN_HEIGHT / 3
-                    });
-                }
-            }
-
-            var linha = 0;
-            var coluna = 0;
-
-            foreach (var url in enumerable)
-            {
-                var urlTemp = CampingServices.MontarUrlImagemTemporaria(url);
+                        CornerRadius = 5
+                    }
+                };
+                var source = CampingServices.MontarUrlImagemTemporaria(url);
                 var imagem = new CachedImage
                 {
-                    Source = urlTemp, HeightRequest = 240, DownsampleHeight = 300, Aspect = Aspect.AspectFill,
+                    Source = source,
+                    DownsampleHeight = altura,
+                    Aspect = Aspect.AspectFill,
                     LoadingPlaceholder = "placeholder.jpg"
                 };
                 var abrirFoto = new TapGestureRecognizer();
 
-                abrirFoto.Tapped += async (s, e) =>
+                abrirFoto.Tapped += async (sender, args) =>
                 {
-                    await Navigation.PushModalAsync(new VisualizacaoFotoPage(url));
+                    await Navigation.PushAsync(new VisualizacaoFotoPage(url));
                 };
 
-                imagem.GestureRecognizers.Add(abrirFoto);
+                frame.GestureRecognizers.Add(abrirFoto);
 
-                Grid.SetColumn(imagem, coluna);
-                Grid.SetRow(imagem, linha);
+                frame.Content = imagem;
 
-                //flContent.Children.Add(imagem);
-                grContent.Children.Add(imagem);
-
-                coluna++;
-
-                if (coluna > 1)
+                if (layout.Children[layoutIndex] is StackLayout stackLayout)
                 {
-                    linha++;
-                    coluna = 0;
+                    stackLayout.Children.Add(frame);
                 }
             }
         }

@@ -7,7 +7,7 @@ namespace MaCamp.Views.Menu
 {
     public partial class RootPageMaster : ContentPage
     {
-        public ListView ListView { get; set; }
+        public CollectionView CollectionView { get; set; }
 
         public RootPageMaster()
         {
@@ -15,7 +15,7 @@ namespace MaCamp.Views.Menu
 
             BindingContext = new RootPageMasterViewModel();
             MenuItemsListView.ItemTemplate = new MenuTemplateSelector();
-            ListView = MenuItemsListView;
+            CollectionView = MenuItemsListView;
         }
 
         private async void ExibirAlerta(string titulo, string mensagem, string botaoOk = "OK")

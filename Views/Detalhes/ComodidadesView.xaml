@@ -1,7 +1,10 @@
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MaCamp.Views.Detalhes.ComodidadesView">
-    <ContentView.Content>
-        <StackLayout x:Name="slContent" BackgroundColor="#F5F5F5" Padding="20" />
-    </ContentView.Content>
+<ContentView
+    x:Class="MaCamp.Views.Detalhes.ComodidadesView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <StackLayout
+        x:Name="slContent"
+        Padding="20"
+        BackgroundColor="#F5F5F5" />
 </ContentView>

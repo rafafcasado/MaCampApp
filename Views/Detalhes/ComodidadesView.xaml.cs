@@ -10,7 +10,7 @@ namespace MaCamp.Views.Detalhes
         {
             InitializeComponent();
 
-            var secoes = itemIdentificadores.Where(i => i.Opcao > 0).GroupBy(i => i.Secao);
+            var secoes = itemIdentificadores.Where(i => i.Opcao > 0).GroupBy(i => i.Secao).ToList();
 
             foreach (var secao in secoes)
             {
@@ -21,18 +21,16 @@ namespace MaCamp.Views.Detalhes
                     FontAttributes = FontAttributes.Bold,
                     Margin = new Thickness(0, 10)
                 };
+                var grupoItens = secao.GroupBy(i => i.Identificador).ToList();
 
                 slContent.Children.Add(lbTitulo);
-
-                var grupoItens = secao.GroupBy(i => i.Identificador);
 
                 foreach (var grupoItem in grupoItens)
                 {
                     var itens = grupoItem.ToList();
-
                     var grComodidades = new Grid
                     {
-                        ColumnSpacing = 15,
+                        ColumnSpacing = 10,
                         Margin = new Thickness(0, 5)
                     };
 
@@ -40,7 +38,6 @@ namespace MaCamp.Views.Detalhes
                     {
                         Width = GridLength.Auto
                     });
-
                     grComodidades.ColumnDefinitions.Add(new ColumnDefinition
                     {
                         Width = GridLength.Star
@@ -56,13 +53,16 @@ namespace MaCamp.Views.Detalhes
 
                     var imIcone = new Image
                     {
-                        Source = itens[0].Identificador?.ToLower() + ".png", HeightRequest = 35,
+                        Source = itens[0].Identificador?.ToLower() + ".png",
+                        HeightRequest = 30,
+                        WidthRequest = 30,
                         VerticalOptions = LayoutOptions.CenterAndExpand
                     };
+                    var linha = 0;
 
                     grComodidades.Children.Add(imIcone);
+
                     Grid.SetRowSpan(imIcone, itens.Count);
-                    var linha = 0;
 
                     foreach (var item in itens)
                     {
@@ -75,11 +75,13 @@ namespace MaCamp.Views.Detalhes
 
                         Grid.SetColumn(label, 1);
                         Grid.SetRow(label, linha);
+
+                        grComodidades.Children.Add(label);
+
                         linha++;
                     }
 
                     slContent.Children.Add(grComodidades);
-
                     slContent.Children.Add(new BoxView
                     {
                         HeightRequest = 1,

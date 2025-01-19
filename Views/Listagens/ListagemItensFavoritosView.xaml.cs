@@ -1,7 +1,7 @@
 ﻿using MaCamp.AppSettings;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
-using MaCamp.Views.CustomCells;
+using MaCamp.Views.CustomViews;
 using MaCamp.Views.Detalhes;
 
 namespace MaCamp.Views.Listagens
@@ -16,22 +16,21 @@ namespace MaCamp.Views.Listagens
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Campings Favoritos");
 
-            lvItens.ItemTemplate = new DataTemplate(typeof(CampingViewCell));
-            lvItens.RefreshCommand = new Command(obj => RecarregarConteudo(null, null));
+            cvItens.ItemTemplate = new DataTemplate(typeof(CampingContentView));
 
             Task.Run(() => CarregarConteudo());
 
             MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_AtualizarListagemFavoritos, s =>
             {
-                RecarregarConteudo(null, null);
+                Handle_Refreshing(null, null);
             });
         }
 
-        private async void Handle_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void Handle_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            if (e.SelectedItem is Item item)
+            if (e.CurrentSelection.FirstOrDefault() is Item item)
             {
-                lvItens.SelectedItem = null;
+                cvItens.SelectedItem = null;
 
                 if (item.DeveAbrirExternamente && item.UrlExterna != null)
                 {
@@ -44,17 +43,18 @@ namespace MaCamp.Views.Listagens
             }
         }
 
-        private void RecarregarConteudo(object? sender, EventArgs? e)
+        private void Handle_Refreshing(object? sender, EventArgs? e)
         {
             lbMensagemAviso.IsVisible = false;
 
             if (sender != null)
             {
-                loaderConteudoInicial.IsVisible = loaderConteudoInicial.IsRunning = true;
+                loaderConteudoInicial.IsVisible = true;
+                loaderConteudoInicial.IsRunning = true;
             }
 
-            lvItens.ItemsSource = null;
-            lvItens.ItemTemplate = new DataTemplate(typeof(CampingViewCell));
+            cvItens.ItemsSource = null;
+
             CarregarConteudo();
         }
 
@@ -64,20 +64,22 @@ namespace MaCamp.Views.Listagens
 
             Dispatcher.Dispatch(() =>
             {
-                loaderConteudoInicial.IsVisible = loaderConteudoInicial.IsRunning = loaderConteudoAdicional.IsVisible = false;
+                loaderConteudoInicial.IsVisible = false;
+                loaderConteudoInicial.IsRunning = false;
+                loaderConteudoAdicional.IsVisible = false;
 
                 if (itensFavoritos.Count > 0)
                 {
                     lbMensagemAviso.IsVisible = false;
-                    lvItens.ItemsSource = itensFavoritos;
-                    lvItens.IsRefreshing = false;
-                    lvItens.IsVisible = true;
+                    cvItens.ItemsSource = itensFavoritos;
+                    rvItens.IsRefreshing = false;
+                    cvItens.IsVisible = true;
                 }
                 else
                 {
                     lbMensagemAviso.Text = "Favorite itens para que eles sejam exibidos aqui";
                     lbMensagemAviso.IsVisible = true;
-                    lvItens.IsVisible = false;
+                    cvItens.IsVisible = false;
                 }
             });
         }

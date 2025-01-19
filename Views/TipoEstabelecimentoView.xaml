@@ -1,8 +1,24 @@
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MaCamp.Views.TipoEstabelecimentoView">
-    <ContentView.Content>
+<ContentView
+    x:Class="MaCamp.Views.TipoEstabelecimentoView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-        <Grid x:Name="flTipos" />
-    </ContentView.Content>
+    <StackLayout>
+        <ScrollView
+            Padding="15,0,15,0"
+            Orientation="Horizontal"
+            HorizontalScrollBarVisibility="Never">
+
+            <StackLayout
+                x:Name="slTipos"
+                Orientation="Horizontal"
+                Spacing="10" />
+
+        </ScrollView>
+
+        <Grid
+            x:Name="flTipos"
+            IsVisible="False" />
+    </StackLayout>
+
 </ContentView>

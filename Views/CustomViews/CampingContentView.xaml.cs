@@ -1,18 +1,28 @@
-﻿using MaCamp.Models;
+﻿using FFImageLoading.Maui;
+using MaCamp.AppSettings;
+using MaCamp.Models;
 using MaCamp.Models.Services;
+using Microsoft.Maui.Controls.Shapes;
 
-namespace MaCamp.Views.CustomCells
+namespace MaCamp.Views.CustomViews
 {
-    public partial class CampingViewCell : ViewCell
+    public partial class CampingContentView : ContentView
     {
         private Item? ItemAtual { get; set; }
 
-        public CampingViewCell()
+        public CampingContentView()
         {
             InitializeComponent();
 
+            var height = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
+
             imItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
-            imItem.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
+            imItem.HeightRequest = height;
+
+            imItem.Clip = new RectangleGeometry
+            {
+                Rect = new Rect(0, 0, App.SCREEN_WIDTH - 20, height)
+            };
 
             imIconeTipo1.Error += delegate
             {
@@ -41,7 +51,7 @@ namespace MaCamp.Views.CustomCells
             {
                 ItemAtual = itemAtual;
                 imItem.Source = string.IsNullOrWhiteSpace(itemAtual.LinkUltimaFoto) ? "placeholder.jpg" : CampingServices.MontarUrlImagemTemporaria(itemAtual.LinkUltimaFoto);
-                imDirecoes.IsVisible = (itemAtual.Latitude != 0) & (itemAtual.Longitude != 0);
+                imDirecoes.IsVisible = itemAtual.Latitude != 0 && itemAtual.Longitude != 0;
 
                 Task.Run(() => CalcularDistancia());
                 Task.Run(() => ExibirEstrelasETipos());
@@ -88,44 +98,21 @@ namespace MaCamp.Views.CustomCells
 
                 if (ItemAtual != null)
                 {
-                    if (ItemAtual.QuantidadeEstrelas == -1)
+                    slEstrelas.IsVisible = ItemAtual.QuantidadeEstrelas > 0;
+
+                    Enumerable.Range(0, 5).ForEach(i =>
                     {
-                        slEstrelas.IsVisible = false;
-                    }
-                    else
-                    {
-                        slEstrelas.IsVisible = true;
-                        estrela1.Source = "estrela.png";
-                        estrela2.Source = "estrela.png";
-                        estrela3.Source = "estrela.png";
-                        estrela4.Source = "estrela.png";
-                        estrela5.Source = "estrela.png";
-
-                        if (ItemAtual.QuantidadeEstrelas > 0)
+                        var estrelaSelecionada = ItemAtual.QuantidadeEstrelas > i;
+                        var imageSource = estrelaSelecionada ? "estrela_selecionada.png" : "estrela.png";
+                        var estrela = new CachedImage
                         {
-                            estrela1.Source = "estrela_selecionada.png";
-                        }
+                            HeightRequest = 15,
+                            WidthRequest = 15,
+                            Source = imageSource
+                        };
 
-                        if (ItemAtual.QuantidadeEstrelas > 1)
-                        {
-                            estrela2.Source = "estrela_selecionada.png";
-                        }
-
-                        if (ItemAtual.QuantidadeEstrelas > 2)
-                        {
-                            estrela3.Source = "estrela_selecionada.png";
-                        }
-
-                        if (ItemAtual.QuantidadeEstrelas > 3)
-                        {
-                            estrela4.Source = "estrela_selecionada.png";
-                        }
-
-                        if (ItemAtual.QuantidadeEstrelas > 4)
-                        {
-                            estrela5.Source = "estrela_selecionada.png";
-                        }
-                    }
+                        slEstrelas.Children.Add(estrela);
+                    });
                 }
 
                 //cvTipo.Content = new TipoEstabelecimentoView(ItemAtual.Identificadores);

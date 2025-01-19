@@ -53,11 +53,11 @@ namespace MaCamp.Views.Detalhes
             //    btAbrirMapa.Clicked += (s, e) => AbrirMapa(item.UriKmlLocal);
             //}
 
-            MessagingCenter.Subscribe<Application, int>(this, "ATUALIZAR_PROGRESSO_WEBVIEW", (s, e) =>
+            MessagingCenter.Subscribe<Application, int>(this, AppConstants.Atualizar_ProgressoWebView, (s, e) =>
             {
                 if (e == 100)
                 {
-                    MessagingCenter.Unsubscribe<Application, int>(this, "ATUALIZAR_PROGRESSO_WEBVIEW");
+                    MessagingCenter.Unsubscribe<Application, int>(this, AppConstants.Atualizar_ProgressoWebView);
 
                     Dispatcher.Dispatch(() =>
                     {

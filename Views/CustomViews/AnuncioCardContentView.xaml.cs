@@ -1,10 +1,10 @@
 ﻿using MaCamp.Models;
 
-namespace MaCamp.Views.CustomCells
+namespace MaCamp.Views.CustomViews
 {
-    public partial class AnuncioCardViewCell : ViewCell
+    public partial class AnuncioCardContentView : ContentView
     {
-        public AnuncioCardViewCell()
+        public AnuncioCardContentView()
         {
             InitializeComponent();
 

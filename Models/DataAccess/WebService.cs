@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using MaCamp.AppSettings;
-using Newtonsoft.Json;
+using MaCamp.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace MaCamp.Models.DataAccess
@@ -40,10 +40,9 @@ namespace MaCamp.Models.DataAccess
             builder.Append("=" + QUERY_V);
 
             var url = builder.ToString();
-            var jsonItens = await NetUtils.GetString(url);
-            var itens = JsonConvert.DeserializeObject<IEnumerable<T>>(jsonItens);
+            var itens = await AppNet.GetListAsync<T>(url);
 
-            return itens == null ? new List<T>() : itens.ToList();
+            return itens;
         }
     }
 }

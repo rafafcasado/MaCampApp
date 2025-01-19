@@ -1,6 +1,6 @@
 ﻿using MaCamp.AppSettings;
 using MaCamp.Models.DataAccess;
-using Newtonsoft.Json;
+using MaCamp.Utils;
 
 namespace MaCamp.Models.Services
 {
@@ -11,14 +11,12 @@ namespace MaCamp.Models.Services
             try
             {
                 var DB = DBContract.Instance;
-                using var client = new HttpClient();
-                var jsonCidades = await client.GetStringAsync(AppConstants.Url_ListaCidades);
-                var cidadesWS = JsonConvert.DeserializeObject<List<Cidade>>(jsonCidades)?.Where(x => x.Estado != null && !x.Estado.Contains("_")).ToList();
+                var listaCidades = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
 
-                if (cidadesWS != null)
+                if (listaCidades != null)
                 {
                     DB.ApagarCidades();
-                    DB.InserirListaDeModelo(cidadesWS);
+                    DB.InserirListaDeModelo(listaCidades);
                 }
             }
             catch (Exception ex)

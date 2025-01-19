@@ -1,9 +1,29 @@
 ﻿using MaCamp.Resources.Locale;
+using MaCamp.Utils;
 
 namespace MaCamp.Models
 {
-    internal class MediaUtils
+    public static class AppMedia
     {
+        public static async Task<string?> SalvarImagemTemporariaAsync(string imageUrl)
+        {
+            try
+            {
+                var tempPath = System.IO.Path.Combine(FileSystem.CacheDirectory, "temp_image.jpg");
+                var imageBytes = await AppNet.GetBytesAsync(imageUrl);
+
+                await File.WriteAllBytesAsync(tempPath, imageBytes);
+
+                return tempPath;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao salvar imagem: {ex.Message}");
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Método utilizado para requisitar ao usuário uma imagem. 
         /// </summary>

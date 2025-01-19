@@ -1,0 +1,10 @@
+<ContentView
+    x:Class="MaCamp.Views.CustomViews.AnuncioContentView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <ContentView
+        x:Name="cvAnuncio"
+        Margin="0,10" />
+
+</ContentView>

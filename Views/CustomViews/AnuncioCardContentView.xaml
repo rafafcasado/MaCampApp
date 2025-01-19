@@ -1,5 +1,5 @@
-<ViewCell
-    x:Class="MaCamp.Views.CustomCells.AnuncioCardViewCell"
+<ContentView
+    x:Class="MaCamp.Views.CustomViews.AnuncioCardContentView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui">
@@ -56,4 +56,4 @@
                 HeightRequest="1" />
         </StackLayout>
     </Border>
-</ViewCell>
+</ContentView>

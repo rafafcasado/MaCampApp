@@ -14,7 +14,7 @@ namespace MaCamp.Platforms.Android.Utils
 
         public WindowInsets OnApplyWindowInsets(View view, WindowInsets insets)
         {
-            if (ShouldApplyInsets())
+            if (ShouldApplyInsets() && System.Diagnostics.Debugger.IsAttached)
             {
                 var topInset = insets.StableInsetTop;
                 var bottomInset = insets.StableInsetBottom;

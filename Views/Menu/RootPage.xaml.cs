@@ -25,139 +25,128 @@ namespace MaCamp.Views.Menu
                 }
             };
 
-            Master.ListView.ItemSelected += ListView_ItemSelected;
+            Master.CollectionView.SelectionChanged += CollectionView_SelectionChanged;
 
             Flyout = Master;
             Detail = CriarPaginaDetalhes(new MainPage());
         }
 
-        private async void ListView_ItemSelected(object? sender, SelectedItemChangedEventArgs e)
+        private async void CollectionView_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            if (e.SelectedItem is not ItemMenu item || item.TipoLayout == TipoLayoutMenu.Divisoria)
+            if (e.CurrentSelection.FirstOrDefault() is ItemMenu item && item.TipoLayout != TipoLayoutMenu.Divisoria)
             {
-                return;
-            }
+                Master.CollectionView.SelectedItem = null;
 
-            Master.ListView.SelectedItem = null;
-
-            if (Detail is NavigationPage navigationPage && navigationPage.CurrentPage is MainPage mainPage)
-            {
-                switch (item.TipoAcao)
+                if (Detail is NavigationPage navigationPage && navigationPage.CurrentPage is MainPage mainPage)
                 {
-                    case TipoAcaoMenu.Home:
-                        break;
-                    case TipoAcaoMenu.AbrirBuscaCamping:
-                        mainPage.SelectedItem = null;
-                        mainPage.SelectedItem = mainPage.Children[0];
+                    switch (item.TipoAcao)
+                    {
+                        case TipoAcaoMenu.Home:
+                            break;
+                        case TipoAcaoMenu.AbrirBuscaCamping:
+                            mainPage.SelectedItem = null;
+                            mainPage.SelectedItem = mainPage.Children[0];
 
-                        MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
+                            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
+                            break;
+                        case TipoAcaoMenu.AbrirNoticias:
+                            mainPage.SelectedItem = null;
+                            mainPage.SelectedItem = mainPage.Children[1];
+                            break;
+                        case TipoAcaoMenu.Favoritos:
+                            mainPage.SelectedItem = null;
+                            mainPage.SelectedItem = mainPage.Children[2];
+                            break;
+                        case TipoAcaoMenu.AbrirEventos:
+                            mainPage.SelectedItem = null;
+                            mainPage.SelectedItem = mainPage.Children[3];
+                            break;
+                        case TipoAcaoMenu.AbrirParceiros:
+                            await Detail.Navigation.PushAsync(new ListagemItensPage(AppConstants.Url_PegarPosts, item.TituloPagina, tag: "app-parceiros"));
+                            break;
+                        case TipoAcaoMenu.AbrirDicasCampismo:
+                            await Detail.Navigation.PushAsync(new ListagemItensPage(AppConstants.Url_PegarPosts, item.TituloPagina, tag: "app-dicas"));
+                            break;
+                        case TipoAcaoMenu.AbrirMapa:
+                            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                            {
+                                await DisplayAlert("Este conteúdo requer conexão com a internet", AppConstants.Descricao_SemInternet, "OK");
 
-                        break;
-                    case TipoAcaoMenu.AbrirNoticias:
-                        mainPage.SelectedItem = null;
-                        mainPage.SelectedItem = mainPage.Children[1];
+                                return;
+                            }
 
-                        break;
-                    case TipoAcaoMenu.Favoritos:
-                        mainPage.SelectedItem = null;
-                        mainPage.SelectedItem = mainPage.Children[2];
+                            await Detail.Navigation.PushAsync(new MapaPage(false));
+                            break;
+                        case TipoAcaoMenu.CadastreUmCamping:
+                            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                            {
+                                await DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
 
-                        break;
-                    case TipoAcaoMenu.AbrirEventos:
-                        mainPage.SelectedItem = null;
-                        mainPage.SelectedItem = mainPage.Children[3];
+                                return;
+                            }
 
-                        break;
-                    case TipoAcaoMenu.AbrirParceiros:
-                        await Detail.Navigation.PushAsync(new ListagemItensPage(AppConstants.Url_PegarPosts, item.TituloPagina, tag: "app-parceiros"));
+                            await Detail.Navigation.PushAsync(new CadastreUmCampingPage());
+                            break;
+                        case TipoAcaoMenu.AbrirSobreAEmpresa:
+                            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                            {
+                                await DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
 
-                        break;
-                    case TipoAcaoMenu.AbrirDicasCampismo:
-                        await Detail.Navigation.PushAsync(new ListagemItensPage(AppConstants.Url_PegarPosts, item.TituloPagina, tag: "app-dicas"));
+                                return;
+                            }
 
-                        break;
-                    case TipoAcaoMenu.AbrirMapa:
-                        if (Connectivity.NetworkAccess != NetworkAccess.Internet)
-                        {
-                            await DisplayAlert("Este conteúdo requer conexão com a internet", AppConstants.Descricao_SemInternet, "OK");
+                            await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
 
-                            return;
-                        }
+                            var itens = await new WebService<Item>().Get(AppConstants.Url_PegarPosts, 1, "app-sobre");
 
-                        await Detail.Navigation.PushAsync(new MapaPage(false));
+                            await Navigation.PopPopupAsync();
 
-                        break;
-                    case TipoAcaoMenu.CadastreUmCamping:
-                        if (Connectivity.NetworkAccess != NetworkAccess.Internet)
-                        {
-                            await DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
+                            if (itens.Count == 0)
+                            {
+                                await DisplayAlert("Falha", "Ocorreu um problema ao carregar a página. Tente novamente mais tarde.", "OK");
+                            }
+                            else
+                            {
+                                await Detail.Navigation.PushAsync(new DetalhesPage(itens[0]));
+                            }
+                            break;
+                        case TipoAcaoMenu.Item:
+                            break;
+                        case TipoAcaoMenu.AtualizarCampings:
+                            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                            {
+                                await DisplayAlert("Essa atualização requer conexão com a internet", AppConstants.Descricao_SemInternet, "OK");
 
-                            return;
-                        }
+                                return;
+                            }
 
-                        await Detail.Navigation.PushAsync(new CadastreUmCampingPage());
+                            mainPage.SelectedItem = mainPage.Children[0];
 
-                        break;
-                    case TipoAcaoMenu.AbrirSobreAEmpresa:
-                        if (Connectivity.NetworkAccess != NetworkAccess.Internet)
-                        {
-                            await DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
+                            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscarCampingsAtualizados);
+                            break;
+                        case TipoAcaoMenu.Configuracoes:
+                            break;
+                        case TipoAcaoMenu.AbrirURI:
+                            break;
+                        case TipoAcaoMenu.Sair:
+                            break;
+                        case TipoAcaoMenu.Nenhuma:
+                            break;
+                        case TipoAcaoMenu.NaoImplementadoNessaVersao:
+                            break;
+                        default:
+                            var instance = Activator.CreateInstance(item.TargetType);
 
-                            return;
-                        }
+                            if (instance is Page page)
+                            {
+                                page.Title = !string.IsNullOrWhiteSpace(item.TituloPagina) ? item.TituloPagina : item.Titulo;
+                                Detail = CriarPaginaDetalhes(page);
+                            }
+                            break;
+                    }
 
-                        await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
-                        var itens = await new WebService<Item>().Get(AppConstants.Url_PegarPosts, 1, "app-sobre");
-                        await Navigation.PopPopupAsync();
-
-                        if (itens.Count == 0)
-                        {
-                            await DisplayAlert("Falha", "Ocorreu um problema ao carregar a página. Tente novamente mais tarde.", "OK");
-                        }
-                        else
-                        {
-                            await Detail.Navigation.PushAsync(new DetalhesPage(itens[0]));
-                        }
-
-                        break;
-                    case TipoAcaoMenu.Item:
-                        break;
-                    case TipoAcaoMenu.AtualizarCampings:
-                        if (Connectivity.NetworkAccess != NetworkAccess.Internet)
-                        {
-                            await DisplayAlert("Essa atualização requer conexão com a internet", AppConstants.Descricao_SemInternet, "OK");
-
-                            return;
-                        }
-
-                        mainPage.SelectedItem = mainPage.Children[0];
-
-                        MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscarCampingsAtualizados);
-
-                        break;
-                    case TipoAcaoMenu.Configuracoes:
-                        break;
-                    case TipoAcaoMenu.AbrirURI:
-                        break;
-                    case TipoAcaoMenu.Sair:
-                        break;
-                    case TipoAcaoMenu.Nenhuma:
-                        break;
-                    case TipoAcaoMenu.NaoImplementadoNessaVersao:
-                        break;
-                    default:
-                        var instance = Activator.CreateInstance(item.TargetType);
-
-                        if (instance is Page page)
-                        {
-                            page.Title = !string.IsNullOrWhiteSpace(item.TituloPagina) ? item.TituloPagina : item.Titulo;
-                            Detail = CriarPaginaDetalhes(page);
-                        }
-
-                        break;
+                    await Task.Delay(500).ContinueWith(task => Dispatcher.Dispatch(() => IsPresented = false));
                 }
-
-                await Task.Delay(500).ContinueWith(task => Dispatcher.Dispatch(() => IsPresented = false));
             }
         }
 

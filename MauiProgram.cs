@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using CommunityToolkit.Maui;
 using FFImageLoading.Maui;
+using FluentIcons.Maui;
 using MaCamp.CustomControls;
 using MaCamp.Handlers;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,7 @@ namespace MaCamp
             builder.UseMauiMaps();
             builder.UseMauiMTAdmob();
             builder.UseFFImageLoading();
+            builder.UseFluentIcons(false);
             builder.UseMauiCommunityToolkit();
 
             builder.UseMauiRGPopup(config =>
@@ -35,6 +37,7 @@ namespace MaCamp
                 collection.AddHandler<AdmobRectangleBannerView, AdmobRectangleBannerHandler>();
                 collection.AddHandler<CustomWebView, CustomWebViewHandler>();
                 collection.AddHandler<IconView, IconViewHandler>();
+                collection.AddHandler<Microsoft.Maui.Controls.Maps.Map, CustomMapHandler>();
             });
 
             builder.ConfigureFonts(collection =>

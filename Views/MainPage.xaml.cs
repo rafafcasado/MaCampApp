@@ -17,8 +17,8 @@ namespace MaCamp.Views
             // BarItemColor = "#40000000"
             // BarSelectedItemColor = "White"
 
-            SelectedTabColor = Colors.White;
-            UnselectedTabColor = Colors.Black;
+            SelectedTabColor = AppColors.CorTextoSobreCorPrimaria;
+            UnselectedTabColor = AppColors.CorPrimariaEscura;
 
             NavigationPage.SetBackButtonTitle(this, string.Empty);
 

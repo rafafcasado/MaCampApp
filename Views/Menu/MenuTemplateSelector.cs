@@ -1,4 +1,4 @@
-﻿using MaCamp.Views.CustomCells;
+﻿using MaCamp.Views.CustomViews;
 
 namespace MaCamp.Views.Menu
 {
@@ -11,9 +11,9 @@ namespace MaCamp.Views.Menu
         public MenuTemplateSelector()
         {
             // Retain instances!
-            MasterPageItemTemplate = new DataTemplate(typeof(MasterPageItemViewCell));
-            MasterPageSubItemTemplate = new DataTemplate(typeof(MasterPageSubItemViewCell));
-            DivisoriaTemplate = new DataTemplate(typeof(DivisoriaMenuViewCell));
+            MasterPageItemTemplate = new DataTemplate(typeof(MasterPageItemContentView));
+            MasterPageSubItemTemplate = new DataTemplate(typeof(MasterPageSubItemContentView));
+            DivisoriaTemplate = new DataTemplate(typeof(DivisoriaMenuContentView));
         }
 
         protected override DataTemplate? OnSelectTemplate(object item, BindableObject container)

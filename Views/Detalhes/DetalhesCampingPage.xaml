@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:converter="clr-namespace:MaCamp.Models.Converters"
     xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui"
+    xmlns:icon="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
     xmlns:local="clr-namespace:MaCamp.CustomControls"
     xmlns:localViews="clr-namespace:MaCamp.Views">
 
@@ -22,6 +23,7 @@
 
             <StackLayout
                 x:Name="slContent"
+                BackgroundColor="#f5f5f5"
                 Spacing="0"
                 VerticalOptions="FillAndExpand">
 
@@ -84,145 +86,118 @@
                     VerticalOptions="FillAndExpand">
 
                     <ContentView
-                        x:Name="cvTipo" />
+                        x:Name="cvTipo"
+                        Padding="-15,0,-15,0"/>
 
                     <StackLayout
                         Spacing="5">
 
-                        <StackLayout
+                        <Grid
                             x:Name="slEndereco"
-                            Padding="20"
-                            Orientation="Horizontal"
-                            Spacing="20">
+                            Padding="20,10,20,10"
+                            ColumnDefinitions="20,*,20"
+                            ColumnSpacing="10">
 
                             <Image
+                                Grid.Column="0"
                                 HeightRequest="25"
                                 Source="icone_endereco.png" />
                             <Label
+                                Grid.Column="1"
                                 FontAttributes="Bold"
                                 FontSize="{OnPlatform iOS=13, Default=16}"
+                                LineBreakMode="WordWrap"
                                 Text="{Binding EnderecoCompleto}"
                                 TextColor="Gray"
                                 VerticalOptions="Center" />
                             <Image
+                                Grid.Column="2"
                                 BackgroundColor="White"
+                                HeightRequest="25"
                                 Source="icone_ir.png"
-                                VerticalOptions="Center" />
-                        </StackLayout>
-
+                                VerticalOptions="Center"
+                                WidthRequest="25" />
+                        </Grid>
 
                         <BoxView
                             BackgroundColor="#20000000"
                             HeightRequest="1" />
 
-                        <StackLayout
-                            IsVisible="{Binding Telefone, Converter={StaticResource stringToBool}}"
-                            Spacing="10">
+                        <Grid
+                            x:Name="gridTelefones"
+                            Padding="20,10,20,10"
+                            ColumnDefinitions="20,*"
+                            ColumnSpacing="10">
+
+                            <Image
+                                Grid.Column="0"
+                                HeightRequest="20"
+                                Source="icone_telefone.png"
+                                VerticalOptions="Center"
+                                WidthRequest="20" />
 
                             <StackLayout
-                                x:Name="slTelefone"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                                x:Name="layoutTelefones"
+                                Grid.Column="1"
+                                Spacing="10" />
 
-                                <Image
-                                    HeightRequest="25"
-                                    Source="icone_telefone.png"
-                                    VerticalOptions="Center" />
+                        </Grid>
 
-                                <StackLayout
-                                    Spacing="15">
+                        <BoxView
+                            BackgroundColor="#40000000"
+                            HeightRequest="1" />
 
-                                    <Label
-                                        x:Name="slTelefone1"
-                                        FontAttributes="Bold"
-                                        FontSize="{OnPlatform iOS=13, Default=14}"
-                                        IsVisible="{Binding Telefone, Converter={StaticResource stringToBool}}"
-                                        Text="{Binding Telefone}"
-                                        TextColor="Gray"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        x:Name="slTelefone2"
-                                        FontAttributes="Bold"
-                                        FontSize="{OnPlatform iOS=13, Default=14}"
-                                        IsVisible="{Binding Telefone2, Converter={StaticResource stringToBool}}"
-                                        Text="{Binding Telefone2}"
-                                        TextColor="Gray"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        x:Name="slTelefone3"
-                                        FontAttributes="Bold"
-                                        FontSize="{OnPlatform iOS=13, Default=14}"
-                                        IsVisible="{Binding Telefone3, Converter={StaticResource stringToBool}}"
-                                        Text="{Binding Telefone3}"
-                                        TextColor="Gray"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        x:Name="slTelefone4"
-                                        FontAttributes="Bold"
-                                        FontSize="{OnPlatform iOS=13, Default=14}"
-                                        IsVisible="{Binding Telefone4, Converter={StaticResource stringToBool}}"
-                                        Text="{Binding Telefone4}"
-                                        TextColor="Gray"
-                                        VerticalOptions="Center" />
-                                </StackLayout>
-                            </StackLayout>
+                        <Grid
+                            x:Name="slId"
+                            Padding="20,10,20,10"
+                            ColumnDefinitions="20,*"
+                            ColumnSpacing="10">
 
-                            <BoxView
-                                BackgroundColor="#40000000"
-                                HeightRequest="1" />
-                        </StackLayout>
+                            <Image
+                                Grid.Column="0"
+                                HeightRequest="25"
+                                Source="icone_id.png" />
+                            <Label
+                                Grid.Column="1"
+                                FontAttributes="Bold"
+                                FontSize="{OnPlatform iOS=13, Default=14}"
+                                Text="{Binding IdCamping}"
+                                TextColor="Gray"
+                                VerticalOptions="Center" />
+                        </Grid>
 
-                        <StackLayout
-                            Spacing="10">
-
-                            <StackLayout
-                                x:Name="slId"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
-
-                                <Image
-                                    HeightRequest="25"
-                                    Source="icone_id.png" />
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="{OnPlatform iOS=13, Default=14}"
-                                    Text="{Binding IdCamping}"
-                                    TextColor="Gray"
-                                    VerticalOptions="Center" />
-                            </StackLayout>
-
-                            <BoxView
-                                BackgroundColor="#40000000"
-                                HeightRequest="1" />
-                        </StackLayout>
+                        <BoxView
+                            BackgroundColor="#40000000"
+                            HeightRequest="1" />
 
                         <StackLayout
                             x:Name="slCoordenadas"
-                            Spacing="10">
+                            Spacing="5">
 
-                            <StackLayout
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                            <Grid
+                                Padding="20,10,20,10"
+                                ColumnDefinitions="20,*,20"
+                                ColumnSpacing="10">
 
                                 <Image
+                                    Grid.Column="0"
                                     HeightRequest="20"
                                     Source="icone_pin.png" />
                                 <Label
+                                    Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontSize="{OnPlatform iOS=13, Default=14}"
                                     Text="{Binding LatitudeLongitude, StringFormat='Coordenadas GPS: {0}'}"
                                     TextColor="Gray"
                                     VerticalOptions="Center" />
                                 <ImageButton
+                                    Grid.Column="2"
                                     BackgroundColor="White"
                                     Clicked="CopiarCoordenadas"
-                                    HeightRequest="41"
+                                    HeightRequest="20"
                                     Source="copy_paste.png"
                                     WidthRequest="35" />
-                            </StackLayout>
+                            </Grid>
 
                             <BoxView
                                 BackgroundColor="#40000000"
@@ -233,47 +208,53 @@
                             IsVisible="{Binding Funcionamento, Converter={StaticResource stringToBool}}"
                             Spacing="10">
 
-                            <StackLayout
+                            <Grid
                                 x:Name="slFuncionamento"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                                Padding="20,10,20,10"
+                                ColumnDefinitions="20,*"
+                                ColumnSpacing="10">
 
                                 <Image
+                                    Grid.Column="0"
                                     HeightRequest="25"
                                     Source="icone_calendario.png" />
                                 <Label
+                                    Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontSize="{OnPlatform iOS=13, Default=14}"
                                     Text="{Binding Funcionamento}"
                                     TextColor="Gray"
                                     VerticalOptions="Center" />
-                                <BoxView
-                                    BackgroundColor="#40000000"
-                                    HeightRequest="1" />
-                            </StackLayout>
+                            </Grid>
+
+                            <BoxView
+                                BackgroundColor="#40000000"
+                                HeightRequest="1" />
                         </StackLayout>
 
                         <StackLayout
                             IsVisible="{Binding Site, Converter={StaticResource stringToBool}}"
                             Spacing="10">
 
-                            <StackLayout
+                            <Grid
                                 x:Name="slSite"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                                Padding="20,10,20,10"
+                                ColumnDefinitions="20,*"
+                                ColumnSpacing="10">
 
                                 <Image
+                                    Grid.Column="0"
                                     HeightRequest="25"
                                     Source="icone_site.png" />
                                 <Label
+                                    Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontSize="{OnPlatform iOS=13, Default=14}"
+                                    LineBreakMode="TailTruncation"
                                     Text="{Binding Site}"
                                     TextColor="Gray"
                                     VerticalOptions="Center" />
-                            </StackLayout>
+                            </Grid>
 
                             <BoxView
                                 BackgroundColor="#40000000"
@@ -284,22 +265,25 @@
                             IsVisible="{Binding LinkPrecos, Converter={StaticResource stringToBool}}"
                             Spacing="10">
 
-                            <StackLayout
+                            <Grid
                                 x:Name="slPreco"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                                Padding="20,10,20,10"
+                                ColumnDefinitions="20,*"
+                                ColumnSpacing="10">
 
                                 <Image
+                                    Grid.Column="0"
                                     HeightRequest="30"
                                     Source="iconedolar.png" />
                                 <Label
+                                    Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontSize="{OnPlatform iOS=13, Default=14}"
+                                    LineBreakMode="TailTruncation"
                                     Text="{Binding LinkPrecos}"
                                     TextColor="Gray"
                                     VerticalOptions="Center" />
-                            </StackLayout>
+                            </Grid>
 
                             <BoxView
                                 BackgroundColor="#40000000"
@@ -310,22 +294,26 @@
                             IsVisible="{Binding Facebook, Converter={StaticResource stringToBool}}"
                             Spacing="10">
 
-                            <StackLayout
+                            <Grid
                                 x:Name="slFacebook"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                                Padding="20,10,20,10"
+                                ColumnDefinitions="20,*"
+                                ColumnSpacing="10">
 
                                 <Image
-                                    HeightRequest="30"
-                                    Source="iconefacebook.png" />
+                                    Grid.Column="0"
+                                    HeightRequest="25"
+                                    Source="iconefacebook.png"
+                                    WidthRequest="25" />
                                 <Label
+                                    Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontSize="{OnPlatform iOS=13, Default=14}"
+                                    LineBreakMode="TailTruncation"
                                     Text="{Binding Facebook}"
                                     TextColor="Gray"
                                     VerticalOptions="Center" />
-                            </StackLayout>
+                            </Grid>
 
                             <BoxView
                                 BackgroundColor="#40000000"
@@ -336,21 +324,26 @@
                             IsVisible="{Binding Instagram, Converter={StaticResource stringToBool}}"
                             Spacing="10">
 
-                            <StackLayout
+                            <Grid
                                 x:Name="slInstagram"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                                Padding="20,10,20,10"
+                                ColumnDefinitions="20,*"
+                                ColumnSpacing="10">
+
                                 <Image
-                                    HeightRequest="30"
-                                    Source="iconeinstagram.png" />
+                                    Grid.Column="0"
+                                    HeightRequest="25"
+                                    Source="iconeinstagram.png"
+                                    WidthRequest="25" />
                                 <Label
+                                    Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontSize="{OnPlatform iOS=13, Default=14}"
+                                    LineBreakMode="TailTruncation"
                                     Text="{Binding Instagram}"
                                     TextColor="Gray"
                                     VerticalOptions="Center" />
-                            </StackLayout>
+                            </Grid>
 
                             <BoxView
                                 BackgroundColor="#40000000"
@@ -361,22 +354,26 @@
                             IsVisible="{Binding Youtube, Converter={StaticResource stringToBool}}"
                             Spacing="10">
 
-                            <StackLayout
+                            <Grid
                                 x:Name="slYoutube"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                                Padding="20,10,20,10"
+                                ColumnDefinitions="20,*"
+                                ColumnSpacing="10">
 
                                 <Image
-                                    HeightRequest="30"
-                                    Source="youtubeicone.png" />
+                                    Grid.Column="0"
+                                    HeightRequest="25"
+                                    Source="youtubeicone.png"
+                                    WidthRequest="25" />
                                 <Label
+                                    Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontSize="{OnPlatform iOS=13, Default=14}"
+                                    LineBreakMode="TailTruncation"
                                     Text="{Binding Youtube}"
                                     TextColor="Gray"
                                     VerticalOptions="Center" />
-                            </StackLayout>
+                            </Grid>
 
                             <BoxView
                                 BackgroundColor="#40000000"
@@ -387,22 +384,26 @@
                             IsVisible="{Binding Email, Converter={StaticResource stringToBool}}"
                             Spacing="10">
 
-                            <StackLayout
+                            <Grid
                                 x:Name="slEmail"
-                                Padding="20"
-                                Orientation="Horizontal"
-                                Spacing="20">
+                                Padding="20,10,20,10"
+                                ColumnDefinitions="20,*"
+                                ColumnSpacing="10">
 
                                 <Image
+                                    Grid.Column="0"
                                     HeightRequest="25"
-                                    Source="icone_email.png" />
+                                    Source="icone_email.png"
+                                    WidthRequest="25" />
                                 <Label
+                                    Grid.Column="1"
                                     FontAttributes="Bold"
                                     FontSize="{OnPlatform iOS=13, Default=14}"
+                                    LineBreakMode="TailTruncation"
                                     Text="{Binding Email}"
                                     TextColor="Gray"
                                     VerticalOptions="Center" />
-                            </StackLayout>
+                            </Grid>
                         </StackLayout>
                     </StackLayout>
                 </StackLayout>
@@ -421,7 +422,7 @@
 
                 <StackLayout
                     Padding="15"
-                    BackgroundColor="White"
+                    BackgroundColor="#f5f5f5"
                     Spacing="10"
                     VerticalOptions="FillAndExpand">
 

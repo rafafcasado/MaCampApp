@@ -1,10 +1,10 @@
 ﻿using MaCamp.Views.Menu;
 
-namespace MaCamp.Views.CustomCells
+namespace MaCamp.Views.CustomViews
 {
-    public partial class MasterPageItemViewCell : ViewCell
+    public partial class MasterPageItemContentView : ContentView
     {
-        public MasterPageItemViewCell()
+        public MasterPageItemContentView()
         {
             InitializeComponent();
         }

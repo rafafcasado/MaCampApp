@@ -19,6 +19,7 @@ namespace MaCamp.Views.Campings
             //}));
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Página do Camping: ");
+
             MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_ExibirBuscaCampings);
 
             MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_ExibirBuscaCampings, r =>
@@ -33,7 +34,7 @@ namespace MaCamp.Views.Campings
 
             MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada, r =>
             {
-                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor("BUSCA_INICIAL_REALIZADA", "true", TipoChave.ControleInterno));
+                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno));
 
                 Dispatcher.Dispatch(() =>
                 {
@@ -47,11 +48,11 @@ namespace MaCamp.Views.Campings
 
         private void CarregarConteudo()
         {
-            var buscaInicialRealizada = DBContract.Instance.ObterValorChave("BUSCA_INICIAL_REALIZADA");
+            var buscaInicialRealizada = DBContract.Instance.ObterValorChave(AppConstants.Busca_InicialRealizada);
 
             if (buscaInicialRealizada != null)
             {
-                cvContent.Content = new ListagemCampingsView("");
+                //cvContent.Content = new ListagemCampingsView("");
             }
             else
             {
@@ -59,7 +60,7 @@ namespace MaCamp.Views.Campings
 
                 DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
-                    Chave = "FILTROS_ESTABELECIMENTO_SELECIONADOS",
+                    Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
                     Valor = valorEstabelecimentos
                 });
 
@@ -67,15 +68,17 @@ namespace MaCamp.Views.Campings
                 {
                     var lbMensagemAviso = new Label
                     {
-                        TextColor = Color.FromArgb("414141"), HorizontalTextAlignment = TextAlignment.Center,
-                        VerticalOptions = LayoutOptions.Center, Margin = 20
+                        TextColor = Color.FromArgb("#414141"),
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        VerticalOptions = LayoutOptions.Center,
+                        Margin = 20
                     };
-
                     var fs = new FormattedString();
 
                     fs.Spans.Add(new Span
                     {
-                        Text = "O primeiro acesso requer conexão com a internet.\n\n", FontAttributes = FontAttributes.Bold,
+                        Text = "O primeiro acesso requer conexão com a internet.\n\n",
+                        FontAttributes = FontAttributes.Bold,
                         FontSize = 20
                     });
                     fs.Spans.Add(new Span

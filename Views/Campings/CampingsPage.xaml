@@ -4,10 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     BackgroundColor="{DynamicResource BgListagemNoticias}">
 
-    <ContentPage.Content>
+    <ContentView
+        x:Name="cvContent" />
 
-        <ContentView
-            x:Name="cvContent" />
-
-    </ContentPage.Content>
 </ContentPage>

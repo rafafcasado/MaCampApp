@@ -4,7 +4,7 @@ using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Models.Services;
 using MaCamp.ViewModels;
-using MaCamp.Views.CustomCells;
+using MaCamp.Views.CustomViews;
 using MaCamp.Views.Detalhes;
 using MaCamp.Views.Menu;
 
@@ -30,21 +30,17 @@ namespace MaCamp.Views.Listagens
             EndpointListagem = endpointListagem;
             Tag = tag;
             ParametrosBusca = parametrosBusca;
-            lvItens.Header = null;
-            lvItens.ItemAppearing += Handle_ItemAppearing;
-            lvItens.ItemTemplate = new ItemDataTemplateSelector();
 
-            //lvItens.ItemTemplate = new DataTemplate(typeof(ItemViewCell));
-            lvItens.RefreshCommand = new Command(() => RecarregarConteudo(null, null));
+            cvItens.ItemTemplate = new ItemDataTemplateSelector();
 
             Task.Run(async () => await CarregarConteudo());
         }
 
-        private async void Handle_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void Handle_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.SelectedItem is Item item)
+            if (e.CurrentSelection.FirstOrDefault() is Item item)
             {
-                lvItens.SelectedItem = null;
+                cvItens.SelectedItem = null;
 
                 if (item.DeveAbrirExternamente && item.UrlExterna != null)
                 {
@@ -58,36 +54,41 @@ namespace MaCamp.Views.Listagens
             }
         }
 
-        private async void Handle_ItemAppearing(object? sender, ItemVisibilityEventArgs e)
+        private async void Handle_Scrolled(object? sender, ItemsViewScrolledEventArgs e)
         {
-            if (e.Item is Item item)
+            if (sender is CollectionView collectionView && collectionView.ItemsSource is ObservableCollection<Item> itemsSource)
             {
-                var temMaisItens = _viewModel.Itens.Count >= AppConstants.QuantidadeNoticiasPorLote;
-                var contemItemLocal = !IdsQueJaChamaramPaginacao.Contains(item.IdLocal);
+                var item = itemsSource.ElementAtOrDefault(e.LastVisibleItemIndex);
 
-                if (temMaisItens && _viewModel.Itens.Count - 5 > 0 && e.Item == _viewModel.Itens[^5] && contemItemLocal)
+                if (item != null)
                 {
-                    IdsQueJaChamaramPaginacao.Add(item.IdLocal);
+                    var temMaisItens = _viewModel.Itens.Count >= AppConstants.QuantidadeNoticiasPorLote;
+                    var contemItemLocal = !IdsQueJaChamaramPaginacao.Contains(item.IdLocal);
 
-                    await Task.Run(CarregarConteudo);
+                    if (temMaisItens && _viewModel.Itens.Count - 5 > 0 && item == _viewModel.Itens[^5] && contemItemLocal)
+                    {
+                        IdsQueJaChamaramPaginacao.Add(item.IdLocal);
+
+                        await Task.Run(CarregarConteudo);
+                    }
                 }
             }
         }
 
-        private async void RecarregarConteudo(object? sender, EventArgs? e)
+        private async void Handle_Refreshing(object? sender, EventArgs? e)
         {
             _viewModel.Itens = new ObservableCollection<Item>();
             lbMensagemAviso.IsVisible = false;
 
             if (sender != null)
             {
-                loaderConteudoInicial.IsVisible = loaderConteudoInicial.IsRunning = true;
+                loaderConteudoInicial.IsVisible = true;
+                loaderConteudoInicial.IsRunning = true;
             }
 
-            lvItens.ItemsSource = null;
-            lvItens.ItemTemplate = new ItemDataTemplateSelector();
+            cvItens.ItemsSource = null;
 
-            //lvItens.ItemTemplate = new DataTemplate(typeof(ItemViewCell));
+            //lvItens.ItemTemplate = new DataTemplate(typeof(ItemContentView));
             PaginaAtual = 0;
             IdsQueJaChamaramPaginacao = new List<int>();
 
@@ -100,15 +101,19 @@ namespace MaCamp.Views.Listagens
             {
                 Dispatcher.Dispatch(() =>
                 {
-                    loaderConteudoInicial.IsVisible = loaderConteudoInicial.IsRunning = loaderConteudoAdicional.IsVisible = false;
+                    loaderConteudoInicial.IsVisible = false;
+                    loaderConteudoInicial.IsRunning = false;
+                    loaderConteudoAdicional.IsVisible = false;
 
                     //Verifica se existem Campings baixados
                     var existemCampingsBD = CampingServices.ExistemCampingsBD();
                     var fs = new FormattedString();
+                    var tap = new TapGestureRecognizer();
 
                     fs.Spans.Add(new Span
                     {
-                        Text = "Este conteúdo requer conexão com a internet.\n\n", FontAttributes = FontAttributes.Bold,
+                        Text = "Este conteúdo requer conexão com a internet.\n\n",
+                        FontAttributes = FontAttributes.Bold,
                         FontSize = 20
                     });
 
@@ -118,15 +123,12 @@ namespace MaCamp.Views.Listagens
                         {
                             Text = "Se preferir acesse o guia de campings, disponível off-line!"
                         });
-
                         fs.Spans.Add(new Span
                         {
                             Text = "\nToque aqui para acessar",
                             TextColor = AppColors.CorDestaque,
                             FontAttributes = FontAttributes.Bold
                         });
-
-                        var tap = new TapGestureRecognizer();
 
                         tap.Tapped += delegate
                         {
@@ -148,13 +150,13 @@ namespace MaCamp.Views.Listagens
                             Text = AppConstants.Descricao_SemInternet
                         });
 
-                        var tap = new TapGestureRecognizer();
-                        tap.Tapped += RecarregarConteudo;
-                        lbMensagemAviso.GestureRecognizers.Add(tap);
+                        tap.Tapped += Handle_Refreshing;
                     }
 
                     lbMensagemAviso.FormattedText = fs;
                     lbMensagemAviso.IsVisible = true;
+
+                    lbMensagemAviso.GestureRecognizers.Add(tap);
                 });
 
                 return;
@@ -171,7 +173,9 @@ namespace MaCamp.Views.Listagens
             {
                 Dispatcher.Dispatch(() =>
                 {
-                    loaderConteudoInicial.IsVisible = loaderConteudoInicial.IsRunning = loaderConteudoInicial.IsVisible = true;
+                    loaderConteudoInicial.IsVisible = true;
+                    loaderConteudoInicial.IsRunning = true;
+                    loaderConteudoInicial.IsVisible = true;
                 });
             }
 
@@ -179,14 +183,16 @@ namespace MaCamp.Views.Listagens
 
             Dispatcher.Dispatch(() =>
             {
-                loaderConteudoInicial.IsVisible = loaderConteudoInicial.IsRunning = loaderConteudoAdicional.IsVisible = false;
-                lvItens.IsRefreshing = false;
+                loaderConteudoInicial.IsVisible = false;
+                loaderConteudoInicial.IsRunning = false;
+                loaderConteudoAdicional.IsVisible = false;
+                rvItens.IsRefreshing = false;
 
                 if (_viewModel.Itens.Count > 0)
                 {
                     lbMensagemAviso.IsVisible = false;
-                    lvItens.ItemsSource = _viewModel.Itens;
-                    lvItens.IsVisible = true;
+                    cvItens.ItemsSource = _viewModel.Itens;
+                    cvItens.IsVisible = true;
                 }
                 else
                 {
@@ -209,7 +215,7 @@ namespace MaCamp.Views.Listagens
 
                     var tap = new TapGestureRecognizer();
 
-                    tap.Tapped += RecarregarConteudo;
+                    tap.Tapped += Handle_Refreshing;
 
                     lbMensagemAviso.GestureRecognizers.Add(tap);
                 }

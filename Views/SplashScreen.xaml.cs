@@ -13,7 +13,7 @@ namespace MaCamp.Views
 
         private async void AnimateSplashScreen(Type type)
         {
-            var duration = Convert.ToUInt32(500);
+            var duration = Convert.ToUInt32(System.Diagnostics.Debugger.IsAttached ? 50 : 500);
 
             try
             {
@@ -29,9 +29,9 @@ namespace MaCamp.Views
                     Application.Current.MainPage = page;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(ex.Message);
             }
             finally
             {

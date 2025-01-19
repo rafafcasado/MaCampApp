@@ -4,55 +4,55 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     BackgroundColor="{DynamicResource BgListagemNoticias}">
 
-    <ContentView.Content>
-        <StackLayout>
+    <StackLayout>
+        <ActivityIndicator
+            x:Name="loaderConteudoInicial"
+            HorizontalOptions="CenterAndExpand"
+            IsRunning="True"
+            IsVisible="True"
+            VerticalOptions="CenterAndExpand"
+            Color="{DynamicResource CorPrimaria}" />
+        <Label
+            x:Name="lbMensagemAviso"
+            Margin="15"
+            FontSize="Medium"
+            HorizontalOptions="CenterAndExpand"
+            HorizontalTextAlignment="Center"
+            IsVisible="False"
+            TextColor="{DynamicResource CorTextoMenuLateral}"
+            VerticalOptions="CenterAndExpand">
+
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer
+                    Tapped="Handle_Refreshing" />
+            </Label.GestureRecognizers>
+        </Label>
+
+        <RefreshView
+            x:Name="rvItens"
+            Refreshing="Handle_Refreshing">
+
+            <CollectionView
+                x:Name="cvItens"
+                BackgroundColor="{DynamicResource BgListagemNoticias}"
+                IsVisible="False"
+                SelectionChanged="Handle_SelectionChanged"
+                SelectionMode="Single" />
+        </RefreshView>
+
+        <StackLayout
+            x:Name="loaderConteudoAdicional"
+            Padding="15"
+            BackgroundColor="{DynamicResource BgListagemNoticias}"
+            IsVisible="False">
+
             <ActivityIndicator
-                x:Name="loaderConteudoInicial"
+                HeightRequest="25"
                 HorizontalOptions="CenterAndExpand"
                 IsRunning="True"
                 IsVisible="True"
-                VerticalOptions="CenterAndExpand"
+                VerticalOptions="End"
                 Color="{DynamicResource CorPrimaria}" />
-            <Label
-                x:Name="lbMensagemAviso"
-                Margin="15"
-                FontSize="Medium"
-                HorizontalOptions="CenterAndExpand"
-                HorizontalTextAlignment="Center"
-                IsVisible="False"
-                TextColor="{DynamicResource CorTextoMenuLateral}"
-                VerticalOptions="CenterAndExpand">
-
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer
-                        Tapped="RecarregarConteudo" />
-                </Label.GestureRecognizers>
-            </Label>
-            <ListView
-                x:Name="lvItens"
-                BackgroundColor="Transparent"
-                CachingStrategy="RecycleElement"
-                HasUnevenRows="True"
-                IsPullToRefreshEnabled="true"
-                IsVisible="False"
-                ItemSelected="Handle_ItemSelected"
-                SeparatorVisibility="None"
-                VerticalOptions="FillAndExpand" />
-
-            <StackLayout
-                x:Name="loaderConteudoAdicional"
-                Padding="15"
-                BackgroundColor="{DynamicResource BgListagemNoticias}"
-                IsVisible="False">
-
-                <ActivityIndicator
-                    HeightRequest="25"
-                    HorizontalOptions="CenterAndExpand"
-                    IsRunning="True"
-                    IsVisible="True"
-                    VerticalOptions="End"
-                    Color="{DynamicResource CorPrimaria}" />
-            </StackLayout>
         </StackLayout>
-    </ContentView.Content>
+    </StackLayout>
 </ContentView>

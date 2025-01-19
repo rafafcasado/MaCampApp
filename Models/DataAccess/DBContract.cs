@@ -338,7 +338,7 @@ namespace MaCamp.Models.DataAccess
 
             //db.InserirOuSubstituirModelo(db.InserirOuSubstituirModelo(new ChaveValor
             //{
-            //    Chave = "FILTROS_NOME_DO_CAMPING",
+            //    Chave = AppConstants.Filtro_NomeCamping,
             //    Valor = ""
             //}));
 
@@ -483,9 +483,9 @@ namespace MaCamp.Models.DataAccess
 
                     return itens;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + e);
+                    Debug.WriteLine("<<Exceção>> " + ex);
 
                     return new List<Item>();
                 }

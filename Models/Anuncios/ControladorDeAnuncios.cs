@@ -9,7 +9,7 @@ namespace MaCamp.Models.Anuncios
     {
         public static async Task VerificarEExibirAnuncioPopup()
         {
-            var quantidade = DBContract.Instance.ObterValorChave("QTD_ABERTURAS_DETALHES");
+            var quantidade = DBContract.Instance.ObterValorChave(AppConstants.Quantidade_AberturasDetalhes);
 
             if (int.TryParse(quantidade, out var quantidadeAberturasDetalhes))
             {
@@ -22,12 +22,14 @@ namespace MaCamp.Models.Anuncios
                     if (qtdNecessaria == quantidadeAberturasDetalhes)
                     {
                         await AppConstants.CurrentPage.Navigation.PushPopupAsync(new AnuncioPopupPage());
-                        DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor("QTD_ABERTURAS_DETALHES", 0.ToString(), TipoChave.ControleInterno));
+
+                        DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Quantidade_AberturasDetalhes, 0.ToString(), TipoChave.ControleInterno));
                     }
                     else
                     {
                         quantidadeAberturasDetalhes += 1;
-                        DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor("QTD_ABERTURAS_DETALHES", quantidadeAberturasDetalhes.ToString(), TipoChave.ControleInterno));
+
+                        DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Quantidade_AberturasDetalhes, quantidadeAberturasDetalhes.ToString(), TipoChave.ControleInterno));
                     }
                 }
             }

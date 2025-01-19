@@ -44,7 +44,7 @@ namespace MaCamp.Views.Detalhes
 
                     tapGesture.Tapped += async delegate
                     {
-                        await Navigation.PushAsync(new ListagemFotosPage(item.LinksFotos.Split('|')));
+                        await Navigation.PushAsync(new ListagemFotosPage(item.LinksFotos.Split('|').ToList()));
                     };
 
                     grdFotoPrincipal.GestureRecognizers.Add(tapGesture);
@@ -76,56 +76,112 @@ namespace MaCamp.Views.Detalhes
             ConfigurarToolbar(item);
 
             var abrirMapa = new TapGestureRecognizer();
-            var abrirSite = new TapGestureRecognizer();
-            var abrirPreco = new TapGestureRecognizer();
-            var abrirFacebook = new TapGestureRecognizer();
-            var abrirInstragram = new TapGestureRecognizer();
-            var abrirYoutube = new TapGestureRecognizer();
             var abrirEmail = new TapGestureRecognizer();
-            var abrirTelefone = new TapGestureRecognizer();
-            var abrirTelefone2 = new TapGestureRecognizer();
-            var abrirTelefone3 = new TapGestureRecognizer();
-            var abrirTelefone4 = new TapGestureRecognizer();
+            var naoExisteCoordenadas = item.Latitude == 0 && item.Longitude == 0;
 
-            if (item.Latitude == 0 && item.Longitude == 0)
-            {
-                slCoordenadas.IsVisible = false;
+            slCoordenadas.IsVisible = !naoExisteCoordenadas;
 
-                abrirMapa.Tapped += async (s, e) =>
-                {
-                    await AbrirEndereco(s, null);
-                };
-            }
-            else
-            {
-                abrirMapa.Tapped += async (s, e) =>
-                {
-                    await AbrirLatitudeLongitude(s, null);
-                };
-            }
-
-            abrirSite.Tapped += (s, e) => AbrirURI2(s, ItemAtual.Site);
-            abrirPreco.Tapped += (s, e) => AbrirURI2(s, ItemAtual.LinkPrecos);
-            abrirFacebook.Tapped += (s, e) => AbrirURI2(s, ItemAtual.Facebook);
-            abrirInstragram.Tapped += (s, e) => AbrirURI2(s, ItemAtual.Instagram);
-            abrirYoutube.Tapped += (s, e) => AbrirURI2(s, ItemAtual.Youtube);
+            abrirMapa.Tapped += naoExisteCoordenadas ? AbrirEndereco : AbrirLatitudeLongitude;
             abrirEmail.Tapped += (s, e) => AbrirMail2(s, ItemAtual.Email);
-            abrirTelefone.Tapped += (s, e) => AbrirTelefone2(s, ItemAtual.Telefone);
-            abrirTelefone2.Tapped += (s, e) => AbrirTelefone2(s, ItemAtual.Telefone2);
-            abrirTelefone3.Tapped += (s, e) => AbrirTelefone2(s, ItemAtual.Telefone3);
-            abrirTelefone4.Tapped += (s, e) => AbrirTelefone2(s, ItemAtual.Telefone4);
 
             slEndereco.GestureRecognizers.Add(abrirMapa);
-            slSite.GestureRecognizers.Add(abrirSite);
-            slPreco.GestureRecognizers.Add(abrirPreco);
-            slFacebook.GestureRecognizers.Add(abrirFacebook);
-            slInstagram.GestureRecognizers.Add(abrirInstragram);
-            slYoutube.GestureRecognizers.Add(abrirYoutube);
             slEmail.GestureRecognizers.Add(abrirEmail);
-            slTelefone1.GestureRecognizers.Add(abrirTelefone);
-            slTelefone2.GestureRecognizers.Add(abrirTelefone2);
-            slTelefone3.GestureRecognizers.Add(abrirTelefone3);
-            slTelefone4.GestureRecognizers.Add(abrirTelefone4);
+
+            var listaElementosURL = new Dictionary<View, string?>
+            {
+                { slSite, ItemAtual.Site },
+                { slPreco, ItemAtual.LinkPrecos },
+                { slFacebook, ItemAtual.Facebook },
+                { slInstagram, ItemAtual.Instagram },
+                { slYoutube, ItemAtual.Youtube }
+            };
+
+            listaElementosURL.ForEach(x =>
+            {
+                var (element, url) = x;
+                var tapGestureRecognizer = new TapGestureRecognizer();
+
+                tapGestureRecognizer.Tapped += (s, e) => AbrirURI2(s, url);
+
+                element.GestureRecognizers.Add(tapGestureRecognizer);
+            });
+
+            var listaTelefones = new List<string?>
+            {
+                ItemAtual.Telefone,
+                ItemAtual.Telefone2,
+                ItemAtual.Telefone3,
+                ItemAtual.Telefone4,
+            };
+            var listaTelefonesValidos = listaTelefones.Where(x => !string.IsNullOrEmpty(x)).ToList();
+
+            gridTelefones.IsVisible = listaTelefonesValidos.Count > 0;
+
+            listaTelefonesValidos.ForEach(x =>
+            {
+                var grid = new Grid
+                {
+                    ColumnDefinitions = new ColumnDefinitionCollection(new ColumnDefinition(GridLength.Star), new ColumnDefinition(40), new ColumnDefinition(40))
+                };
+                var label = new Label
+                {
+                    FontAttributes = FontAttributes.Bold,
+                    FontSize = 14,
+                    Text = x,
+                    TextColor = Colors.Gray,
+                    VerticalTextAlignment = TextAlignment.Center
+                };
+                var whatsAppButton = new ImageButton
+                {
+                    HeightRequest = 25,
+                    WidthRequest = 25,
+                    Source = "whatsapp.png",
+                    ClassId = "whatsapp"
+                };
+                var dialerButton = new ImageButton
+                {
+                    HeightRequest = 25,
+                    WidthRequest = 25,
+                    Source = "chamada.png",
+                    ClassId = "dialer"
+                };
+
+                Grid.SetColumn(label, 0);
+                Grid.SetColumn(whatsAppButton, 1);
+                Grid.SetColumn(dialerButton, 2);
+
+                whatsAppButton.Clicked += ImageButton_Clicked;
+                dialerButton.Clicked += ImageButton_Clicked;
+
+                grid.Children.Add(label);
+                grid.Children.Add(whatsAppButton);
+                grid.Children.Add(dialerButton);
+
+                layoutTelefones.Add(grid);
+            });
+        }
+
+        private async void ImageButton_Clicked(object? sender, EventArgs e)
+        {
+            if (sender is ImageButton imageButton && imageButton.ClassId != null && imageButton.Parent is Grid grid)
+            {
+                var label = grid.Children.OfType<Label>().FirstOrDefault();
+
+                if (label != null)
+                {
+                    var value = Regex.Replace(label.Text, @"[.\-\(\)\s]", "");
+
+                    switch (imageButton.ClassId)
+                    {
+                        case "dialer":
+                            await Launcher.TryOpenAsync($"tel:+55{value}");
+                            break;
+                        case "whatsapp":
+                            await Launcher.TryOpenAsync($"https://wa.me/+55{value}");
+                            break;
+                    }
+                }
+            }
         }
 
         private void ConfigurarToolbar(Item item)
@@ -171,9 +227,10 @@ namespace MaCamp.Views.Detalhes
             }));
         }
 
-        //async void OnMaisFotosTapped(object sender, EventArgs e)
+        //private async void OnMaisFotosTapped(object sender, EventArgs e)
         //{
-        //    string url = (sender as Grid).ClassId;
+        //    var url = sender is Grid grid && grid.ClassId;
+        //
         //    await Navigation.PushModalAsync(new VisualizacaoFotoPage(url));
         //}
 
@@ -217,18 +274,18 @@ namespace MaCamp.Views.Detalhes
             }
         }
 
-        private async Task AbrirEndereco(object? sender, TappedEventArgs? e)
+        private async void AbrirEndereco(object? sender, TappedEventArgs? e)
         {
             if (ItemAtual.Latitude != null && ItemAtual.Longitude != null)
             {
                 var enderecoCompleto = Uri.EscapeDataString($"{ItemAtual.Endereco}, {ItemAtual.Cidade}, {ItemAtual.Estado}, {ItemAtual.Pais}");
                 var url = $"https://www.google.com/maps/search/?api=1&query={enderecoCompleto}";
 
-                await Launcher.OpenAsync(new Uri(url));
+                await Launcher.OpenAsync(url);
             }
         }
 
-        private async Task AbrirLatitudeLongitude(object? sender, TappedEventArgs? e)
+        private async void AbrirLatitudeLongitude(object? sender, TappedEventArgs? e)
         {
             if (ItemAtual.Latitude != null && ItemAtual.Longitude != null)
             {
@@ -239,13 +296,13 @@ namespace MaCamp.Views.Detalhes
             }
         }
 
-        //private async void AbrirURI(object sender, TappedEventArgs e)
-        //{
-        //    if (e.Parameter is string parameter)
-        //    {
-        //        await Launcher.TryOpenAsync(parameter);
-        //    }
-        //}
+        private async void AbrirURI(object sender, TappedEventArgs e)
+        {
+            if (e.Parameter is string parameter)
+            {
+                await Launcher.TryOpenAsync(parameter);
+            }
+        }
 
         private async void AbrirURI2(object? sender, string? url)
         {
@@ -260,16 +317,16 @@ namespace MaCamp.Views.Detalhes
             await Launcher.TryOpenAsync("mailto:" + email);
         }
 
-        //private async void AbrirTelefone(object? sender, TappedEventArgs e)
-        //{
-        //    await Launcher.TryOpenAsync("tel:" + e.Parameter?.ToString()?.Replace(".", "").Replace("(", "").Replace(")", ""));
-        //}
+        private async void AbrirTelefone(object? sender, TappedEventArgs e)
+        {
+            await Launcher.TryOpenAsync("tel:" + e.Parameter?.ToString()?.Replace(".", "").Replace("(", "").Replace(")", ""));
+        }
 
         private async void AbrirTelefone2(object? sender, string? telefone)
         {
             if (telefone != null)
             {
-                await Launcher.TryOpenAsync("tel:" + Regex.Replace(telefone, @"[.\(\)\s]", ""));
+                await Launcher.TryOpenAsync("tel:" + Regex.Replace(telefone, @"[.\-\(\)\s]", ""));
             }
         }
 

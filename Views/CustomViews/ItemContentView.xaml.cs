@@ -2,13 +2,13 @@
 using MaCamp.Models;
 using MaCamp.Models.Services;
 
-namespace MaCamp.Views.CustomCells
+namespace MaCamp.Views.CustomViews
 {
-    public partial class ItemViewCell : ViewCell
+    public partial class ItemContentView : ContentView
     {
         private Item? ItemAtual { get; set; }
 
-        public ItemViewCell()
+        public ItemContentView()
         {
             InitializeComponent();
 

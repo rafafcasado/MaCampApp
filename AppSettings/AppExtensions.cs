@@ -199,5 +199,17 @@ namespace MaCamp.AppSettings
 
             return sb.ToString().Normalize(NormalizationForm.FormC);
         }
+
+        public static T ToPlatform<T>(this T defaultValue, Dictionary<DevicePlatform, T> keyValuePair)
+        {
+            var current = DeviceInfo.Platform;
+
+            if (keyValuePair.TryGetValue(current, out var value))
+            {
+                return value;
+            }
+
+            return defaultValue;
+        }
     }
 }

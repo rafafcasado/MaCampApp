@@ -1,15 +1,14 @@
-<ViewCell
-    x:Class="MaCamp.Views.CustomCells.DivisoriaMenuViewCell"
+<ContentView
+    x:Class="MaCamp.Views.CustomViews.DivisoriaMenuContentView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <ViewCell.View>
-        <BoxView
-            Margin="15,0"
-            BackgroundColor="#d6d6d6"
-            HeightRequest="1" />
+    <BoxView
+        Margin="15,0"
+        BackgroundColor="#d6d6d6"
+        HeightRequest="1" />
 
-        <!--<StackLayout
+    <!--<StackLayout
             BackgroundColor="#F5F5F5">
 
             <BoxView
@@ -26,5 +25,4 @@
                 HeightRequest="1" />
         </StackLayout>-->
 
-    </ViewCell.View>
-</ViewCell>
+</ContentView>

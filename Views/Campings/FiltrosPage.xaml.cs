@@ -1,21 +1,20 @@
 ﻿using MaCamp.AppSettings;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
-using StackLayout = Microsoft.Maui.Controls.StackLayout;
 
 namespace MaCamp.Views.Campings
 {
     public partial class FiltrosPage : ContentPage
     {
-        //public string EstadoSelecionado { get; set; }
-        //public string CidadeSelecionada { get; set; }
+        // public string EstadoSelecionado { get; set; }
+        // public string CidadeSelecionada { get; set; }
 
-        //private string ParametroTODAS = " - TODAS - ";
-        //private string ParametroTODOS = " - TODOS - ";
+        private string ParametroTODAS { get; }
+        private string ParametroTODOS { get; }
         private DBContract DB { get; }
         private List<string> EstabelecimentosSelecionados { get; }
         private List<string> ComodidadesSelecionadas { get; }
-        //private bool UsarLocalizacaoUsuario { get; set; }
+        private bool UsarLocalizacaoUsuario { get; set; }
 
         public FiltrosPage(bool busca = false)
         {
@@ -34,6 +33,8 @@ namespace MaCamp.Views.Campings
                 Title = "Filtros";
             }
 
+            ParametroTODAS = " - TODAS - ";
+            ParametroTODOS = " - TODOS - ";
             DB = DBContract.Instance;
 
             //Task.Run(() =>
@@ -77,7 +78,7 @@ namespace MaCamp.Views.Campings
 
         //private void CarregarLocalizacaoUsuario()
         //{
-        //    string valorChaveUsarLocalizacaoUsuario = DB.ObterValorChave("FILTROS_LOCALIZACAO_SELECIONADA");
+        //    string valorChaveUsarLocalizacaoUsuario = DB.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
         //    if (valorChaveUsarLocalizacaoUsuario != null && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
         //    {
         //        UsarLocalizacaoUsuario = true;
@@ -87,18 +88,15 @@ namespace MaCamp.Views.Campings
 
         //private async void CarregarCidadesEstados()
         //{
-        //    string EstadoBD = DB.ObterValorChave("FILTROS_ESTADO_SELECIONADO");
-        //    string CIDADE_BD = DB.ObterValorChave("FILTROS_CIDADE_SELECIONADA");
+        //    string EstadoBD = DB.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+        //    string CIDADE_BD = DB.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
         //    List<Cidade> cidadesWS = DB.ListarCidades();
 
         //    if (cidadesWS.Count == 0)
         //    {
-        //        using (var client = new HttpClient())
-        //        {
-        //            string jsonCidades = await client.GetStringAsync(AppConstants.Url_ListaCidades);
-        //            cidadesWS = JsonConvert.DeserializeObject<List<Cidade>>(jsonCidades).Where(x => !x.Estado.Contains("_")).ToList();
-        //            DB.InserirListaDeModelo(cidadesWS);
-        //        }
+        //        cidadesWS = await NetUtils.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
+
+        //        DB.InserirListaDeModelo(cidadesWS);
         //    }
 
         //    var gruposCidadePorUF = cidadesWS.GroupBy(c => c.Estado);
@@ -116,7 +114,8 @@ namespace MaCamp.Views.Campings
         //        pkUF.ItemsSource = estados;
         //        pkUF.SelectedIndexChanged += (s, e) =>
         //        {
-        //            EstadoSelecionado = ((s as Picker).SelectedItem as string);
+        //            EstadoSelecionado = s is Picker picker && picker.SelectedItem != null;
+
         //            if (EstadoSelecionado == ParametroTODOS)
         //            {
         //                pkCidade.ItemsSource = null;
@@ -127,7 +126,12 @@ namespace MaCamp.Views.Campings
         //            else
         //            {
         //                var cidadesDisponiveis = cidadesWS.Where(c => c.Estado == EstadoSelecionado).ToList();
-        //                cidadesDisponiveis.Insert(0, new Cidade { Nome = ParametroTODAS, Estado = EstadoSelecionado });
+
+        //                cidadesDisponiveis.Insert(0, new Cidade
+        //                {
+        //                    Nome = ParametroTODAS,
+        //                    Estado = EstadoSelecionado
+        //                });
         //                pkCidade.ItemsSource = cidadesDisponiveis;
         //                pkCidade.ItemDisplayBinding = new Binding(nameof(Cidade.Nome));
         //                pkCidade.Title = "Selecione a cidade";
@@ -135,9 +139,14 @@ namespace MaCamp.Views.Campings
 
         //                pkCidade.SelectedIndexChanged += (senderCidade, eventCidade) =>
         //                {
-        //                    Cidade cidadeSelecionada = ((senderCidade as Picker).SelectedItem as Cidade);
-        //                    if (cidadeSelecionada != null) { CidadeSelecionada = cidadeSelecionada.Nome; }
-        //                    else { CidadeSelecionada = string.Empty; }
+        //                    if (senderCidade is Picker pickerCidade && pickerCidade.SelectedItem is Cidade cidadeSelecionada)
+        //                    {
+        //                        CidadeSelecionada = cidadeSelecionada.Nome;
+        //                    }
+        //                    else
+        //                    {
+        //                        CidadeSelecionada = string.Empty;
+        //                    }
         //                };
         //                if (CIDADE_BD != null && CIDADE_BD != null)
         //                {
@@ -151,7 +160,7 @@ namespace MaCamp.Views.Campings
 
         private void CarregarFiltrosEstabelecimentoSelecionados()
         {
-            var valoresFiltrosSelecionados = DB.ObterValorChave("FILTROS_ESTABELECIMENTO_SELECIONADOS");
+            var valoresFiltrosSelecionados = DB.ObterValorChave(AppConstants.Filtro_EstabelecimentoSelecionados);
 
             if (valoresFiltrosSelecionados == null)
             {
@@ -159,6 +168,7 @@ namespace MaCamp.Views.Campings
                 EstabelecimentosSelecionados.Add("PontodeApoioaRV`s");
                 EstabelecimentosSelecionados.Add("CampingSelvagem/WildCamping/Bushcfaft");
                 EstabelecimentosSelecionados.Add("SemFunçãoCamping/ApoioouFechado");
+
                 SelecionarView(slFiltroCamping);
                 SelecionarView(slFiltroApoioRVs);
                 SelecionarView(slFiltroWild);
@@ -174,19 +184,15 @@ namespace MaCamp.Views.Campings
                     {
                         case "Campings":
                             DeselecionarView(slFiltroCamping);
-
                             break;
                         case "PontodeApoioaRV`s":
                             DeselecionarView(slFiltroApoioRVs);
-
                             break;
                         case "CampingSelvagem/WildCamping/Bushcfaft":
                             DeselecionarView(slFiltroWild);
-
                             break;
                         case "SemFunçãoCamping/ApoioouFechado":
                             DeselecionarView(slFiltroSemFuncao);
-
                             break;
                     }
                 }
@@ -195,7 +201,7 @@ namespace MaCamp.Views.Campings
 
         private void CarregarFiltrosServicosSelecionados()
         {
-            var valoresFiltrosSelecionados = DB.ObterValorChave("FILTROS_SERVICO_SELECIONADOS");
+            var valoresFiltrosSelecionados = DB.ObterValorChave(AppConstants.Filtro_ServicoSelecionados);
 
             if (valoresFiltrosSelecionados == null)
             {
@@ -203,6 +209,7 @@ namespace MaCamp.Views.Campings
                 //ComodidadesSelecionadas.Add("AceitaRVs");
                 //ComodidadesSelecionadas.Add("PossuiChalesCabanasOuSuites");
                 //ComodidadesSelecionadas.Add("AceitaAnimais");
+
                 //SelecionarView(slAceitaBarracas);
                 //SelecionarView(slAceitaRVs);
                 //SelecionarView(slPossuiChales);
@@ -255,9 +262,9 @@ namespace MaCamp.Views.Campings
                         case "PossuiPraiaProxima":
                             DeselecionarView(slPossuiPraiaProxima);
                             break;
-                            //case "Sanitarios":
-                            //    SelecionarView(slBanheiros);
-                            //    break;
+                        case "Sanitarios":
+                            // SelecionarView(slBanheiros);
+                            break;
                     }
                 }
             }
@@ -335,7 +342,8 @@ namespace MaCamp.Views.Campings
 
         //private async void UsarMinhaLocalizacao(object sender, EventArgs e)
         //{
-        //    loader.IsVisible = loader.IsRunning = true;
+        //    loader.IsVisible = true;
+        //    loader.IsRunning = true;
         //    slUsarMinhaLocalizacao.IsVisible = false;
         //    UsarLocalizacaoUsuario = true;
 
@@ -345,7 +353,9 @@ namespace MaCamp.Views.Campings
         //    }
         //    catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
 
-        //    loader.IsVisible = loader.IsRunning = false;
+        //    loader.IsVisible = false;
+        //    loader.IsRunning = false;
+
         //    AlterarBuscaLocalizacao(false);
         //}
 
@@ -353,23 +363,48 @@ namespace MaCamp.Views.Campings
         {
             //if (UsarLocalizacaoUsuario)
             //{
-            //    DB.InserirOuSubstituirModelo(new ChaveValor { Chave = "FILTROS_LOCALIZACAO_SELECIONADA", Valor = "true" });
-            //    DB.InserirOuSubstituirModelo(new ChaveValor { Chave = "FILTROS_ESTADO_SELECIONADO", Valor = null });
-            //    DB.InserirOuSubstituirModelo(new ChaveValor { Chave = "FILTROS_CIDADE_SELECIONADA", Valor = null });
+            //    DB.InserirOuSubstituirModelo(new ChaveValor
+            //    {
+            //        Chave = AppConstants.Filtro_LocalizacaoSelecionada,
+            //        Valor = "true"
+            //    });
+            //    DB.InserirOuSubstituirModelo(new ChaveValor
+            //    {
+            //        Chave = AppConstants.Filtro_EstadoSelecionado,
+            //        Valor = null
+            //    });
+            //    DB.InserirOuSubstituirModelo(new ChaveValor
+            //    {
+            //        Chave = AppConstants.Filtro_CidadeSelecionada,
+            //        Valor = null
+            //    });
 
             //}
             //else
             //{
-            //    DB.InserirOuSubstituirModelo(new ChaveValor { Chave = "FILTROS_ESTADO_SELECIONADO", Valor = EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado });
-            //    DB.InserirOuSubstituirModelo(new ChaveValor { Chave = "FILTROS_CIDADE_SELECIONADA", Valor = CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada });
-            //    DB.InserirOuSubstituirModelo(new ChaveValor { Chave = "FILTROS_LOCALIZACAO_SELECIONADA", Valor = "false" });
+            //    DB.InserirOuSubstituirModelo(new ChaveValor
+            //    {
+            //        Chave = AppConstants.Filtro_EstadoSelecionado,
+            //        Valor = EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado
+            //    });
+            //    DB.InserirOuSubstituirModelo(new ChaveValor
+            //    {
+            //        Chave = AppConstants.Filtro_CidadeSelecionada,
+            //        Valor = CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada
+            //    });
+            //    DB.InserirOuSubstituirModelo(new ChaveValor
+            //    {
+            //        Chave = AppConstants.Filtro_LocalizacaoSelecionada,
+            //        Valor = "false"
+            //    });
             //}
             EstabelecimentosSelecionados.Remove("");
             var valorEstabelecimentos = string.Join(",", EstabelecimentosSelecionados);
 
             DB.InserirOuSubstituirModelo(new ChaveValor
             {
-                Chave = "FILTROS_ESTABELECIMENTO_SELECIONADOS", Valor = valorEstabelecimentos
+                Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
+                Valor = valorEstabelecimentos
             });
 
             ComodidadesSelecionadas.Remove("");
@@ -377,7 +412,8 @@ namespace MaCamp.Views.Campings
 
             DB.InserirOuSubstituirModelo(new ChaveValor
             {
-                Chave = "FILTROS_SERVICO_SELECIONADOS", Valor = valorComodidades
+                Chave = AppConstants.Filtro_ServicoSelecionados,
+                Valor = valorComodidades
             });
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Filtro Estabelecimentos e Serviços", "Filtrar", valorEstabelecimentos + " - " + valorComodidades);

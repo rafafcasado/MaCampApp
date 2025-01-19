@@ -104,13 +104,13 @@ namespace MaCamp.Models.Services
         private static async Task<List<Item>> CarregarCampingsFiltradosBD()
         {
             var DB = DBContract.Instance;
-            var valorChaveEstadoSelecionado = DB.ObterValorChave("FILTROS_ESTADO_SELECIONADO");
-            var valorChaveCidadeSelecionada = DB.ObterValorChave("FILTROS_CIDADE_SELECIONADA");
-            var valorChaveLocalizacaoSelecionada = DB.ObterValorChave("FILTROS_LOCALIZACAO_SELECIONADA");
-            var valorChaveBuscaCamping = DB.ObterValorChave("FILTROS_NOME_DO_CAMPING");
+            var valorChaveEstadoSelecionado = DB.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+            var valorChaveCidadeSelecionada = DB.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
+            var valorChaveLocalizacaoSelecionada = DB.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
+            var valorChaveBuscaCamping = DB.ObterValorChave(AppConstants.Filtro_NomeCamping);
             var usarLocalizacaoDoUsuario = valorChaveLocalizacaoSelecionada != null && Convert.ToBoolean(valorChaveLocalizacaoSelecionada);
-            var valorFiltroEstabelecimentos = DB.ObterValorChave("FILTROS_ESTABELECIMENTO_SELECIONADOS");
-            var valorFiltroComodidades = DB.ObterValorChave("FILTROS_SERVICO_SELECIONADOS") ?? string.Empty;
+            var valorFiltroEstabelecimentos = DB.ObterValorChave(AppConstants.Filtro_EstabelecimentoSelecionados);
+            var valorFiltroComodidades = DB.ObterValorChave(AppConstants.Filtro_ServicoSelecionados) ?? string.Empty;
             var identificadoresEstabelecimento = "'" + valorFiltroEstabelecimentos?.Replace(",", "','") + "'";
             var identificadoresComodidades = "'" + valorFiltroComodidades.Replace(",", "','") + "'";
             var possuiFiltroCategoria = identificadoresEstabelecimento != "''";
