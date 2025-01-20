@@ -1,5 +1,4 @@
-﻿using MaCamp.AppSettings;
-using MaCamp.Models.DataAccess;
+﻿using MaCamp.Models.DataAccess;
 using MaCamp.Utils;
 
 namespace MaCamp.Models.Services

@@ -2,7 +2,7 @@
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Platforms.Android.Utils;
 using Color = Android.Graphics.Color;
 

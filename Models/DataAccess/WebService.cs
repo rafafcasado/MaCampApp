@@ -1,11 +1,10 @@
 ﻿using System.Text;
-using MaCamp.AppSettings;
 using MaCamp.Utils;
 
 // ReSharper disable InconsistentNaming
 namespace MaCamp.Models.DataAccess
 {
-    internal class WebService<T> where T : class
+    public class WebService<T> where T : class
     {
         private const string PAGE_K = "page";
         private const string LIMIT_K = "limit";

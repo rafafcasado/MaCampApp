@@ -1,14 +1,19 @@
 ﻿using Android.Gms.Ads;
-using MaCamp.AppSettings;
 using MaCamp.CustomControls;
+using MaCamp.Utils;
 using Microsoft.Maui.Handlers;
 using AdView = Android.Gms.Ads.AdView;
 
-// ReSharper disable once CheckNamespace
-namespace MaCamp.Handlers
+namespace MaCamp.Platforms.Android.Handlers
 {
-    public partial class AdmobBannerHandler : ViewHandler<AdMobBannerView, AdView>
+    public class AdmobBannerHandler : ViewHandler<AdMobBannerView, AdView>
     {
+        private static IPropertyMapper<AdMobBannerView, AdmobBannerHandler> Mapper => new PropertyMapper<AdMobBannerView, AdmobBannerHandler>(ViewMapper);
+
+        public AdmobBannerHandler() : base(Mapper)
+        {
+        }
+
         private int GetSmartBannerDpHeight()
         {
             if (Context.Resources?.DisplayMetrics != null)
@@ -57,7 +62,6 @@ namespace MaCamp.Handlers
         {
             base.DisconnectHandler(platformView);
 
-            // Limpar os recursos ao desconectar
             platformView.Destroy();
         }
     }

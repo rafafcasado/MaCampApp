@@ -1,4 +1,4 @@
-﻿using MaCamp.AppSettings;
+﻿using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
 using MaCamp.Views.CustomViews;

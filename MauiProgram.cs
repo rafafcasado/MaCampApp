@@ -3,10 +3,12 @@ using CommunityToolkit.Maui;
 using FFImageLoading.Maui;
 using FluentIcons.Maui;
 using MaCamp.CustomControls;
-using MaCamp.Handlers;
+using MaCamp.Dependencias;
+using MaCamp.Utils;
 using Microsoft.Extensions.Logging;
 using Plugin.MauiMTAdmob;
 using RGPopup.Maui.Extensions;
+using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace MaCamp
 {
@@ -28,16 +30,19 @@ namespace MaCamp
                 config.FixKeyboardOverlap = true;
             });
 
-            builder.UsePlatformServices();
+            builder.Services.AddPlatformSingleton<ILocalize>();
+            builder.Services.AddPlatformSingleton<ISQLite>();
+
             builder.UseMauiApp<App>();
 
             builder.ConfigureMauiHandlers(collection =>
             {
-                collection.AddHandler<AdMobBannerView, AdmobBannerHandler>();
-                collection.AddHandler<AdmobRectangleBannerView, AdmobRectangleBannerHandler>();
-                collection.AddHandler<CustomWebView, CustomWebViewHandler>();
-                collection.AddHandler<IconView, IconViewHandler>();
-                collection.AddHandler<Microsoft.Maui.Controls.Maps.Map, CustomMapHandler>();
+                collection.AddPlatformHandler<AdMobBannerView>();
+                collection.AddPlatformHandler<AdMobBannerView>();
+                collection.AddPlatformHandler<AdmobRectangleBannerView>();
+                collection.AddPlatformHandler<CustomWebView>();
+                collection.AddPlatformHandler<IconView>();
+                collection.AddPlatformHandler<Map>();
             });
 
             builder.ConfigureFonts(collection =>

@@ -2,8 +2,7 @@
 using Microsoft.Maui.Handlers;
 using WebKit;
 
-// ReSharper disable once CheckNamespace
-namespace MaCamp.Handlers
+namespace MaCamp.Platforms.iOS.Handlers
 {
     public partial class CustomWebViewHandler : WebViewHandler
     {

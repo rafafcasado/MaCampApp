@@ -1,15 +1,20 @@
 ﻿using Google.MobileAds;
-using MaCamp.AppSettings;
 using MaCamp.CustomControls;
+using MaCamp.Utils;
 using Microsoft.Maui.Handlers;
 using UIKit;
 
-// ReSharper disable once CheckNamespace
-namespace MaCamp.Handlers
+namespace MaCamp.Platforms.iOS.Handlers
 {
     public partial class AdmobBannerHandler : ViewHandler<AdMobBannerView, BannerView>
     {
         private BannerView? AdView { get; set; }
+
+        private static IPropertyMapper<AdMobBannerView, AdmobBannerHandler> Mapper => new PropertyMapper<AdMobBannerView, AdmobBannerHandler>(ViewMapper);
+
+        public AdmobBannerHandler() : base(Mapper)
+        {
+        }
 
         protected override BannerView CreatePlatformView()
         {
@@ -20,11 +25,10 @@ namespace MaCamp.Handlers
                 RootViewController = GetRootViewController()
             };
 
-            // Configura o evento de carregamento do anúncio
             AdView.AdReceived += OnAdReceived;
 
-            // Carrega o anúncio
             var request = Request.GetDefaultRequest();
+
             AdView.LoadRequest(request);
 
             return AdView;
@@ -32,7 +36,6 @@ namespace MaCamp.Handlers
 
         private UIViewController GetRootViewController()
         {
-            // Obtém o controlador raiz do aplicativo
             var window = UIApplication.SharedApplication.KeyWindow;
 
             if (window?.RootViewController != null)
@@ -45,7 +48,6 @@ namespace MaCamp.Handlers
 
         protected override void DisconnectHandler(BannerView platformView)
         {
-            // Limpa o banner ao desconectar o handler
             if (AdView != null)
             {
                 AdView.AdReceived -= OnAdReceived;

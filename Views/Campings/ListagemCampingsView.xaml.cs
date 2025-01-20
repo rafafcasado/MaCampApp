@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Models.DataAccess;
@@ -228,7 +228,7 @@ namespace MaCamp.Views.Campings
                 });
             }
 
-            await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, TipoListagem.Camping);
+            await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, Enumeradores.TipoListagem.Camping);
 
             Dispatcher.Dispatch(() =>
             {

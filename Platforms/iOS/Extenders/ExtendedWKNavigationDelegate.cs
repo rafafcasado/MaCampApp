@@ -1,17 +1,17 @@
-﻿using MaCamp.AppSettings;
-using MaCamp.CustomControls;
-using MaCamp.Handlers;
+﻿using MaCamp.CustomControls;
+using MaCamp.Platforms.iOS.Handlers;
+using MaCamp.Utils;
 using WebKit;
 
 namespace MaCamp.Platforms.iOS.Extenders
 {
     public class ExtendedWKNavigationDelegate : WKNavigationDelegate
     {
-        private readonly CustomWebViewHandler _handler;
+        private CustomWebViewHandler Handler { get; set; }
 
         public ExtendedWKNavigationDelegate(CustomWebViewHandler handler)
         {
-            _handler = handler;
+            Handler = handler;
         }
 
         public override void DidStartProvisionalNavigation(WKWebView webView, WKNavigation navigation)
@@ -24,7 +24,7 @@ namespace MaCamp.Platforms.iOS.Extenders
         {
             try
             {
-                if (_handler.VirtualView is CustomWebView extendedWebView)
+                if (Handler.VirtualView is CustomWebView extendedWebView)
                 {
                     // Atualiza o progresso
                     MessagingCenter.Send(AppConstants.CurrentPage, "ATUALIZAR_PROGRESSO_WEBVIEW", 100);

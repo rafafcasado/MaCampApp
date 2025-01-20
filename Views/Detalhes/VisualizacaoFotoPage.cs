@@ -1,4 +1,4 @@
-﻿using MaCamp.AppSettings;
+﻿using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Views.CustomViews;
 
@@ -6,9 +6,9 @@ namespace MaCamp.Views.Detalhes
 {
     public class VisualizacaoFotoPage : ContentPage
     {
-        public VisualizacaoFotoPage(string imageSource)
+        public VisualizacaoFotoPage(string imageSource, string titulo)
         {
-            NewVersion(imageSource, false, "Galeria");
+            NewVersion(imageSource, false, titulo);
         }
 
         public async void NewVersion(string url, bool nativo, string? titulo = null)
@@ -25,7 +25,7 @@ namespace MaCamp.Views.Detalhes
 
                         if (imagePath != null)
                         {
-                            await Launcher.TryOpenAsync(imagePath);
+                            await Launcher.OpenAsync(imagePath);
                         }
                         else
                         {
@@ -33,7 +33,7 @@ namespace MaCamp.Views.Detalhes
 
                             if (resposta)
                             {
-                                await Launcher.TryOpenAsync(url);
+                                await Launcher.OpenAsync(url);
                             }
                         }
                     }

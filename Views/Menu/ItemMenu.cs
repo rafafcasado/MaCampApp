@@ -1,4 +1,6 @@
-﻿namespace MaCamp.Views.Menu
+﻿using MaCamp.Utils;
+
+namespace MaCamp.Views.Menu
 {
     public class ItemMenu
     {
@@ -7,8 +9,8 @@
         public string? TituloListagem { get; set; }
         public string? IconSource { get; set; }
         public int IdExterno { get; set; }
-        public TipoLayoutMenu TipoLayout { get; set; }
-        public TipoAcaoMenu? TipoAcao { get; set; }
+        public Enumeradores.TipoLayoutMenu TipoLayout { get; set; }
+        public Enumeradores.TipoAcaoMenu? TipoAcao { get; set; }
         public bool ExibirIcone { get; set; } = false;
         public string? ValorComportamento { get; set; }
         public string HexCorTexto { get; set; }
@@ -19,34 +21,5 @@
             HexCorTexto = "#000000";
             TargetType = typeof(MainPage);
         }
-    }
-
-    public enum TipoLayoutMenu
-    {
-        Divisoria,
-        Item,
-        SubItem
-    }
-
-    public enum TipoAcaoMenu
-    {
-        Home,
-        AbrirBuscaCamping,
-        AbrirMapa,
-        Item,
-        AtualizarConteudo,
-        AbrirSobreAEmpresa,
-        Configuracoes,
-        AbrirURI,
-        Sair,
-        Favoritos,
-        Nenhuma,
-        NaoImplementadoNessaVersao,
-        AbrirNoticias,
-        AbrirEventos,
-        CadastreUmCamping,
-        AbrirParceiros,
-        AbrirDicasCampismo,
-        AtualizarCampings
     }
 }

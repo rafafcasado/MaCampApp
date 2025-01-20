@@ -1,5 +1,5 @@
 using System.Globalization;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Dependencias;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
@@ -63,7 +63,7 @@ namespace MaCamp
 
                 if (localize != null)
                 {
-                    var culture = localize.ObterCultureInfoDoUsuario();
+                    var culture = localize.PegarCultureInfoUsuario();
 
                     AppLanguage.Culture = culture;
                     Thread.CurrentThread.CurrentCulture = culture;

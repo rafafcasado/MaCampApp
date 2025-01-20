@@ -1,5 +1,5 @@
 ﻿using FFImageLoading.Maui;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Models;
 using Microsoft.Maui.Controls.Shapes;
 

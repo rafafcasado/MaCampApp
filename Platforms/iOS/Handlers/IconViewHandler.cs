@@ -3,12 +3,19 @@ using MaCamp.CustomControls;
 using Microsoft.Maui.Handlers;
 using UIKit;
 
-// ReSharper disable once CheckNamespace
-namespace MaCamp.Handlers
+namespace MaCamp.Platforms.iOS.Handlers
 {
     public partial class IconViewHandler : ViewHandler<IconView, UIImageView>
     {
+        private static IPropertyMapper<IconView, IconViewHandler> Mapper => new PropertyMapper<IconView, IconViewHandler>(ViewMapper)
+        {
+            [nameof(Microsoft.Maui.Controls.WebView.Source)] = MapSource
+        };
         private bool IsDisposed { get; set; }
+
+        public IconViewHandler() : base(Mapper)
+        {
+        }
 
         protected override UIImageView CreatePlatformView()
         {
@@ -17,12 +24,6 @@ namespace MaCamp.Handlers
                 ContentMode = UIViewContentMode.ScaleAspectFit,
                 ClipsToBounds = true
             };
-        }
-
-        public partial void MapSource(IconViewHandler handler, IconView iconView)
-        {
-            var image = UIImage.FromBundle(iconView.Source);
-            handler.PlatformView.Image = image;
         }
 
         protected override void DisconnectHandler(UIImageView nativeView)
@@ -35,6 +36,13 @@ namespace MaCamp.Handlers
                 nativeView.Image.Dispose();
                 nativeView.Image = null;
             }
+        }
+
+        private static void MapSource(IconViewHandler handler, IconView iconView)
+        {
+            var image = UIImage.FromBundle(iconView.Source);
+
+            handler.PlatformView.Image = image;
         }
     }
 }

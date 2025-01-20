@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using SQLite;
 
 namespace MaCamp.Models.DataAccess

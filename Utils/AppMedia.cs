@@ -1,10 +1,57 @@
-﻿using MaCamp.Resources.Locale;
+﻿using System.Text.RegularExpressions;
+using MaCamp.Resources.Locale;
 using MaCamp.Utils;
 
 namespace MaCamp.Models
 {
     public static class AppMedia
     {
+        public static async Task<bool> AbrirAsync<T>(Enumeradores.TipoMedia tipoMedia, T valor)
+        {
+            if (valor is string texto)
+            {
+                var numero = Regex.Replace(texto, @"[.\-\(\)\s]", "");
+
+                switch (tipoMedia)
+                {
+                    case Enumeradores.TipoMedia.Telefone:
+                        return await Launcher.OpenAsync("+55" + numero);
+                    case Enumeradores.TipoMedia.WhatsApp:
+                        return await Launcher.OpenAsync("https://wa.me/+55" + numero);
+                    case Enumeradores.TipoMedia.Email:
+                        return await Launcher.OpenAsync("mailto:" + texto);
+                    case Enumeradores.TipoMedia.URL:
+                        return await Launcher.OpenAsync(texto);
+                }
+            }
+
+            if (valor is Item item)
+            {
+                switch (tipoMedia)
+                {
+                    case Enumeradores.TipoMedia.Endereco:
+                        var endereco = Uri.EscapeDataString($"{item.Endereco}, {item.Cidade}, {item.Estado}, {item.Pais}");
+                        var url = $"https://www.google.com/maps/search/?api=1&query={endereco}";
+
+                        return await Launcher.OpenAsync(url);
+                    case Enumeradores.TipoMedia.Mapa:
+                        if (item.Latitude != null && item.Longitude != null)
+                        {
+                            await Map.OpenAsync(item.Latitude.Value, item.Longitude.Value, new MapLaunchOptions
+                            {
+                                Name = item.Nome
+                            });
+
+                            return true;
+                        }
+
+                        return false;
+                }
+            }
+
+            return false;
+        }
+
         public static async Task<string?> SalvarImagemTemporariaAsync(string imageUrl)
         {
             try

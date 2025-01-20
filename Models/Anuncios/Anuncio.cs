@@ -1,4 +1,6 @@
-﻿namespace MaCamp.Models.Anuncios
+﻿using MaCamp.Utils;
+
+namespace MaCamp.Models.Anuncios
 {
     public class Anuncio
     {
@@ -6,6 +8,6 @@
         public string? SubTitulo { get; set; }
         public string? UrlImagem { get; set; }
         public string? UrlExterna { get; set; }
-        public TipoAnuncio Tipo { get; set; }
+        public Enumeradores.TipoAnuncio Tipo { get; set; }
     }
 }

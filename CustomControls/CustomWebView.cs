@@ -1,6 +1,6 @@
 ﻿namespace MaCamp.CustomControls
 {
-    public class CustomWebView : WebView
+    public class CustomWebView : WebView, IWebView
     {
     }
 }

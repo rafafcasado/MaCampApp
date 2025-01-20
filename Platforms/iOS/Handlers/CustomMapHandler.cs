@@ -9,8 +9,7 @@ using Microsoft.Maui.Platform;
 using UIKit;
 using IMap = Microsoft.Maui.Maps.IMap;
 
-// ReSharper disable once CheckNamespace
-namespace MaCamp.Handlers
+namespace MaCamp.Platforms.iOS.Handlers
 {
     public class CustomMapHandler : MapHandler
     {
@@ -20,7 +19,7 @@ namespace MaCamp.Handlers
         };
 
         public List<IMKAnnotation> Markers { get; }
-        private static UIView? lastTouchedView;
+        private static UIView? LastTouchedView { get; set; }
 
         public CustomMapHandler() : base(CustomMapper, CommandMapper)
         {
@@ -43,7 +42,7 @@ namespace MaCamp.Handlers
         {
             var pin = GetPinForAnnotation(annotation);
 
-            if (lastTouchedView is MKAnnotationView)
+            if (LastTouchedView is MKAnnotationView)
             {
                 return;
             }
@@ -93,7 +92,7 @@ namespace MaCamp.Handlers
             {
                 ShouldReceiveTouch = (gestureRecognizer, touch) =>
                 {
-                    lastTouchedView = touch.View;
+                    LastTouchedView = touch.View;
                     return true;
                 }
             };

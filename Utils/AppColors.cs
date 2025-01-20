@@ -1,9 +1,9 @@
-﻿namespace MaCamp.AppSettings
+﻿namespace MaCamp.Utils
 {
     /// <summary>
     ///     Classe de configuração com a "paleta de cores" do aplicativo
     /// </summary>
-    public class AppColors
+    public static class AppColors
     {
         // *** As cores PRIMARIA, PRIMARIA ESCURA e DESTAQUE devem ser definidas também no projeto .Android/Resources/values/colors ***
         public static Color CorPrimaria => Color.FromArgb("#2ab079");

@@ -83,9 +83,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Platforms\iOS\MauiProgramExtensions.cs">
-	    <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
-	  </Compile>
 	  <Compile Update="Views\CustomViews\AdMobRectangleContentView.xaml.cs">
 	    <DependentUpon>AdMobRectangleContentView.xaml</DependentUpon>
 	  </Compile>

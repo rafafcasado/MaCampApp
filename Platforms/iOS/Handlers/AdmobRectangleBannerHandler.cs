@@ -1,14 +1,19 @@
 ﻿using Google.MobileAds;
-using MaCamp.AppSettings;
 using MaCamp.CustomControls;
+using MaCamp.Utils;
 using Microsoft.Maui.Handlers;
 using UIKit;
 
-// ReSharper disable once CheckNamespace
-namespace MaCamp.Handlers
+namespace MaCamp.Platforms.iOS.Handlers
 {
     public partial class AdmobRectangleBannerHandler : ViewHandler<AdmobRectangleBannerView, BannerView>
     {
+        private static IPropertyMapper<AdmobRectangleBannerView, AdmobRectangleBannerHandler> Mapper => new PropertyMapper<AdmobRectangleBannerView, AdmobRectangleBannerHandler>(ViewMapper);
+
+        public AdmobRectangleBannerHandler() : base(Mapper)
+        {
+        }
+
         protected override BannerView CreatePlatformView()
         {
             var adView = new BannerView
@@ -25,7 +30,6 @@ namespace MaCamp.Handlers
 
             adView.LoadRequest(Request.GetDefaultRequest());
 
-            // Ajusta a altura da View
             VirtualView.HeightRequest = 250;
 
             return adView;

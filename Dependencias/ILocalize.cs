@@ -4,6 +4,6 @@ namespace MaCamp.Dependencias
 {
     public interface ILocalize
     {
-        CultureInfo ObterCultureInfoDoUsuario();
+        CultureInfo PegarCultureInfoUsuario();
     }
 }

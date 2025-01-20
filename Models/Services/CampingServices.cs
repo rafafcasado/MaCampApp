@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Models.DataAccess;
 
 namespace MaCamp.Models.Services
@@ -43,7 +43,7 @@ namespace MaCamp.Models.Services
                 {
                     App.BAIXANDO_CAMPINGS = true;
                     var DB = DBContract.Instance;
-                    DB.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "false", TipoChave.ControleInterno));
+                    DB.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "false", Enumeradores.TipoChave.ControleInterno));
                     var campings = new List<Item>();
 
                     var chamadasWS = new List<Task>
@@ -67,7 +67,7 @@ namespace MaCamp.Models.Services
                     DB.InserirListaDeModelo(campings);
                     DB.ApagarItensIdentificadores();
                     DB.InserirListaDeModelo(identificadores);
-                    DB.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", TipoChave.ControleInterno));
+                    DB.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", Enumeradores.TipoChave.ControleInterno));
 
                     DB.InserirOuSubstituirModelo(new ChaveValor
                     {

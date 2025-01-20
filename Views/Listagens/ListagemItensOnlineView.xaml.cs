@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Models.Services;

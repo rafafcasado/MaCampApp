@@ -1,5 +1,4 @@
-﻿using MaCamp.AppSettings;
-using MaCamp.Models.Anuncios;
+﻿using MaCamp.Models.Anuncios;
 using MaCamp.Utils;
 
 namespace MaCamp.Models.DataAccess

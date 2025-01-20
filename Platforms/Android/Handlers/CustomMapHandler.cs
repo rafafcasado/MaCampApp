@@ -3,14 +3,12 @@ using Android.Gms.Maps.Model;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using MaCamp.CustomControls;
-using MaCamp.Platforms.Android.Handlers;
 using Microsoft.Maui.Maps;
 using Microsoft.Maui.Maps.Handlers;
 using Microsoft.Maui.Platform;
 using IMap = Microsoft.Maui.Maps.IMap;
 
-// ReSharper disable once CheckNamespace
-namespace MaCamp.Handlers
+namespace MaCamp.Platforms.Android.Handlers
 {
     public class CustomMapHandler : MapHandler
     {

@@ -1,5 +1,5 @@
 ﻿using FFImageLoading.Maui;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Models.Services;
 using Microsoft.Maui.Controls.Shapes;
 
@@ -46,7 +46,7 @@ namespace MaCamp.Views.Detalhes
 
                 abrirFoto.Tapped += async (sender, args) =>
                 {
-                    await Navigation.PushAsync(new VisualizacaoFotoPage(url));
+                    await Navigation.PushAsync(new VisualizacaoFotoPage(url, Title));
                 };
 
                 frame.GestureRecognizers.Add(abrirFoto);

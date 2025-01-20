@@ -1,6 +1,6 @@
-﻿using MaCamp.Models;
-using MaCamp.Models.Anuncios;
+﻿using MaCamp.Models.Anuncios;
 using MaCamp.Models.DataAccess;
+using MaCamp.Utils;
 
 namespace MaCamp.Views
 {
@@ -13,7 +13,7 @@ namespace MaCamp.Views
             ExibirAnuncio();
         }
 
-        public AnuncioView(TipoAnuncio tipoAnuncio = TipoAnuncio.Banner)
+        public AnuncioView(Enumeradores.TipoAnuncio tipoAnuncio = Enumeradores.TipoAnuncio.Banner)
         {
             InitializeComponent();
 
@@ -27,7 +27,7 @@ namespace MaCamp.Views
             ExibirAnuncio(anuncioEscolhido: anuncio, width: w, height: h);
         }
 
-        private async void ExibirAnuncio(TipoAnuncio tipoAnuncio = TipoAnuncio.Banner, Anuncio? anuncioEscolhido = null, int width = 0, int height = 0)
+        private async void ExibirAnuncio(Enumeradores.TipoAnuncio tipoAnuncio = Enumeradores.TipoAnuncio.Banner, Anuncio? anuncioEscolhido = null, int width = 0, int height = 0)
         {
             if (anuncioEscolhido == null)
             {
@@ -48,11 +48,11 @@ namespace MaCamp.Views
             {
                 switch (tipoAnuncio)
                 {
-                    case TipoAnuncio.Popup:
+                    case Enumeradores.TipoAnuncio.Popup:
                         imAnuncio.WidthRequest = App.SCREEN_WIDTH;
                         imAnuncio.HeightRequest = App.SCREEN_HEIGHT * 0.8;
                         break;
-                    case TipoAnuncio.Banner:
+                    case Enumeradores.TipoAnuncio.Banner:
                         imAnuncio.WidthRequest = App.SCREEN_WIDTH;
                         imAnuncio.HeightRequest = App.SCREEN_WIDTH * 1.2 / 10;
                         break;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using FluentIcons.Common;
 using FluentIcons.Maui;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.ViewModels;
@@ -38,7 +38,7 @@ namespace MaCamp.Views.Campings
             Task.Run(async () =>
             {
                 var vm = new ListagemInfinitaVM();
-                await vm.Carregar("", -1, "", "", TipoListagem.Camping, usarFiltros);
+                await vm.Carregar("", -1, "", "", Enumeradores.TipoListagem.Camping, usarFiltros);
 
                 if (DeviceInfo.Platform == DevicePlatform.iOS)
                 {

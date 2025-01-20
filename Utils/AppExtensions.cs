@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Maui.Maps;
 using Map = Microsoft.Maui.Controls.Maps.Map;
 
-namespace MaCamp.AppSettings
+namespace MaCamp.Utils
 {
     public static class AppExtensions
     {

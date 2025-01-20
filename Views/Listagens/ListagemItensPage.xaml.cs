@@ -1,6 +1,5 @@
-﻿using MaCamp.AppSettings;
-using MaCamp.Models;
-using MaCamp.Resources.Locale;
+﻿using MaCamp.Resources.Locale;
+using MaCamp.Utils;
 using MaCamp.Views.Campings;
 
 namespace MaCamp.Views.Listagens
@@ -30,7 +29,7 @@ namespace MaCamp.Views.Listagens
         /// </summary>
         /// <param name="endpoint">URL de onde será carregado o JSON de Itens</param>
         /// <param name="nome">Nome da listagem, que será exibido no Título da Página e no Google Analytics</param>
-        public ListagemItensPage(string endpoint, string? nome, TipoListagem tipoListagem = TipoListagem.Noticias, string tag = "")
+        public ListagemItensPage(string endpoint, string? nome, Enumeradores.TipoListagem tipoListagem = Enumeradores.TipoListagem.Noticias, string tag = "")
         {
             InitializeComponent();
 
@@ -43,7 +42,7 @@ namespace MaCamp.Views.Listagens
 
             NavigationPage.SetBackButtonTitle(this, AppLanguage.Texto_Voltar);
 
-            if (tipoListagem == TipoListagem.Camping)
+            if (tipoListagem == Enumeradores.TipoListagem.Camping)
             {
                 cvListagemItens.Content = new ListagemCampingsView(endpoint);
 

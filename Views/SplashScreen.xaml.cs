@@ -1,4 +1,4 @@
-﻿using MaCamp.AppSettings;
+﻿using MaCamp.Utils;
 
 namespace MaCamp.Views
 {

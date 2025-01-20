@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
 
@@ -34,7 +34,7 @@ namespace MaCamp.Views.Campings
 
             MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada, r =>
             {
-                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno));
+                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", Enumeradores.TipoChave.ControleInterno));
 
                 Dispatcher.Dispatch(() =>
                 {

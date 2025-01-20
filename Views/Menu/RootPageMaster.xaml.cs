@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 
 namespace MaCamp.Views.Menu
 {
@@ -39,91 +39,91 @@ namespace MaCamp.Views.Menu
                     new ItemMenu
                     {
                         Titulo = "Home",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.Home,
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.Home,
                         TituloPagina = "Guia de Campings"
                     },
                     new ItemMenu
                     {
-                        TipoLayout = TipoLayoutMenu.Divisoria
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Divisoria
                     },
                     new ItemMenu
                     {
                         Titulo = "Mapa de campings e Pontos de Apoio",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.AbrirMapa
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.AbrirMapa
                     },
                     new ItemMenu
                     {
                         Titulo = "Busca de campings e Apoios RVs",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.AbrirBuscaCamping
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.AbrirBuscaCamping
                     },
                     new ItemMenu
                     {
                         Titulo = "Favoritos",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.Favoritos
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.Favoritos
                     },
                     new ItemMenu
                     {
-                        TipoLayout = TipoLayoutMenu.Divisoria
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Divisoria
                     },
                     new ItemMenu
                     {
                         Titulo = "Notícias e novidades",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.AbrirNoticias
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.AbrirNoticias
                     },
                     new ItemMenu
                     {
                         Titulo = "Dicas de campismo e caravanismo",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.AbrirDicasCampismo,
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.AbrirDicasCampismo,
                         TituloPagina = "Dicas de campismo"
                     },
                     new ItemMenu
                     {
                         Titulo = "Eventos, encontros e grupos",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.AbrirEventos
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.AbrirEventos
                     },
                     new ItemMenu
                     {
-                        TipoLayout = TipoLayoutMenu.Divisoria
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Divisoria
                     },
                     new ItemMenu
                     {
                         Titulo = "Cadastre um camping",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.CadastreUmCamping
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.CadastreUmCamping
                     },
                     new ItemMenu
                     {
-                        TipoLayout = TipoLayoutMenu.Divisoria
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Divisoria
                     },
                     new ItemMenu
                     {
                         Titulo = "Nossos parceiros",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.AbrirParceiros,
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.AbrirParceiros,
                         TituloPagina = "Nossos parceiros"
                     },
                     new ItemMenu
                     {
                         Titulo = "Sobre o MaCamp",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.AbrirSobreAEmpresa
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.AbrirSobreAEmpresa
                     },
                     new ItemMenu
                     {
-                        TipoLayout = TipoLayoutMenu.Divisoria
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Divisoria
                     },
                     new ItemMenu
                     {
                         Titulo = "Atualizar listagem de campings",
-                        TipoLayout = TipoLayoutMenu.Item,
-                        TipoAcao = TipoAcaoMenu.AtualizarCampings
+                        TipoLayout = Enumeradores.TipoLayoutMenu.Item,
+                        TipoAcao = Enumeradores.TipoAcaoMenu.AtualizarCampings
                     }
                 });
             }

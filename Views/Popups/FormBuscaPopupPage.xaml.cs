@@ -1,4 +1,4 @@
-﻿using MaCamp.AppSettings;
+﻿using MaCamp.Utils;
 using RGPopup.Maui.Extensions;
 using RGPopup.Maui.Pages;
 

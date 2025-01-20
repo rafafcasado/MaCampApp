@@ -1,5 +1,5 @@
 ﻿using Android.Webkit;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using WebView = Android.Webkit.WebView;
 
 namespace MaCamp.Platforms.Android.Extenders

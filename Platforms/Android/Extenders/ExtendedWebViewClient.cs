@@ -1,6 +1,6 @@
 ﻿using Android.Webkit;
 using MaCamp.CustomControls;
-using MaCamp.Handlers;
+using MaCamp.Platforms.Android.Handlers;
 using WebView = Android.Webkit.WebView;
 
 namespace MaCamp.Platforms.Android.Extenders
@@ -30,6 +30,7 @@ namespace MaCamp.Platforms.Android.Extenders
                     while ((view.ContentHeight == 0 || view.ContentHeight != previousHeight) && attempts-- > 0)
                     {
                         previousHeight = view.ContentHeight;
+
                         await Task.Delay(1000);
                     }
 

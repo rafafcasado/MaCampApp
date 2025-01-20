@@ -1,4 +1,5 @@
-﻿using MaCamp.Views.CustomViews;
+﻿using MaCamp.Utils;
+using MaCamp.Views.CustomViews;
 
 namespace MaCamp.Views.Menu
 {
@@ -10,7 +11,6 @@ namespace MaCamp.Views.Menu
 
         public MenuTemplateSelector()
         {
-            // Retain instances!
             MasterPageItemTemplate = new DataTemplate(typeof(MasterPageItemContentView));
             MasterPageSubItemTemplate = new DataTemplate(typeof(MasterPageSubItemContentView));
             DivisoriaTemplate = new DataTemplate(typeof(DivisoriaMenuContentView));
@@ -22,11 +22,11 @@ namespace MaCamp.Views.Menu
             {
                 switch (itemMenu.TipoLayout)
                 {
-                    case TipoLayoutMenu.Item:
+                    case Enumeradores.TipoLayoutMenu.Item:
                         return MasterPageItemTemplate;
-                    case TipoLayoutMenu.SubItem:
+                    case Enumeradores.TipoLayoutMenu.SubItem:
                         return MasterPageSubItemTemplate;
-                    case TipoLayoutMenu.Divisoria:
+                    case Enumeradores.TipoLayoutMenu.Divisoria:
                         return DivisoriaTemplate;
                     default:
                         return MasterPageItemTemplate;

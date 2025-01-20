@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Models.DataAccess;
@@ -20,7 +20,7 @@ namespace MaCamp.ViewModels
             WebService = new WebService<Item>();
         }
 
-        public async Task Carregar(string endpoint, int pagina, string tag, string query = "", TipoListagem tipoListagem = TipoListagem.Noticias, bool utilizarFiltros = true)
+        public async Task Carregar(string endpoint, int pagina, string tag, string query = "", Enumeradores.TipoListagem tipoListagem = Enumeradores.TipoListagem.Noticias, bool utilizarFiltros = true)
         {
             var configs = default(ConfiguracoesAnuncios?);
             var countAnuncio = 0;
@@ -38,11 +38,11 @@ namespace MaCamp.ViewModels
             var countAdMob = 14;
             var r = new Random();
 
-            if (tipoListagem == TipoListagem.Camping)
+            if (tipoListagem == Enumeradores.TipoListagem.Camping)
             {
                 var listaItensCampings = await ObterListaDeCampings(endpoint, pagina, tag, query, utilizarFiltros);
                 var idLocal = Itens.Count;
-                var anuncios = (await AnuncioDA.ObterAnuncios(pagina == 1)).Where(a => a.Tipo == TipoAnuncio.Nativo).ToList();
+                var anuncios = (await AnuncioDA.ObterAnuncios(pagina == 1)).Where(a => a.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
 
                 listaItensCampings.ForEach(item =>
                 {
@@ -116,7 +116,7 @@ namespace MaCamp.ViewModels
                         if (countAnuncio == 1)
                         {
                             var listaAnuncios = await AnuncioDA.ObterAnuncios(pagina == 1);
-                            var anuncios = listaAnuncios.Where(a => a.Tipo == TipoAnuncio.Nativo).ToList();
+                            var anuncios = listaAnuncios.Where(a => a.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
 
                             if (anuncios.Count > 0)
                             {

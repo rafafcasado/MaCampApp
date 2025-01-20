@@ -1,6 +1,5 @@
 ﻿using System.Text;
-using System.Text.RegularExpressions;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.DataAccess;
 using MaCamp.Models.Services;
@@ -77,12 +76,20 @@ namespace MaCamp.Views.Detalhes
 
             var abrirMapa = new TapGestureRecognizer();
             var abrirEmail = new TapGestureRecognizer();
-            var naoExisteCoordenadas = item.Latitude == 0 && item.Longitude == 0;
+            var existeCoordenadas = item.Latitude != 0 || item.Longitude != 0;
 
-            slCoordenadas.IsVisible = !naoExisteCoordenadas;
+            slCoordenadas.IsVisible = existeCoordenadas;
 
-            abrirMapa.Tapped += naoExisteCoordenadas ? AbrirEndereco : AbrirLatitudeLongitude;
-            abrirEmail.Tapped += (s, e) => AbrirMail2(s, ItemAtual.Email);
+            abrirMapa.Tapped += async delegate
+            {
+                var tipoMedia = existeCoordenadas ? Enumeradores.TipoMedia.Mapa : Enumeradores.TipoMedia.Endereco;
+
+                await AppMedia.AbrirAsync(tipoMedia, ItemAtual);
+            };
+            abrirEmail.Tapped += async delegate
+            {
+                await AppMedia.AbrirAsync(Enumeradores.TipoMedia.Email, ItemAtual.Email);
+            };
 
             slEndereco.GestureRecognizers.Add(abrirMapa);
             slEmail.GestureRecognizers.Add(abrirEmail);
@@ -101,7 +108,10 @@ namespace MaCamp.Views.Detalhes
                 var (element, url) = x;
                 var tapGestureRecognizer = new TapGestureRecognizer();
 
-                tapGestureRecognizer.Tapped += (s, e) => AbrirURI2(s, url);
+                tapGestureRecognizer.Tapped += async delegate
+                {
+                    await AppMedia.AbrirAsync(Enumeradores.TipoMedia.URL, url);
+                };
 
                 element.GestureRecognizers.Add(tapGestureRecognizer);
             });
@@ -169,15 +179,13 @@ namespace MaCamp.Views.Detalhes
 
                 if (label != null)
                 {
-                    var value = Regex.Replace(label.Text, @"[.\-\(\)\s]", "");
-
                     switch (imageButton.ClassId)
                     {
                         case "dialer":
-                            await Launcher.TryOpenAsync($"tel:+55{value}");
+                            await AppMedia.AbrirAsync(Enumeradores.TipoMedia.Telefone, label.Text);
                             break;
                         case "whatsapp":
-                            await Launcher.TryOpenAsync($"https://wa.me/+55{value}");
+                            await AppMedia.AbrirAsync(Enumeradores.TipoMedia.WhatsApp, label.Text);
                             break;
                     }
                 }
@@ -274,62 +282,6 @@ namespace MaCamp.Views.Detalhes
             }
         }
 
-        private async void AbrirEndereco(object? sender, TappedEventArgs? e)
-        {
-            if (ItemAtual.Latitude != null && ItemAtual.Longitude != null)
-            {
-                var enderecoCompleto = Uri.EscapeDataString($"{ItemAtual.Endereco}, {ItemAtual.Cidade}, {ItemAtual.Estado}, {ItemAtual.Pais}");
-                var url = $"https://www.google.com/maps/search/?api=1&query={enderecoCompleto}";
-
-                await Launcher.OpenAsync(url);
-            }
-        }
-
-        private async void AbrirLatitudeLongitude(object? sender, TappedEventArgs? e)
-        {
-            if (ItemAtual.Latitude != null && ItemAtual.Longitude != null)
-            {
-                await Map.OpenAsync(ItemAtual.Latitude.Value, ItemAtual.Longitude.Value, new MapLaunchOptions
-                {
-                    Name = ItemAtual.Nome
-                });
-            }
-        }
-
-        private async void AbrirURI(object sender, TappedEventArgs e)
-        {
-            if (e.Parameter is string parameter)
-            {
-                await Launcher.TryOpenAsync(parameter);
-            }
-        }
-
-        private async void AbrirURI2(object? sender, string? url)
-        {
-            if (url != null)
-            {
-                await Launcher.TryOpenAsync(url);
-            }
-        }
-
-        private async void AbrirMail2(object? sender, string? email)
-        {
-            await Launcher.TryOpenAsync("mailto:" + email);
-        }
-
-        private async void AbrirTelefone(object? sender, TappedEventArgs e)
-        {
-            await Launcher.TryOpenAsync("tel:" + e.Parameter?.ToString()?.Replace(".", "").Replace("(", "").Replace(")", ""));
-        }
-
-        private async void AbrirTelefone2(object? sender, string? telefone)
-        {
-            if (telefone != null)
-            {
-                await Launcher.TryOpenAsync("tel:" + Regex.Replace(telefone, @"[.\-\(\)\s]", ""));
-            }
-        }
-
         private async void AbrirTelaColaboracao(object sender, EventArgs? e)
         {
             if (ItemAtual.Nome != null)
@@ -346,7 +298,7 @@ namespace MaCamp.Views.Detalhes
 
         protected async void GoToSO(object sender, EventArgs e)
         {
-            await Launcher.TryOpenAsync(AppConstants.Url_TermoUso);
+            await Launcher.OpenAsync(AppConstants.Url_TermoUso);
         }
     }
 }

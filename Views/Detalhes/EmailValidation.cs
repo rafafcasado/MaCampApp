@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using MaCamp.AppSettings;
+using MaCamp.Utils;
 
 namespace MaCamp.Views.Detalhes
 {

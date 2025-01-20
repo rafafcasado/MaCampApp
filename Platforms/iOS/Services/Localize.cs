@@ -6,7 +6,7 @@ namespace MaCamp.Platforms.iOS.Services
 {
     public class Localize : ILocalize
     {
-        public CultureInfo ObterCultureInfoDoUsuario()
+        public CultureInfo PegarCultureInfoUsuario()
         {
             var netLanguage = "en";
             var prefLanguageOnly = "en";

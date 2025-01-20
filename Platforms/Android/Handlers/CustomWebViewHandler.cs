@@ -3,13 +3,11 @@ using MaCamp.Platforms.Android.Extenders;
 using Microsoft.Maui.Handlers;
 using WebView = Android.Webkit.WebView;
 
-// ReSharper disable once CheckNamespace
-namespace MaCamp.Handlers
+namespace MaCamp.Platforms.Android.Handlers
 {
     public partial class CustomWebViewHandler : WebViewHandler
     {
-        public static IPropertyMapper<IWebView, CustomWebViewHandler> CustomMapper =
-        new PropertyMapper<IWebView, CustomWebViewHandler>(WebViewHandler.Mapper)
+        public new static IPropertyMapper<IWebView, CustomWebViewHandler> Mapper = new PropertyMapper<IWebView, CustomWebViewHandler>(WebViewHandler.Mapper)
         {
             [nameof(Microsoft.Maui.Controls.WebView.Source)] = MapSource
         };
@@ -17,7 +15,7 @@ namespace MaCamp.Handlers
         private static CustomWebView? CustomWebView { get; set; }
         private WebView? NativeWebView { get; set; }
 
-        public CustomWebViewHandler() : base(CustomMapper)
+        public CustomWebViewHandler() : base(Mapper)
         {
         }
 

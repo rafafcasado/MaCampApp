@@ -1,5 +1,4 @@
-﻿using MaCamp.AppSettings;
-using MaCamp.Models;
+﻿using MaCamp.Utils;
 using MaCamp.Views.Campings;
 using MaCamp.Views.Listagens;
 using AndroidSpecific = Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
@@ -39,7 +38,7 @@ namespace MaCamp.Views
                 IconImageSource = "icone_aba1.png",
                 Title = "Campings",
             });
-            Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "News", TipoListagem.Noticias, "app-noticias")
+            Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "News", Enumeradores.TipoListagem.Noticias, "app-noticias")
             {
                 Title = "Campismo & Caravanismo",
                 IconImageSource = "icone_aba2.png"
@@ -49,7 +48,7 @@ namespace MaCamp.Views
                 Title = "Favoritos",
                 IconImageSource = "icone_aba3.png"
             });
-            Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "Eventos", TipoListagem.Noticias, "app-eventos")
+            Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "Eventos", Enumeradores.TipoListagem.Noticias, "app-eventos")
             {
                 Title = "Eventos",
                 IconImageSource = "icone_aba4.png"

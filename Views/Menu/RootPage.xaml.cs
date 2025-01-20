@@ -1,6 +1,6 @@
-﻿using MaCamp.AppSettings;
-using MaCamp.Models;
+﻿using MaCamp.Models;
 using MaCamp.Models.DataAccess;
+using MaCamp.Utils;
 using MaCamp.Views.Campings;
 using MaCamp.Views.Detalhes;
 using MaCamp.Views.Listagens;
@@ -33,7 +33,7 @@ namespace MaCamp.Views.Menu
 
         private async void CollectionView_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            if (e.CurrentSelection.FirstOrDefault() is ItemMenu item && item.TipoLayout != TipoLayoutMenu.Divisoria)
+            if (e.CurrentSelection.FirstOrDefault() is ItemMenu item && item.TipoLayout != Enumeradores.TipoLayoutMenu.Divisoria)
             {
                 Master.CollectionView.SelectedItem = null;
 
@@ -41,33 +41,33 @@ namespace MaCamp.Views.Menu
                 {
                     switch (item.TipoAcao)
                     {
-                        case TipoAcaoMenu.Home:
+                        case Enumeradores.TipoAcaoMenu.Home:
                             break;
-                        case TipoAcaoMenu.AbrirBuscaCamping:
+                        case Enumeradores.TipoAcaoMenu.AbrirBuscaCamping:
                             mainPage.SelectedItem = null;
                             mainPage.SelectedItem = mainPage.Children[0];
 
                             MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
                             break;
-                        case TipoAcaoMenu.AbrirNoticias:
+                        case Enumeradores.TipoAcaoMenu.AbrirNoticias:
                             mainPage.SelectedItem = null;
                             mainPage.SelectedItem = mainPage.Children[1];
                             break;
-                        case TipoAcaoMenu.Favoritos:
+                        case Enumeradores.TipoAcaoMenu.Favoritos:
                             mainPage.SelectedItem = null;
                             mainPage.SelectedItem = mainPage.Children[2];
                             break;
-                        case TipoAcaoMenu.AbrirEventos:
+                        case Enumeradores.TipoAcaoMenu.AbrirEventos:
                             mainPage.SelectedItem = null;
                             mainPage.SelectedItem = mainPage.Children[3];
                             break;
-                        case TipoAcaoMenu.AbrirParceiros:
+                        case Enumeradores.TipoAcaoMenu.AbrirParceiros:
                             await Detail.Navigation.PushAsync(new ListagemItensPage(AppConstants.Url_PegarPosts, item.TituloPagina, tag: "app-parceiros"));
                             break;
-                        case TipoAcaoMenu.AbrirDicasCampismo:
+                        case Enumeradores.TipoAcaoMenu.AbrirDicasCampismo:
                             await Detail.Navigation.PushAsync(new ListagemItensPage(AppConstants.Url_PegarPosts, item.TituloPagina, tag: "app-dicas"));
                             break;
-                        case TipoAcaoMenu.AbrirMapa:
+                        case Enumeradores.TipoAcaoMenu.AbrirMapa:
                             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                             {
                                 await DisplayAlert("Este conteúdo requer conexão com a internet", AppConstants.Descricao_SemInternet, "OK");
@@ -77,7 +77,7 @@ namespace MaCamp.Views.Menu
 
                             await Detail.Navigation.PushAsync(new MapaPage(false));
                             break;
-                        case TipoAcaoMenu.CadastreUmCamping:
+                        case Enumeradores.TipoAcaoMenu.CadastreUmCamping:
                             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                             {
                                 await DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
@@ -87,7 +87,7 @@ namespace MaCamp.Views.Menu
 
                             await Detail.Navigation.PushAsync(new CadastreUmCampingPage());
                             break;
-                        case TipoAcaoMenu.AbrirSobreAEmpresa:
+                        case Enumeradores.TipoAcaoMenu.AbrirSobreAEmpresa:
                             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                             {
                                 await DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
@@ -110,9 +110,9 @@ namespace MaCamp.Views.Menu
                                 await Detail.Navigation.PushAsync(new DetalhesPage(itens[0]));
                             }
                             break;
-                        case TipoAcaoMenu.Item:
+                        case Enumeradores.TipoAcaoMenu.Item:
                             break;
-                        case TipoAcaoMenu.AtualizarCampings:
+                        case Enumeradores.TipoAcaoMenu.AtualizarCampings:
                             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                             {
                                 await DisplayAlert("Essa atualização requer conexão com a internet", AppConstants.Descricao_SemInternet, "OK");
@@ -124,15 +124,15 @@ namespace MaCamp.Views.Menu
 
                             MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscarCampingsAtualizados);
                             break;
-                        case TipoAcaoMenu.Configuracoes:
+                        case Enumeradores.TipoAcaoMenu.Configuracoes:
                             break;
-                        case TipoAcaoMenu.AbrirURI:
+                        case Enumeradores.TipoAcaoMenu.AbrirURI:
                             break;
-                        case TipoAcaoMenu.Sair:
+                        case Enumeradores.TipoAcaoMenu.Sair:
                             break;
-                        case TipoAcaoMenu.Nenhuma:
+                        case Enumeradores.TipoAcaoMenu.Nenhuma:
                             break;
-                        case TipoAcaoMenu.NaoImplementadoNessaVersao:
+                        case Enumeradores.TipoAcaoMenu.NaoImplementadoNessaVersao:
                             break;
                         default:
                             var instance = Activator.CreateInstance(item.TargetType);

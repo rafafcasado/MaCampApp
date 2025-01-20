@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 
-namespace MaCamp.Models.Converters
+namespace MaCamp.Utils.Converters
 {
-    internal class StringToBoolConverter : IValueConverter
+    public class StringToBoolConverter : IValueConverter
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {

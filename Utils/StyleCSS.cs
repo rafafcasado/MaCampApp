@@ -1,4 +1,4 @@
-﻿namespace MaCamp.AppSettings
+﻿namespace MaCamp.Utils
 {
     public static class StyleCSS
     {

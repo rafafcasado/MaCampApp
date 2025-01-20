@@ -4,9 +4,9 @@ using Locale = Java.Util.Locale;
 
 namespace MaCamp.Platforms.Android.Services
 {
-    internal class Localize : ILocalize
+    public class Localize : ILocalize
     {
-        public CultureInfo ObterCultureInfoDoUsuario()
+        public CultureInfo PegarCultureInfoUsuario()
         {
             var androidLocale = Locale.Default;
             var netLanguage = androidLocale.ToString()?.Replace("_", "-"); // turns pt_BR into pt-BR
