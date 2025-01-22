@@ -1,41 +1,26 @@
 ﻿using Foundation;
 using MaCamp.Dependencias;
-
-//using Google.Analytics;
+using MaCamp.Utils;
 
 namespace MaCamp.Platforms.iOS.Services
 {
     public class GAService : IGAService
     {
-        public string TrackingId = "UA-49846110-44";
-        public string TrackerName = "Guia de Camping";
-
-        //public ITracker Tracker;
-        const string AllowTrackingKey = "AllowTracking";
-        private static GAService? thisRef;
-
-        public static GAService? GetGASInstance()
-        {
-            if (thisRef == null)
-            {
-                // it's ok, we can call this constructor
-                thisRef = new GAService();
-            }
-
-            return thisRef;
-        }
+        //public ITracker Tracker { get; set; }
+        public static GAService Instance => AppExtensions.GetInstance<GAService>();
 
         public void Initialize_NativeGAS()
         {
-            var optionsDict = NSDictionary.FromObjectAndKey(new NSString("NO"), new NSString(AllowTrackingKey));
+            var optionsDict = NSDictionary.FromObjectAndKey(new NSString("NO"), new NSString(AppConstants.GAService_AllowTrackingKey));
+
             NSUserDefaults.StandardUserDefaults.RegisterDefaults(optionsDict);
 
-            //Gai.SharedInstance.OptOut = !NSUserDefaults.StandardUserDefaults.BoolForKey(AllowTrackingKey);
+            //Gai.SharedInstance.OptOut = !NSUserDefaults.StandardUserDefaults.BoolForKey(AppConstants.GAService_AllowTrackingKey);
 
             //Gai.SharedInstance.DispatchInterval = 10;
             //Gai.SharedInstance.TrackUncaughtExceptions = true;
             //
-            //Tracker = Gai.SharedInstance.GetTracker(TrackerName, TrackingId);
+            //Tracker = Gai.SharedInstance.GetTracker(AppConstants.GAService_TrackerName, AppConstants.GAService_TrackingId);
         }
 
         public void Track_App_Page(string PageNameToTrack)

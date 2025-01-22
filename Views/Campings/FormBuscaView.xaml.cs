@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using MaCamp.Utils;
 using MaCamp.Models;
-using MaCamp.Models.DataAccess;
+using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 
 namespace MaCamp.Views.Campings
 {
@@ -10,7 +10,6 @@ namespace MaCamp.Views.Campings
         private string ParametroTODAS { get; }
         private string ParametroTODOS { get; }
         private string CampingsTodos { get; set; }
-        private DBContract DB { get; }
         private string? EstadoSelecionado { get; set; }
         private string? CidadeSelecionada { get; set; }
         private string? NomeDoCamping { get; set; }
@@ -22,17 +21,16 @@ namespace MaCamp.Views.Campings
             ParametroTODAS = " - TODAS - ";
             ParametroTODOS = " - TODOS - ";
             CampingsTodos = " ";
-            DB = DBContract.Instance;
 
             Task.Run(() =>
             {
-                DB.InserirOuSubstituirModelo(new ChaveValor
+                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
                     Valor = ""
                 });
 
-                DB.InserirOuSubstituirModelo(new ChaveValor
+                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_ServicoSelecionados,
                     Valor = ""
@@ -54,24 +52,24 @@ namespace MaCamp.Views.Campings
 
         private void CarregarLocalizacaoUsuario()
         {
-            //var valorChaveUsarLocalizacaoUsuario = DB.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
+            //var valorChaveUsarLocalizacaoUsuario = DBContract.Instance.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
         }
 
         private async void CarregarCidadesEstados()
         {
-            var EstadoBD = DB.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
-            var CIDADE_BD = DB.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
-            var NomeCampingBD = DB.ObterValorChave(AppConstants.Filtro_NomeCamping);
-            var cidadesWS = DB.ListarCidades();
+            var EstadoBD = DBContract.Instance.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+            var CIDADE_BD = DBContract.Instance.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
+            var NomeCampingBD = DBContract.Instance.ObterValorChave(AppConstants.Filtro_NomeCamping);
+            var cidadesWS = DBContract.Instance.ListarCidades();
 
             if (cidadesWS.Count == 0)
             {
                 cidadesWS = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
 
-                DB.InserirListaDeModelo(cidadesWS);
+                DBContract.Instance.InserirListaDeModelo(cidadesWS);
             }
 
-            var gruposCidadePorUF = cidadesWS.GroupBy(c => c.Estado).ToList();
+            var gruposCidadePorUF = cidadesWS.GroupBy(x => x.Estado).ToList();
             var estados = new List<string>
             {
                 ParametroTODOS
@@ -101,7 +99,7 @@ namespace MaCamp.Views.Campings
                     }
                     else
                     {
-                        var cidadesDisponiveis = cidadesWS.Where(c => c.Estado == EstadoSelecionado).ToList();
+                        var cidadesDisponiveis = cidadesWS.Where(x => x.Estado == EstadoSelecionado).ToList();
 
                         cidadesDisponiveis.Insert(0, new Cidade
                         {
@@ -151,22 +149,22 @@ namespace MaCamp.Views.Campings
 
             //AlterarBuscaLocalizacao(false);
 
-            DB.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_LocalizacaoSelecionada,
                 Valor = "true"
             });
-            DB.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_EstadoSelecionado,
                 Valor = null
             });
-            DB.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_CidadeSelecionada,
                 Valor = null
             });
-            DB.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_NomeCamping,
                 Valor = ""
@@ -179,19 +177,19 @@ namespace MaCamp.Views.Campings
 
         private void btBuscar_Clicked(object sender, EventArgs e)
         {
-            DB.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_EstadoSelecionado,
                 Valor = EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado
             });
 
-            DB.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_CidadeSelecionada,
                 Valor = CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada
             });
 
-            DB.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_LocalizacaoSelecionada,
                 Valor = "false"
@@ -199,7 +197,7 @@ namespace MaCamp.Views.Campings
 
             NomeDoCamping = etNomeDoCamping.Text.RemoveDiacritics();
 
-            DB.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_NomeCamping,
                 Valor = NomeDoCamping == string.Empty ? null : NomeDoCamping

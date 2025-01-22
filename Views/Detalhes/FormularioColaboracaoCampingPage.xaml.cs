@@ -1,6 +1,6 @@
-﻿using MaCamp.Utils;
-using MaCamp.Models;
-using MaCamp.Models.DataAccess;
+﻿using MaCamp.Models;
+using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 using MaCamp.Views.Popups;
 using RGPopup.Maui.Extensions;
 
@@ -37,11 +37,9 @@ namespace MaCamp.Views.Detalhes
 
         private void DadosColaborador()
         {
-            var DB = new DBContract();
-
-            etEmail.Text = DB.Consultar().Email ?? string.Empty;
-            etNome.Text = DB.Consultar().Nome ?? string.Empty;
-            Equipamento.Text = DB.Consultar().Equipamento ?? string.Empty;
+            etEmail.Text = DBContract.Instance.Consultar().Email ?? string.Empty;
+            etNome.Text = DBContract.Instance.Consultar().Nome ?? string.Empty;
+            Equipamento.Text = DBContract.Instance.Consultar().Equipamento ?? string.Empty;
         }
 
         private async void EnviarColaboracao(object sender, EventArgs e)
@@ -77,9 +75,8 @@ namespace MaCamp.Views.Detalhes
                     ValorPagoDiaria = etValorPagoPorDiaria.Text,
                     Equipamento = Equipamento.Text
                 };
-                var DB = new DBContract();
 
-                DB.InserirOuSubstituirModelo(colaboracao);
+                DBContract.Instance.InserirOuSubstituirModelo(colaboracao);
 
                 await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
 

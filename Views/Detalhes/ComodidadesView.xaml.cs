@@ -1,5 +1,5 @@
-﻿using MaCamp.Utils;
-using MaCamp.Models;
+﻿using MaCamp.Models;
+using MaCamp.Utils;
 using Grid = Microsoft.Maui.Controls.Grid;
 
 namespace MaCamp.Views.Detalhes
@@ -10,7 +10,7 @@ namespace MaCamp.Views.Detalhes
         {
             InitializeComponent();
 
-            var secoes = itemIdentificadores.Where(i => i.Opcao > 0).GroupBy(i => i.Secao).ToList();
+            var secoes = itemIdentificadores.Where(x => x.Opcao > 0).GroupBy(x => x.Secao).ToList();
 
             foreach (var secao in secoes)
             {
@@ -21,7 +21,7 @@ namespace MaCamp.Views.Detalhes
                     FontAttributes = FontAttributes.Bold,
                     Margin = new Thickness(0, 10)
                 };
-                var grupoItens = secao.GroupBy(i => i.Identificador).ToList();
+                var grupoItens = secao.GroupBy(x => x.Identificador).ToList();
 
                 slContent.Children.Add(lbTitulo);
 

@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using MaCamp.Utils;
 using MaCamp.Models;
-using MaCamp.Models.DataAccess;
 using MaCamp.Models.Services;
+using MaCamp.Services.DataAccess;
 
 namespace MaCamp.Views.Detalhes
 {
@@ -235,12 +235,13 @@ namespace MaCamp.Views.Detalhes
             }));
         }
 
-        //private async void OnMaisFotosTapped(object sender, EventArgs e)
-        //{
-        //    var url = sender is Grid grid && grid.ClassId;
-        //
-        //    await Navigation.PushModalAsync(new VisualizacaoFotoPage(url));
-        //}
+        private async void OnMaisFotosTapped(object sender, EventArgs e)
+        {
+            if (sender is Grid grid && grid.ClassId is string url)
+            {
+                await Navigation.PushModalAsync(new VisualizacaoFotoPage(url, Title));
+            }
+        }
 
         public static async Task AbrirMapa(string uriArquivoKml)
         {

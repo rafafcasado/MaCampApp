@@ -1,5 +1,5 @@
 ﻿using MaCamp.Models;
-using MaCamp.Models.DataAccess;
+using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using MaCamp.Views.Campings;
 using MaCamp.Views.Detalhes;
@@ -97,7 +97,7 @@ namespace MaCamp.Views.Menu
 
                             await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
 
-                            var itens = await new WebService<Item>().Get(AppConstants.Url_PegarPosts, 1, "app-sobre");
+                            var itens = await new WebService().GetListAsync<Item>(AppConstants.Url_PegarPosts, 1, "app-sobre");
 
                             await Navigation.PopPopupAsync();
 

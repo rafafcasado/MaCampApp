@@ -4,7 +4,7 @@ using WebKit;
 
 namespace MaCamp.Platforms.iOS.Handlers
 {
-    public partial class CustomWebViewHandler : WebViewHandler
+    public class CustomWebViewHandler : WebViewHandler
     {
         protected override void ConnectHandler(WKWebView platformView)
         {

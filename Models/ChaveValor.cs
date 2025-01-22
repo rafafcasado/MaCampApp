@@ -13,7 +13,7 @@ namespace MaCamp.Models
 
         public ChaveValor()
         {
-            Chave = string.Empty;
+            Chave = null!;
         }
 
         public ChaveValor(string chave, string valor, Enumeradores.TipoChave tipo)

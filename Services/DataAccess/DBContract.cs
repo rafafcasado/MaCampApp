@@ -1,39 +1,25 @@
 ﻿using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Text;
+using MaCamp.Models;
 using MaCamp.Utils;
 using SQLite;
 
-namespace MaCamp.Models.DataAccess
+namespace MaCamp.Services.DataAccess
 {
     public class DBContract
     {
-        public static DBContract Instance
-        {
-            get
-            {
-                if (DbContract == null)
-                {
-                    DbContract = new DBContract();
-                    Initialize();
-                }
-
-                return DbContract;
-            }
-        }
         public static SQLiteConnection? SqlConnection { get; set; }
-
-        private static DBContract? DbContract { get; set; }
-        private static object Lock => new object();
-        //private static Mutex Mutex => new Mutex();
-
-        private static void Initialize()
+        public static DBContract Instance => AppExtensions.GetInstance<DBContract>(x =>
         {
             if (SqlConnection != null)
             {
                 SqlConnection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
             }
-        }
+        });
+
+        private static object Lock => new object();
+        private static Mutex Mutex => new Mutex();
 
         /// <summary>
         /// Insere um objeto no BD.
@@ -231,7 +217,7 @@ namespace MaCamp.Models.DataAccess
 
             var query = sbQueryComodidades.ToString();
 
-            return QueryIdsIdentificadorCampings(query).Select(i => i.IdItem).ToList();
+            return QueryIdsIdentificadorCampings(query).Select(x => x.IdItem).ToList();
         }
 
         public List<int> ListarIdsCampingsComCategorias(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
@@ -271,9 +257,10 @@ namespace MaCamp.Models.DataAccess
 
             sbQueryCategorias.Append($" {queryIdsInCampingsComComodidade} (II.{nameof(ItemIdentificador.Identificador)} IN ({categorias}){complementoDaQuery})");
             sbQueryCategorias.Append($" GROUP BY {nameof(ItemIdentificador.IdItem)} ");
+
             var query = sbQueryCategorias.ToString();
 
-            return QueryIdsIdentificadorCampings(query).Select(i => i.IdItem).ToList();
+            return QueryIdsIdentificadorCampings(query).Select(x => x.IdItem).ToList();
         }
 
         public List<int> BuscarIdsCampingsFavoritados()
@@ -288,7 +275,7 @@ namespace MaCamp.Models.DataAccess
             sbQuery.Append($" {nameof(Item.Favoritado)} = 1 ");
 
             var query = sbQuery.ToString();
-            var idsCampingsQueAtendemABusca = QueryItens(query).Select(i => i.IdCamping).ToList();
+            var idsCampingsQueAtendemABusca = QueryItens(query).Select(x => x.IdCamping).ToList();
 
             //List<Item> campings = QueryItens(query).ToList();
             return idsCampingsQueAtendemABusca;
@@ -333,7 +320,7 @@ namespace MaCamp.Models.DataAccess
             var query = sbQuery.ToString();
             var buscaDeCampings = QueryItens(query).ToList();
 
-            //var resultado = campings.Where(i => i.Nome.Contains(nomeDoCamping)).ToList();
+            //var resultado = campings.Where(x => x.Nome.Contains(nomeDoCamping)).ToList();
             //var db = new DBContract();
 
             //db.InserirOuSubstituirModelo(db.InserirOuSubstituirModelo(new ChaveValor
@@ -444,12 +431,12 @@ namespace MaCamp.Models.DataAccess
                     while (qtdIdsRestantes > 0)
                     {
                         var idsBlocoAtual = idsCampings.Skip(indiceAtual * tamanhoBloco).Take(tamanhoBloco).ToList();
-                        ids.AddRange(SqlConnection.Table<ItemIdentificador>().Where(i => i.Identificador == "Destaque" && idsBlocoAtual.Contains(i.IdItem)).Select(i => i.IdItem));
+                        ids.AddRange(SqlConnection.Table<ItemIdentificador>().Where(x => x.Identificador == "Destaque" && idsBlocoAtual.Contains(x.IdItem)).Select(x => x.IdItem));
                         indiceAtual++;
                         qtdIdsRestantes -= tamanhoBloco;
                     }
 
-                    itensDestaque = SqlConnection.Table<Item>().Where(i => ids.Contains(i.IdCamping)).OrderBy(c => c.Nome).ToList();
+                    itensDestaque = SqlConnection.Table<Item>().Where(x => ids.Contains(x.IdCamping)).OrderBy(x => x.Nome).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -479,7 +466,7 @@ namespace MaCamp.Models.DataAccess
 
                     var itens = SqlConnection.Table<Item>().Where(where).ToList();
 
-                    itens.Where(item => item.type == "camping").ForEach(item => item.Identificadores = SqlConnection.Table<ItemIdentificador>().Where(i => i.IdItem == item.IdCamping).ToList());
+                    itens.Where(x => x.type == "camping").ForEach(x => x.Identificadores = SqlConnection.Table<ItemIdentificador>().Where(y => y.IdItem == x.IdCamping).ToList());
 
                     return itens;
                 }

@@ -4,7 +4,7 @@ using Microsoft.Maui.Handlers;
 
 namespace MaCamp.Platforms.Android.Handlers
 {
-    public partial class IconViewHandler : ViewHandler<IconView, ImageView>
+    public class IconViewHandler : ViewHandler<IconView, ImageView>
     {
         private static IPropertyMapper<IconView, IconViewHandler> Mapper => new PropertyMapper<IconView, IconViewHandler>(ViewMapper)
         {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
-using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
-using MaCamp.Models.DataAccess;
 using MaCamp.Models.Services;
+using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 using MaCamp.ViewModels;
 using MaCamp.Views.CustomViews;
 using MaCamp.Views.Detalhes;
@@ -16,7 +16,7 @@ namespace MaCamp.Views.Campings
     {
         private ListagemInfinitaVM ViewModel { get; }
         private int PaginaAtual { get; set; }
-        //private List<int> IdsQueJaChamaramPaginacao { get; set; }
+        private List<int> IdsQueJaChamaramPaginacao { get; set; }
         private string EndpointListagem { get; }
         private string Tag { get; }
         private string ParametrosBusca { get; }
@@ -34,7 +34,7 @@ namespace MaCamp.Views.Campings
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Listagem de Campings");
 
             ViewModel = new ListagemInfinitaVM();
-            //IdsQueJaChamaramPaginacao = new List<int>();
+            IdsQueJaChamaramPaginacao = new List<int>();
             EndpointListagem = endpointListagem;
             viewFiltroAberta = true;
             Tag = tag;
@@ -232,9 +232,8 @@ namespace MaCamp.Views.Campings
 
             Dispatcher.Dispatch(() =>
             {
-                var DB = DBContract.Instance;
-                var valorChaveUsarLocalizacaoUsuario = DB.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
-                var valorChaveBuscaCamping = DB.ObterValorChave(AppConstants.Filtro_NomeCamping);
+                var valorChaveUsarLocalizacaoUsuario = DBContract.Instance.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
+                var valorChaveBuscaCamping = DBContract.Instance.ObterValorChave(AppConstants.Filtro_NomeCamping);
 
                 if (!string.IsNullOrWhiteSpace(valorChaveUsarLocalizacaoUsuario) && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
                 {
@@ -242,8 +241,8 @@ namespace MaCamp.Views.Campings
                 }
                 else
                 {
-                    var EstadoBD = DB.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
-                    var CIDADE_BD = DB.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
+                    var EstadoBD = DBContract.Instance.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+                    var CIDADE_BD = DBContract.Instance.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
                     var quantidadeAnuncios = ViewModel.Itens.Count(x => !x.EhAnuncio && !x.EhAdMobRetangulo);
 
                     if (string.IsNullOrWhiteSpace(EstadoBD))
@@ -325,10 +324,10 @@ namespace MaCamp.Views.Campings
             await Navigation.PushPopupAsync(new FormBuscaPopupPage());
         }
 
-        //private async void ExibirPaginaFiltros(object sender, EventArgs e)
-        //{
-        //    await Navigation.PushAsync(new FiltrosPage(true));
-        //}
+        private async void ExibirPaginaFiltros(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new FiltrosPage(true));
+        }
 
         private async void VerNoMapa(object sender, EventArgs e)
         {

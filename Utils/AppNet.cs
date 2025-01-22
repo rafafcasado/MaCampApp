@@ -71,6 +71,7 @@ namespace MaCamp.Utils
 
             return Array.Empty<byte>();
         }
+
         public static async Task<string> GetStringAsync(string url)
         {
             try

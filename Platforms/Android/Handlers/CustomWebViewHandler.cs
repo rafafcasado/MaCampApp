@@ -5,7 +5,7 @@ using WebView = Android.Webkit.WebView;
 
 namespace MaCamp.Platforms.Android.Handlers
 {
-    public partial class CustomWebViewHandler : WebViewHandler
+    public class CustomWebViewHandler : WebViewHandler
     {
         public new static IPropertyMapper<IWebView, CustomWebViewHandler> Mapper = new PropertyMapper<IWebView, CustomWebViewHandler>(WebViewHandler.Mapper)
         {

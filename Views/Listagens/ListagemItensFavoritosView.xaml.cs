@@ -1,8 +1,8 @@
 ﻿using MaCamp.Utils;
 using MaCamp.Models;
-using MaCamp.Models.DataAccess;
 using MaCamp.Views.CustomViews;
 using MaCamp.Views.Detalhes;
+using MaCamp.Services.DataAccess;
 
 namespace MaCamp.Views.Listagens
 {

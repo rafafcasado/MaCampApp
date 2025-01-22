@@ -38,6 +38,7 @@
 
                 <StackLayout
                     x:Name="slEstrelas"
+                    IsVisible="False"
                     Orientation="Horizontal" />
 
                 <Label

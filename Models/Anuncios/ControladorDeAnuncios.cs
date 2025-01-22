@@ -1,5 +1,6 @@
-﻿using MaCamp.Utils;
-using MaCamp.Models.DataAccess;
+﻿using MaCamp.Services;
+using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 using MaCamp.Views.Popups;
 using RGPopup.Maui.Extensions;
 
@@ -13,7 +14,7 @@ namespace MaCamp.Models.Anuncios
 
             if (int.TryParse(quantidade, out var quantidadeAberturasDetalhes))
             {
-                var configuracoes = await ConfiguracoesAnunciosDA.ObterConfigs();
+                var configuracoes = await ConfiguracoesAnunciosServices.GetAsync(false);
 
                 if (configuracoes != null)
                 {

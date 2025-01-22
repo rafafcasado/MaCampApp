@@ -1,5 +1,5 @@
 ﻿using MaCamp.Models.Anuncios;
-using MaCamp.Models.DataAccess;
+using MaCamp.Services.DataAccess;
 using MaCamp.ViewModels;
 using SQLite;
 
@@ -199,7 +199,7 @@ namespace MaCamp.Models
 
         //        var qtd = Convert.ToInt32(visualizacoes);
         //        if (qtd < 1000) return qtd.ToString();
-        //        var exp = (int)(Math.Log(qtd) / Math.Log(1000));
+        //        var exp = Convert.ToInt32(Math.Log(qtd) / Math.Log(1000));
         //        return $"{(qtd / Math.Pow(1000, exp)).ToString("#.#")} {"kMGTPE"[exp - 1]}";
         //    }
         //    set { visualizacoes = value; OnPropertyChanged(); }
@@ -377,7 +377,7 @@ namespace MaCamp.Models
                     return qtd.ToString();
                 }
 
-                var exp = (int)(Math.Log(qtd) / Math.Log(1000));
+                var exp = Convert.ToInt32(Math.Log(qtd) / Math.Log(1000));
 
                 return $"{(qtd / Math.Pow(1000, exp)).ToString("#.#").Replace(".", ",")}{"kMGTPE"[exp - 1]}";
             }

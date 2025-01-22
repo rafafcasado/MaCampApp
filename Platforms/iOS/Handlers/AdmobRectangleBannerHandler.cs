@@ -6,7 +6,7 @@ using UIKit;
 
 namespace MaCamp.Platforms.iOS.Handlers
 {
-    public partial class AdmobRectangleBannerHandler : ViewHandler<AdmobRectangleBannerView, BannerView>
+    public class AdmobRectangleBannerHandler : ViewHandler<AdmobRectangleBannerView, BannerView>
     {
         private static IPropertyMapper<AdmobRectangleBannerView, AdmobRectangleBannerHandler> Mapper => new PropertyMapper<AdmobRectangleBannerView, AdmobRectangleBannerHandler>(ViewMapper);
 

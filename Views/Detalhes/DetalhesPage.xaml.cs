@@ -1,7 +1,7 @@
 ﻿using MaCamp.Utils;
 using MaCamp.Models;
-using MaCamp.Models.DataAccess;
 using MaCamp.Models.Services;
+using MaCamp.Services.DataAccess;
 
 namespace MaCamp.Views.Detalhes
 {

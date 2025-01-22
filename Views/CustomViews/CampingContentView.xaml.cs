@@ -1,7 +1,7 @@
 ﻿using FFImageLoading.Maui;
-using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.Services;
+using MaCamp.Utils;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace MaCamp.Views.CustomViews
@@ -62,7 +62,7 @@ namespace MaCamp.Views.CustomViews
 
         private void ExibirEstrelasETipos()
         {
-            var tipos = ItemAtual?.Identificadores.Where(i => i.Opcao == 0) ?? new List<ItemIdentificador>();
+            var tipos = ItemAtual?.Identificadores.Where(x => x.Opcao == 0) ?? new List<ItemIdentificador>();
             var tipo1Foi = false;
             var sourceIconeTipo1 = default(string);
             var textoTipo1 = default(string);
@@ -96,13 +96,13 @@ namespace MaCamp.Views.CustomViews
                     lbTipo2.Text = textoTipo2;
                 }
 
-                if (ItemAtual != null)
+                if (ItemAtual != null && "não exibir" == "solicitado por Marcos")
                 {
                     slEstrelas.IsVisible = ItemAtual.QuantidadeEstrelas > 0;
 
-                    Enumerable.Range(0, 5).ForEach(i =>
+                    Enumerable.Range(0, 5).ForEach(x =>
                     {
-                        var estrelaSelecionada = ItemAtual.QuantidadeEstrelas > i;
+                        var estrelaSelecionada = ItemAtual.QuantidadeEstrelas > x;
                         var imageSource = estrelaSelecionada ? "estrela_selecionada.png" : "estrela.png";
                         var estrela = new CachedImage
                         {

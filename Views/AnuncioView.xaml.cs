@@ -1,5 +1,5 @@
 ﻿using MaCamp.Models.Anuncios;
-using MaCamp.Models.DataAccess;
+using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 
 namespace MaCamp.Views
@@ -31,7 +31,9 @@ namespace MaCamp.Views
         {
             if (anuncioEscolhido == null)
             {
-                var anuncios = (await AnuncioDA.ObterAnuncios()).Where(a => a.Tipo == tipoAnuncio).ToList();
+                var listaAnuncios = await AnunciosServices.GetListAsync(false);
+                var anuncios = listaAnuncios.Where(x => x.Tipo == tipoAnuncio).ToList();
+                var random = new Random();
 
                 if (anuncios.Count == 0)
                 {
@@ -40,8 +42,7 @@ namespace MaCamp.Views
                     return;
                 }
 
-                var r = new Random();
-                anuncioEscolhido = anuncios[r.Next(anuncios.Count)];
+                anuncioEscolhido = anuncios[random.Next(anuncios.Count)];
             }
 
             if (width == 0 || height == 0)

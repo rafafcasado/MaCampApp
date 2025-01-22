@@ -1,23 +1,22 @@
 ﻿using System.Collections.ObjectModel;
-using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
-using MaCamp.Models.DataAccess;
 using MaCamp.Models.Services;
+using MaCamp.Services;
+using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 
 namespace MaCamp.ViewModels
 {
     public class ListagemInfinitaVM
     {
-        public DBContract DB { get; set; }
         public ObservableCollection<Item> Itens { get; set; }
-        private WebService<Item> WebService { get; set; }
+        private WebService WebService { get; set; }
 
         public ListagemInfinitaVM()
         {
-            DB = DBContract.Instance;
             Itens = new ObservableCollection<Item>();
-            WebService = new WebService<Item>();
+            WebService = new WebService();
         }
 
         public async Task Carregar(string endpoint, int pagina, string tag, string query = "", Enumeradores.TipoListagem tipoListagem = Enumeradores.TipoListagem.Noticias, bool utilizarFiltros = true)
@@ -27,7 +26,7 @@ namespace MaCamp.ViewModels
 
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
-                configs = await ConfiguracoesAnunciosDA.ObterConfigs(pagina == 1);
+                configs = await ConfiguracoesAnunciosServices.GetAsync(pagina == 1);
 
                 if (configs != null)
                 {
@@ -42,11 +41,13 @@ namespace MaCamp.ViewModels
             {
                 var listaItensCampings = await ObterListaDeCampings(endpoint, pagina, tag, query, utilizarFiltros);
                 var idLocal = Itens.Count;
-                var anuncios = (await AnuncioDA.ObterAnuncios(pagina == 1)).Where(a => a.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
+                var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
+                var anuncios = listaAnuncios.Where(x => x.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
 
                 listaItensCampings.ForEach(item =>
                 {
                     item.IdLocal = ++idLocal;
+
                     Itens.Add(item);
 
                     if (configs != null)
@@ -95,12 +96,12 @@ namespace MaCamp.ViewModels
             }
             else
             {
-                var listItens = await WebService.Get(endpoint, pagina, tag, query);
+                var listItens = await WebService.GetListAsync<Item>(endpoint, pagina, tag, query);
                 var idLocal = Itens.Count;
 
                 await listItens.ForEachAsync(async item =>
                 {
-                    var itemBD = DB.ObterItem(i => i.IdPost == item.IdPost);
+                    var itemBD = DBContract.Instance.ObterItem(i => i.IdPost == item.IdPost);
 
                     if (itemBD != null)
                     {
@@ -109,14 +110,15 @@ namespace MaCamp.ViewModels
                     }
 
                     item.IdLocal = ++idLocal;
+
                     Itens.Add(item);
 
                     if (configs != null)
                     {
                         if (countAnuncio == 1)
                         {
-                            var listaAnuncios = await AnuncioDA.ObterAnuncios(pagina == 1);
-                            var anuncios = listaAnuncios.Where(a => a.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
+                            var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
+                            var anuncios = listaAnuncios.Where(x => x.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
 
                             if (anuncios.Count > 0)
                             {

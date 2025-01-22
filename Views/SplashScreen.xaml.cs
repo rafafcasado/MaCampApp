@@ -13,11 +13,11 @@ namespace MaCamp.Views
 
         private async void AnimateSplashScreen(Type type)
         {
-            var duration = Convert.ToUInt32(System.Diagnostics.Debugger.IsAttached ? 50 : 500);
+            var duration = Convert.ToUInt32(500);
 
             try
             {
-                await layout.ColorTo(Colors.White, Colors.Black, x => layout.BackgroundColor = x, duration);
+                await layout.ColorTo(Colors.White, AppColors.CorPrimaria, x => layout.BackgroundColor = x, duration);
                 await image.FadeTo(1, duration, Easing.CubicInOut);
 
                 var instance = Activator.CreateInstance(type);

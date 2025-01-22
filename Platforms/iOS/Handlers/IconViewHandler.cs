@@ -5,7 +5,7 @@ using UIKit;
 
 namespace MaCamp.Platforms.iOS.Handlers
 {
-    public partial class IconViewHandler : ViewHandler<IconView, UIImageView>
+    public class IconViewHandler : ViewHandler<IconView, UIImageView>
     {
         private static IPropertyMapper<IconView, IconViewHandler> Mapper => new PropertyMapper<IconView, IconViewHandler>(ViewMapper)
         {

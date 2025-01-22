@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using MaCamp.Utils;
 using MaCamp.Models;
-using MaCamp.Models.DataAccess;
+using MaCamp.Services.DataAccess;
 
 namespace MaCamp.Views.Campings
 {

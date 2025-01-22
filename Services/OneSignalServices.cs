@@ -1,4 +1,4 @@
-﻿namespace MaCamp.Models
+﻿namespace MaCamp.Models.Services
 {
     public class OneSignalServices
     {
@@ -51,14 +51,12 @@
         //    {
         //        Dictionary<string, object> additionalData = payload.additionalData;
 
-        //        var sqliteConnection = DBContract.Instance;
-
-        //        sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+        //        DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
         //        { 
         //            Chave = AppConstants.CHAVE_TITULO_NOTIFICACAO,
         //            Valor = payload.title
         //        });
-        //        sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+        //        DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
         //        {
         //            Chave = AppConstants.CHAVE_MENSAGEM_NOTIFICACAO,
         //            Valor = payload.body
@@ -69,13 +67,13 @@
         //            if (additionalData.ContainsKey("id"))
         //            {
         //                string id = additionalData["id"].ToString();
-        //                sqliteConnection.InserirOuSubstituirModelo(new ChaveValor { Chave = AppConstants.CHAVE_ID_ITEM_NOTIFICACAO, Valor = id });
+        //                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor { Chave = AppConstants.CHAVE_ID_ITEM_NOTIFICACAO, Valor = id });
         //            }
         //        }
 
         //        if (payload.launchURL != null)
         //        {
-        //            sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+        //            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
         //            {
         //                Chave = AppConstants.CHAVE_URL_NOTIFICACAO,
         //                Valor = payload.launchURL

@@ -1,4 +1,4 @@
-﻿using MaCamp.Models.DataAccess;
+﻿using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 
 namespace MaCamp.Models.Services
@@ -9,13 +9,12 @@ namespace MaCamp.Models.Services
         {
             try
             {
-                var DB = DBContract.Instance;
                 var listaCidades = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
 
                 if (listaCidades != null)
                 {
-                    DB.ApagarCidades();
-                    DB.InserirListaDeModelo(listaCidades);
+                    DBContract.Instance.ApagarCidades();
+                    DBContract.Instance.InserirListaDeModelo(listaCidades);
                 }
             }
             catch (Exception ex)

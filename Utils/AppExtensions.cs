@@ -76,10 +76,10 @@ namespace MaCamp.Utils
 
         public static string GetHexadecimalValue(this Color color)
         {
-            var red = (int)(color.Red * 255);
-            var green = (int)(color.Green * 255);
-            var blue = (int)(color.Blue * 255);
-            var alpha = (int)(color.Alpha * 255);
+            var red = Convert.ToInt32(color.Red * 255);
+            var green = Convert.ToInt32(color.Green * 255);
+            var blue = Convert.ToInt32(color.Blue * 255);
+            var alpha = Convert.ToInt32(color.Alpha * 255);
             var hex = $"#{alpha:X2}{red:X2}{green:X2}{blue:X2}";
 
             return hex;
@@ -210,6 +210,27 @@ namespace MaCamp.Utils
             }
 
             return defaultValue;
+        }
+
+        public static T GetInstance<T>() where T : new()
+        {
+            var key = typeof(T).Name;
+
+            if (AppConstants.DictionaryData.TryGetValue(key, out var value) && value is T instance)
+            {
+                return instance;
+            }
+
+            return new T();
+        }
+
+        public static T GetInstance<T>(Action<T> action) where T : new()
+        {
+            var instance = GetInstance<T>();
+
+            action.Invoke(instance);
+
+            return instance;
         }
     }
 }

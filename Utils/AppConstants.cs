@@ -4,6 +4,7 @@ namespace MaCamp.Utils
 {
     public static class AppConstants
     {
+        public static Dictionary<string, object?> DictionaryData => new Dictionary<string, object?>();
         public static Page CurrentPage => Application.Current?.Windows[0].Page ?? throw new NullReferenceException();
 
         public static string CharsAcentuados => "αßÁáÀàÂâÃãĀāÅåÄäÆæÇçÉéÈèÊêÍíÌìÎîÑñÓóÒòÔôÖöŌōØøÚúÙùÜüŽž";
@@ -19,7 +20,18 @@ namespace MaCamp.Utils
         public static string NomeApp => "MaCamp";
         public static string ParametroTodasTags => "Todas";
         public static int QuantidadeNoticiasPorLote => 20;
-        public static string OnesignalAppId => "5b60ade4-26c8-452b-86a8-039457585240";
+
+        // OneSignal
+        public static string OneSignal_AppId => "5b60ade4-26c8-452b-86a8-039457585240";
+
+        // GAService
+        public static string GAService_TrackingId = "UA-49846110-44";
+        public static string GAService_TrackerName = "Guia de Camping";
+        public static string GAService_AllowTrackingKey => "AllowTracking";
+
+        // GoogleAnalytics
+        public static string GoogleAnalytics_TrackerName => "Aspbrasil";
+        public static string GoogleAnalytics_TrackingId => Debugger.IsAttached ? "UA-49846110-44" : "UA-49846110-36";
 
         // Titulos
         public static string Titulo_SemInternet => "Este conteúdo requer conexão com a internet";

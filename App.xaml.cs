@@ -1,10 +1,10 @@
 using System.Globalization;
-using MaCamp.Utils;
 using MaCamp.Dependencias;
 using MaCamp.Models;
-using MaCamp.Models.DataAccess;
 using MaCamp.Models.Services;
 using MaCamp.Resources.Locale;
+using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 using MaCamp.Views;
 using MaCamp.Views.Menu;
 
@@ -56,7 +56,7 @@ namespace MaCamp
                 });
             }
 
-            // A plataforma Windows não precisa da depend�ncia.
+            // A plataforma Windows não precisa da dependência.
             if (DeviceInfo.Platform == DevicePlatform.Android || DeviceInfo.Platform == DevicePlatform.iOS)
             {
                 var localize = Handler?.MauiContext?.Services.GetService<ILocalize>();
@@ -99,11 +99,11 @@ namespace MaCamp
 
         protected override void OnStart()
         {
-            //Task.Run(() => new OneSignalServices(AppConstants.ONESIGNAL_APP_ID).InicializarOneSignal());
+            //Task.Run(() => new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal());
         }
 
         /// <summary>
-        ///     Carrega o tamanho de tela do dispositivo atual e salva na vari�vel global para facilitar o acesso.
+        ///     Carrega o tamanho de tela do dispositivo atual e salva na variável global para facilitar o acesso.
         /// </summary>
         private void CarregarTamanhoTela()
         {
@@ -115,24 +115,23 @@ namespace MaCamp
 
         public static async void ExibirNotificacaoPush()
         {
-            var sqliteConnection = DBContract.Instance;
-            var tituloPush = sqliteConnection.ObterValorChave(AppConstants.Chave_TituloNotificacao);
-            var mensagemPush = sqliteConnection.ObterValorChave(AppConstants.Chave_MensagemNotificacao);
-            var itemPush = sqliteConnection.ObterValorChave(AppConstants.Chave_IdItemNotificacao);
+            var tituloPush = DBContract.Instance.ObterValorChave(AppConstants.Chave_TituloNotificacao);
+            var mensagemPush = DBContract.Instance.ObterValorChave(AppConstants.Chave_MensagemNotificacao);
+            var itemPush = DBContract.Instance.ObterValorChave(AppConstants.Chave_IdItemNotificacao);
 
-            sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Chave_TituloNotificacao,
                 Valor = null
             });
 
-            sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Chave_MensagemNotificacao,
                 Valor = null
             });
 
-            sqliteConnection.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Chave_IdItemNotificacao,
                 Valor = null
@@ -157,7 +156,7 @@ namespace MaCamp
                 //{
                 //    Current?.Dispatcher.Dispatch(async () =>
                 //    {
-                //        bool abrir = await AppConstants.CurrentPage.DisplayAlert($"{tituloPush}", $"{mensagemPush} - Deseja visualizar agora?", "Sim", "N�o");
+                //        bool abrir = await AppConstants.CurrentPage.DisplayAlert($"{tituloPush}", $"{mensagemPush} - Deseja visualizar agora?", "Sim", "Não");
                 //        if (abrir)
                 //        {
                 //            await AppConstants.CurrentPage.Navigation.PushAsync(new DetalhesPedidoPage(pedido));
@@ -169,8 +168,7 @@ namespace MaCamp
 
         public static bool BaixarUltimaVersaoConteudo()
         {
-            var sqliteConnection = DBContract.Instance;
-            var dataUltimaAtualizacao = sqliteConnection.ObterValorChave(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
+            var dataUltimaAtualizacao = DBContract.Instance.ObterValorChave(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
             var formato = "yyyy/MM/dd";
 
             if (DateTime.TryParseExact(dataUltimaAtualizacao, formato, CultureInfo.InvariantCulture, DateTimeStyles.None, out var data))

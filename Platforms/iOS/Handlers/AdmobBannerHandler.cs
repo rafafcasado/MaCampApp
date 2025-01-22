@@ -6,7 +6,7 @@ using UIKit;
 
 namespace MaCamp.Platforms.iOS.Handlers
 {
-    public partial class AdmobBannerHandler : ViewHandler<AdMobBannerView, BannerView>
+    public class AdmobBannerHandler : ViewHandler<AdMobBannerView, BannerView>
     {
         private BannerView? AdView { get; set; }
 

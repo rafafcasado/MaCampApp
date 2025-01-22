@@ -5,7 +5,7 @@ using Microsoft.Maui.Handlers;
 
 namespace MaCamp.Platforms.Android.Handlers
 {
-    public partial class AdmobRectangleBannerHandler : ViewHandler<AdmobRectangleBannerView, AdView>
+    public class AdmobRectangleBannerHandler : ViewHandler<AdmobRectangleBannerView, AdView>
     {
         private static IPropertyMapper<AdmobRectangleBannerView, AdmobRectangleBannerHandler> Mapper => new PropertyMapper<AdmobRectangleBannerView, AdmobRectangleBannerHandler>(ViewMapper);
 

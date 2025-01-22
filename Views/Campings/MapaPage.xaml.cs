@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using FluentIcons.Common;
 using FluentIcons.Maui;
-using MaCamp.Utils;
 using MaCamp.CustomControls;
 using MaCamp.Models;
+using MaCamp.Utils;
 using MaCamp.ViewModels;
 using MaCamp.Views.Detalhes;
 using Microsoft.Maui.Controls.Maps;
@@ -182,7 +182,7 @@ namespace MaCamp.Views.Campings
             {
                 if (item.Latitude is double latitude && item.Longitude is double longitude)
                 {
-                    var tipos = item.Identificadores.Where(i => i.Opcao == 0 && i.Identificador != null && identificadoresPermitidos.Contains(i.Identificador.Replace("`", "").Replace("çã", "ca").Replace("/", "").ToLower())).ToList();
+                    var tipos = item.Identificadores.Where(x => x.Opcao == 0 && x.Identificador != null && identificadoresPermitidos.Contains(x.Identificador.Replace("`", "").Replace("çã", "ca").Replace("/", "").ToLower())).ToList();
 
                     if (tipos.Any())
                     {
