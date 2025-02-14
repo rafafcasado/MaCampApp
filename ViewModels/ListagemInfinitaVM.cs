@@ -44,6 +44,9 @@ namespace MaCamp.ViewModels
                 var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
                 var anuncios = listaAnuncios.Where(x => x.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
 
+                var teste = listaItensCampings.Select(x => x.Tipo).Distinct().ToArray();
+                var asdasd = "asdasd";
+
                 listaItensCampings.ForEach(item =>
                 {
                     item.IdLocal = ++idLocal;
@@ -101,7 +104,7 @@ namespace MaCamp.ViewModels
 
                 await listItens.ForEachAsync(async item =>
                 {
-                    var itemBD = DBContract.Instance.ObterItem(i => i.IdPost == item.IdPost);
+                    var itemBD = StorageHelper.GetItemById(item.IdPost);
 
                     if (itemBD != null)
                     {

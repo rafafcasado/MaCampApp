@@ -1,8 +1,10 @@
-﻿using MaCamp.Utils;
+﻿using MaCamp.Dependencias;
 using MaCamp.Models;
+using MaCamp.Models.Anuncios;
+using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 using MaCamp.Views.CustomViews;
 using MaCamp.Views.Detalhes;
-using MaCamp.Services.DataAccess;
 
 namespace MaCamp.Views.Listagens
 {
@@ -16,9 +18,9 @@ namespace MaCamp.Views.Listagens
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Campings Favoritos");
 
-            cvItens.ItemTemplate = new DataTemplate(typeof(CampingContentView));
+            cvItens.ItemTemplate = new ItemDataTemplateSelector();
 
-            Task.Run(() => CarregarConteudo());
+            Loaded += ListagemItensFavoritosView_Loaded;
 
             MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_AtualizarListagemFavoritos, s =>
             {
@@ -38,7 +40,17 @@ namespace MaCamp.Views.Listagens
                 }
                 else
                 {
-                    await Navigation.PushAsync(new DetalhesCampingPage(item));
+                    if (item.IdCamping != 0)
+                    {
+                        await Navigation.PushAsync(new DetalhesCampingPage(item));
+                    }
+                    else if (item.IdPost != 0)
+                    {
+                        await ControladorDeAnuncios.VerificarEExibirAnuncioPopup();
+                        await Navigation.PushAsync(new DetalhesPage(item));
+                    }
+
+                    throw new Exception("Item não foi tratado");
                 }
             }
         }
@@ -58,9 +70,16 @@ namespace MaCamp.Views.Listagens
             CarregarConteudo();
         }
 
-        private void CarregarConteudo()
+        private async void CarregarConteudo()
         {
-            var itensFavoritos = DBContract.Instance.ListarItens(i => i.Favoritado);
+            var storagePermission = Handler?.MauiContext?.Services.GetService<IStoragePermission>();
+
+            if (storagePermission != null)
+            {
+                await storagePermission.Request();
+            }
+
+            var itensFavoritos = StorageHelper.LoadData<List<Item>>(AppConstants.FavoritesFilename);
 
             Dispatcher.Dispatch(() =>
             {
@@ -68,7 +87,7 @@ namespace MaCamp.Views.Listagens
                 loaderConteudoInicial.IsRunning = false;
                 loaderConteudoAdicional.IsVisible = false;
 
-                if (itensFavoritos.Count > 0)
+                if (itensFavoritos != null && itensFavoritos.Count > 0)
                 {
                     lbMensagemAviso.IsVisible = false;
                     cvItens.ItemsSource = itensFavoritos;
@@ -82,6 +101,14 @@ namespace MaCamp.Views.Listagens
                     cvItens.IsVisible = false;
                 }
             });
+        }
+
+        private void ListagemItensFavoritosView_Loaded(object? sender, EventArgs e)
+        {
+            if (cvItens.ItemsSource is not List<Item> listaFavoritos || listaFavoritos.Count == 0)
+            {
+                CarregarConteudo();
+            }
         }
     }
 }

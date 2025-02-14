@@ -34,7 +34,7 @@ namespace MaCamp.Views.Campings
 
             MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada, r =>
             {
-                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", Enumeradores.TipoChave.ControleInterno));
+                DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", Enumeradores.TipoChave.ControleInterno));
 
                 Dispatcher.Dispatch(() =>
                 {
@@ -48,7 +48,7 @@ namespace MaCamp.Views.Campings
 
         private void CarregarConteudo()
         {
-            var buscaInicialRealizada = DBContract.Instance.ObterValorChave(AppConstants.Busca_InicialRealizada);
+            var buscaInicialRealizada = DBContract.ObterValorChave(AppConstants.Busca_InicialRealizada);
 
             if (buscaInicialRealizada != null)
             {
@@ -58,7 +58,7 @@ namespace MaCamp.Views.Campings
             {
                 var valorEstabelecimentos = "Campings,PontodeApoioaRV`s,CampingSelvagem/WildCamping/Bushcfaft,SemFunçãoCamping/ApoioouFechado";
 
-                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+                DBContract.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
                     Valor = valorEstabelecimentos

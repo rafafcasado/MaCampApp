@@ -3,6 +3,7 @@ using FluentIcons.Common;
 using FluentIcons.Maui;
 using MaCamp.CustomControls;
 using MaCamp.Models;
+using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using MaCamp.ViewModels;
 using MaCamp.Views.Detalhes;
@@ -38,7 +39,17 @@ namespace MaCamp.Views.Campings
             Task.Run(async () =>
             {
                 var vm = new ListagemInfinitaVM();
-                await vm.Carregar("", -1, "", "", Enumeradores.TipoListagem.Camping, usarFiltros);
+
+                if (Connectivity.NetworkAccess == NetworkAccess.Internet)
+                {
+                    await vm.Carregar("", -1, "", "", Enumeradores.TipoListagem.Camping, usarFiltros);
+                }
+                else
+                {
+                    var itensSalvos = DBContract.ListarItens();
+
+                    vm.Itens = new ObservableCollection<Item>(itensSalvos);
+                }
 
                 if (DeviceInfo.Platform == DevicePlatform.iOS)
                 {
@@ -207,7 +218,7 @@ namespace MaCamp.Views.Campings
                 }
             }
 
-            //var valorChaveEstadoSelecionado = DBContract.Instance.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+            //var valorChaveEstadoSelecionado = DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
 
             //if (valorChaveEstadoSelecionado != null && valorChaveEstadoSelecionado != null)
             //{
@@ -227,10 +238,16 @@ namespace MaCamp.Views.Campings
             //    map.MoveToRegion(MapSpan.FromCenterAndRadius(new Location(App.LOCALIZACAO_USUARIO.Latitude, App.LOCALIZACAO_USUARIO.Longitude), Distance.FromKilometers(10)));
             //}
 
+            map.Loaded += async (sender, args) =>
+            {
+                await Task.Delay(500);
+
+                toggleButton.IsVisible = true;
+            };
+
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 cvMapa.Content = map;
-                toggleButton.IsVisible = true;
             });
         }
 

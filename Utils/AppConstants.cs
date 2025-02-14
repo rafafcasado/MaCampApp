@@ -12,10 +12,10 @@ namespace MaCamp.Utils
 
         public static string EmailRegex => @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" + @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$";
 
-
         public static string AdmobIdBannerAndroid => Debugger.IsAttached ? "ca-app-pub-8959365990645001/9280664891" : "ca-app-pub-3940256099942544/6300978111";
         public static string AdmobIdBannerIOs => Debugger.IsAttached ? "ca-app-pub-8959365990645001/7917696236" : "ca-app-pub-3940256099942544/6300978111";
 
+        public static string FavoritesFilename => "favoritos_macamp.json";
         public static string SqliteFilename => "app.db3";
         public static string NomeApp => "MaCamp";
         public static string ParametroTodasTags => "Todas";
@@ -70,6 +70,7 @@ namespace MaCamp.Utils
         public static string Chave_RecarregarHtmlLogin => "RecarregarHTMLLogin";
         public static string Chave_DownloadCampingsCompleto => "DownloadCampingsCompleto";
         public static string Chave_DataUltimaAtualizacaoConteudo => "DataUltimaAtualizacaoConteudo";
+        public static string Chave_UltimaAtualizacao => "UltimaAtualizacao";
 
         // Filtros
         public static string Filtro_NomeCamping => "FILTROS_NOME_DO_CAMPING";

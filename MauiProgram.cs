@@ -32,6 +32,7 @@ namespace MaCamp
 
             builder.Services.AddPlatformSingleton<ILocalize>();
             builder.Services.AddPlatformSingleton<ISQLite>();
+            builder.Services.AddPlatformSingleton<IStoragePermission>();
 
             builder.UseMauiApp<App>();
 

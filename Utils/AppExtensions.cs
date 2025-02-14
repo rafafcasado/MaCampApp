@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -184,7 +185,7 @@ namespace MaCamp.Utils
                 return text;
             }
 
-            var stFormD = text.Normalize(NormalizationForm.FormD);
+            var stFormD = text.Trim().Normalize(NormalizationForm.FormD);
             var sb = new StringBuilder();
 
             foreach (var caracter in stFormD)
@@ -231,6 +232,22 @@ namespace MaCamp.Utils
             action.Invoke(instance);
 
             return instance;
+        }
+
+        public static void ReplaceOrAdd<T>(this ObservableCollection<T> collection, T newItem, Func<T, bool> predicate)
+        {
+            var existingItem = collection.FirstOrDefault(predicate);
+
+            if (existingItem != null)
+            {
+                var index = collection.IndexOf(existingItem);
+
+                collection[index] = newItem;
+            }
+            else
+            {
+                collection.Add(newItem);
+            }
         }
     }
 }

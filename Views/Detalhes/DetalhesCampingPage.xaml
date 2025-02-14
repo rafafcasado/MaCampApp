@@ -46,7 +46,7 @@
 
                         <Image
                             x:Name="imIconeGaleria"
-                            HeightRequest="25" />
+                            HeightRequest="35" />
                         <!--<Label Text="Mais fotos" TextColor="White" Font="Bold,15" VerticalOptions="Center" />-->
                     </StackLayout>
 
@@ -120,6 +120,7 @@
                         </Grid>
 
                         <BoxView
+                            x:Name="separadorTelefones"
                             BackgroundColor="#20000000"
                             HeightRequest="1" />
 
@@ -414,14 +415,14 @@
                     x:Name="cvComodidades" />
 
                 <Button
-                    Margin="20"
+                    Margin="20,5,20,5"
                     BackgroundColor="#2ab079"
                     Clicked="AbrirTelaColaboracao"
                     Text="Avalie e Informe sobre este camping"
                     TextColor="White" />
 
                 <StackLayout
-                    Padding="15"
+                    Padding="15,5,15,5"
                     BackgroundColor="#f5f5f5"
                     Spacing="10"
                     VerticalOptions="FillAndExpand">

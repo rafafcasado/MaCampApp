@@ -76,7 +76,7 @@ namespace MaCamp.Views.Campings
 
         //private void CarregarLocalizacaoUsuario()
         //{
-        //    string valorChaveUsarLocalizacaoUsuario = DBContract.Instance.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
+        //    string valorChaveUsarLocalizacaoUsuario = DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
         //    if (valorChaveUsarLocalizacaoUsuario != null && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
         //    {
         //        UsarLocalizacaoUsuario = true;
@@ -86,15 +86,15 @@ namespace MaCamp.Views.Campings
 
         //private async void CarregarCidadesEstados()
         //{
-        //    string EstadoBD = DBContract.Instance.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
-        //    string CIDADE_BD = DBContract.Instance.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
-        //    List<Cidade> cidadesWS = DBContract.Instance.ListarCidades();
+        //    string EstadoBD = DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+        //    string CIDADE_BD = DBContract.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
+        //    List<Cidade> cidadesWS = DBContract.ListarCidades();
 
         //    if (cidadesWS.Count == 0)
         //    {
         //        cidadesWS = await NetUtils.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
 
-        //        DBContract.Instance.InserirListaDeModelo(cidadesWS);
+        //        DBContract.InserirListaDeModelo(cidadesWS);
         //    }
 
         //    var gruposCidadePorUF = cidadesWS.GroupBy(x => x.Estado);
@@ -158,7 +158,7 @@ namespace MaCamp.Views.Campings
 
         private void CarregarFiltrosEstabelecimentoSelecionados()
         {
-            var valoresFiltrosSelecionados = DBContract.Instance.ObterValorChave(AppConstants.Filtro_EstabelecimentoSelecionados);
+            var valoresFiltrosSelecionados = DBContract.ObterValorChave(AppConstants.Filtro_EstabelecimentoSelecionados);
 
             if (valoresFiltrosSelecionados == null)
             {
@@ -199,7 +199,7 @@ namespace MaCamp.Views.Campings
 
         private void CarregarFiltrosServicosSelecionados()
         {
-            var valoresFiltrosSelecionados = DBContract.Instance.ObterValorChave(AppConstants.Filtro_ServicoSelecionados);
+            var valoresFiltrosSelecionados = DBContract.ObterValorChave(AppConstants.Filtro_ServicoSelecionados);
 
             if (valoresFiltrosSelecionados == null)
             {
@@ -361,17 +361,17 @@ namespace MaCamp.Views.Campings
         {
             //if (UsarLocalizacaoUsuario)
             //{
-            //    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            //    DBContract.InserirOuSubstituirModelo(new ChaveValor
             //    {
             //        Chave = AppConstants.Filtro_LocalizacaoSelecionada,
             //        Valor = "true"
             //    });
-            //    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            //    DBContract.InserirOuSubstituirModelo(new ChaveValor
             //    {
             //        Chave = AppConstants.Filtro_EstadoSelecionado,
             //        Valor = null
             //    });
-            //    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            //    DBContract.InserirOuSubstituirModelo(new ChaveValor
             //    {
             //        Chave = AppConstants.Filtro_CidadeSelecionada,
             //        Valor = null
@@ -380,17 +380,17 @@ namespace MaCamp.Views.Campings
             //}
             //else
             //{
-            //    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            //    DBContract.InserirOuSubstituirModelo(new ChaveValor
             //    {
             //        Chave = AppConstants.Filtro_EstadoSelecionado,
             //        Valor = EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado
             //    });
-            //    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            //    DBContract.InserirOuSubstituirModelo(new ChaveValor
             //    {
             //        Chave = AppConstants.Filtro_CidadeSelecionada,
             //        Valor = CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada
             //    });
-            //    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            //    DBContract.InserirOuSubstituirModelo(new ChaveValor
             //    {
             //        Chave = AppConstants.Filtro_LocalizacaoSelecionada,
             //        Valor = "false"
@@ -399,7 +399,7 @@ namespace MaCamp.Views.Campings
             EstabelecimentosSelecionados.Remove("");
             var valorEstabelecimentos = string.Join(",", EstabelecimentosSelecionados);
 
-            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
                 Valor = valorEstabelecimentos
@@ -408,7 +408,7 @@ namespace MaCamp.Views.Campings
             ComodidadesSelecionadas.Remove("");
             var valorComodidades = string.Join(",", ComodidadesSelecionadas);
 
-            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_ServicoSelecionados,
                 Valor = valorComodidades

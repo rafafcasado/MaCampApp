@@ -43,6 +43,7 @@ namespace MaCamp.Views.CustomViews
             {
                 Dispatcher.Dispatch(() => imIconeTipo2.IsVisible = true);
             };
+
         }
 
         protected override void OnBindingContextChanged()

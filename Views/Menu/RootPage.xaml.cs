@@ -68,12 +68,12 @@ namespace MaCamp.Views.Menu
                             await Detail.Navigation.PushAsync(new ListagemItensPage(AppConstants.Url_PegarPosts, item.TituloPagina, tag: "app-dicas"));
                             break;
                         case Enumeradores.TipoAcaoMenu.AbrirMapa:
-                            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
-                            {
-                                await DisplayAlert("Este conteúdo requer conexão com a internet", AppConstants.Descricao_SemInternet, "OK");
+                            //if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                            //{
+                            //    await DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
 
-                                return;
-                            }
+                            //    return;
+                            //}
 
                             await Detail.Navigation.PushAsync(new MapaPage(false));
                             break;

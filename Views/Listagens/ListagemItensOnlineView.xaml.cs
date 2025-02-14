@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
-using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Models.Services;
+using MaCamp.Utils;
 using MaCamp.ViewModels;
 using MaCamp.Views.CustomViews;
 using MaCamp.Views.Detalhes;
@@ -112,7 +112,7 @@ namespace MaCamp.Views.Listagens
 
                     fs.Spans.Add(new Span
                     {
-                        Text = "Este conteúdo requer conexão com a internet.\n\n",
+                        Text = $"{AppConstants.Titulo_SemInternet}.\n\n",
                         FontAttributes = FontAttributes.Bold,
                         FontSize = 20
                     });

@@ -8,14 +8,14 @@ namespace MaCamp.Models.Services
     {
         public static bool ExistemCampingsBD()
         {
-            var valorChaveDownloadConcluido = DBContract.Instance.ObterValorChave(AppConstants.Chave_DownloadCampingsCompleto);
+            var valorChaveDownloadConcluido = DBContract.ObterValorChave(AppConstants.Chave_DownloadCampingsCompleto);
             var downloadConcluido = !string.IsNullOrWhiteSpace(valorChaveDownloadConcluido) && Convert.ToBoolean(valorChaveDownloadConcluido);
-            var tem = downloadConcluido && DBContract.Instance.ObterItem(i => i.IdPost == 0) != null;
+            var tem = downloadConcluido && DBContract.ObterItem(i => i.IdPost == 0) != null;
 
             return tem;
         }
 
-        public static async Task BaixarCampings(bool forcarAtualizacao = false)
+        public static async Task BaixarCampings(bool forcarAtualizacao = false, ProgressoVisual? progressoVisual = null)
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
@@ -35,14 +35,20 @@ namespace MaCamp.Models.Services
             }
             else
             {
+                ProgressoVisual.AumentarTotal(progressoVisual, 12);
+
                 var existemCampingsSalvos = ExistemCampingsBD();
                 var identificadores = new List<ItemIdentificador>();
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
 
                 if (!existemCampingsSalvos || forcarAtualizacao)
                 {
                     App.BAIXANDO_CAMPINGS = true;
 
-                    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "false", Enumeradores.TipoChave.ControleInterno));
+                    DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "false", Enumeradores.TipoChave.ControleInterno));
+
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
 
                     var campings = new List<Item>();
                     var chamadasWS = new List<Task>
@@ -50,30 +56,37 @@ namespace MaCamp.Models.Services
                         Task.Run(async () =>
                         {
                             campings = await new WebService().GetListAsync<Item>(AppConstants.Url_ListaCampings, 0, string.Empty, string.Empty);
+                            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
                         }),
                         Task.Run(async () =>
                         {
                             identificadores = await new WebService().GetListAsync<ItemIdentificador>(AppConstants.Url_ListaIdentificadores, 1);
+                            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
                         })
                     };
 
                     Task.WaitAll(chamadasWS.ToArray());
 
-                    //Armazenar ID's de todos os Campings Favoritados
-                    var idsFavoritados = DBContract.Instance.BuscarIdsCampingsFavoritados();
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
 
-                    DBContract.Instance.ApagarItens();
-                    DBContract.Instance.InserirListaDeModelo(campings);
-                    DBContract.Instance.ApagarItensIdentificadores();
-                    DBContract.Instance.InserirListaDeModelo(identificadores);
-                    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", Enumeradores.TipoChave.ControleInterno));
-                    DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+                    DBContract.ApagarItens();
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                    DBContract.InserirListaDeModelo(campings);
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                    DBContract.ApagarItensIdentificadores();
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                    DBContract.InserirListaDeModelo(identificadores);
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                    DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", Enumeradores.TipoChave.ControleInterno));
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                    DBContract.InserirOuSubstituirModelo(new ChaveValor
                     {
                         Chave = AppConstants.Chave_DataUltimaAtualizacaoConteudo,
                         Valor = DateTime.Now.ToString("yyyy/MM/dd")
                     });
-                    //Realizar update informando os ID's dos favoritos
-                    DBContract.Instance.AtualizarIdsCampingsFavoritados(idsFavoritados);
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
                     App.BAIXANDO_CAMPINGS = false;
                 }
             }
@@ -92,20 +105,20 @@ namespace MaCamp.Models.Services
                 return campingsFiltrados;
             }
 
-            var campings = DBContract.Instance.ListarItens(x => x.IdPost == 0).OrderBy(x => x.Nome).ToList();
+            var campings = DBContract.ListarItens(x => x.IdPost == 0).OrderBy(x => x.Nome).ToList();
 
             return campings;
         }
 
         private static async Task<List<Item>> CarregarCampingsFiltradosBD()
         {
-            var valorChaveEstadoSelecionado = DBContract.Instance.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
-            var valorChaveCidadeSelecionada = DBContract.Instance.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
-            var valorChaveLocalizacaoSelecionada = DBContract.Instance.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
-            var valorChaveBuscaCamping = DBContract.Instance.ObterValorChave(AppConstants.Filtro_NomeCamping);
+            var valorChaveEstadoSelecionado = DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+            var valorChaveCidadeSelecionada = DBContract.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
+            var valorChaveLocalizacaoSelecionada = DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
+            var valorChaveBuscaCamping = DBContract.ObterValorChave(AppConstants.Filtro_NomeCamping);
             var usarLocalizacaoDoUsuario = valorChaveLocalizacaoSelecionada != null && Convert.ToBoolean(valorChaveLocalizacaoSelecionada);
-            var valorFiltroEstabelecimentos = DBContract.Instance.ObterValorChave(AppConstants.Filtro_EstabelecimentoSelecionados);
-            var valorFiltroComodidades = DBContract.Instance.ObterValorChave(AppConstants.Filtro_ServicoSelecionados) ?? string.Empty;
+            var valorFiltroEstabelecimentos = DBContract.ObterValorChave(AppConstants.Filtro_EstabelecimentoSelecionados);
+            var valorFiltroComodidades = DBContract.ObterValorChave(AppConstants.Filtro_ServicoSelecionados) ?? string.Empty;
             var identificadoresEstabelecimento = "'" + valorFiltroEstabelecimentos?.Replace(",", "','") + "'";
             var identificadoresComodidades = "'" + valorFiltroComodidades.Replace(",", "','") + "'";
             var possuiFiltroCategoria = identificadoresEstabelecimento != "''";
@@ -120,7 +133,7 @@ namespace MaCamp.Models.Services
 
             if (!string.IsNullOrWhiteSpace(valorChaveBuscaCamping))
             {
-                var resultadoBuscaDeCampings = DBContract.Instance.BuscarCampings(valorChaveBuscaCamping, valorChaveCidadeSelecionada, valorChaveEstadoSelecionado);
+                var resultadoBuscaDeCampings = DBContract.BuscarCampings(valorChaveBuscaCamping, valorChaveCidadeSelecionada, valorChaveEstadoSelecionado);
 
                 return resultadoBuscaDeCampings;
             }
@@ -150,7 +163,7 @@ namespace MaCamp.Models.Services
             sbQuery.Append($" ORDER BY {nameof(Item.Ordem)},{nameof(Item.Nome)} ASC ");
 
             var query = sbQuery.ToString();
-            var campings = DBContract.Instance.QueryItens(query).ToList();
+            var campings = DBContract.QueryItens(query).ToList();
 
             if (usarLocalizacaoDoUsuario)
             {
@@ -176,13 +189,13 @@ namespace MaCamp.Models.Services
 
         private static List<int> BuscarIdsCampingsPorCategoriaEComodidades(string categorias, string comodidades, bool possuiFiltroCategoria, bool possuiFiltroComodidades)
         {
-            var idsCampingsComComodidades = DBContract.Instance.ListarIdsCampingsComComodidades(possuiFiltroComodidades, comodidades);
+            var idsCampingsComComodidades = DBContract.ListarIdsCampingsComComodidades(possuiFiltroComodidades, comodidades);
 
             // Se não possui filtro por categorias, ignora essa busca
             // Se nenhum camping atende ao filtro de comodidades também ignora essa busca
             if (possuiFiltroCategoria && (!possuiFiltroComodidades || (possuiFiltroComodidades && idsCampingsComComodidades.Count > 0)))
             {
-                return DBContract.Instance.ListarIdsCampingsComCategorias(categorias, possuiFiltroComodidades, idsCampingsComComodidades);
+                return DBContract.ListarIdsCampingsComCategorias(categorias, possuiFiltroComodidades, idsCampingsComComodidades);
             }
 
             return idsCampingsComComodidades;

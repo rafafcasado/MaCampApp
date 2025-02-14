@@ -1,7 +1,7 @@
-﻿using MaCamp.Utils;
-using MaCamp.Models;
+﻿using MaCamp.Models;
 using MaCamp.Models.Services;
 using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 
 namespace MaCamp.Views.Detalhes
 {
@@ -53,6 +53,8 @@ namespace MaCamp.Views.Detalhes
             //    btAbrirMapa.Clicked += (s, e) => AbrirMapa(item.UriKmlLocal);
             //}
 
+            ConfigurarToolbar(item);
+
             MessagingCenter.Subscribe<Application, int>(this, AppConstants.Atualizar_ProgressoWebView, (s, e) =>
             {
                 if (e == 100)
@@ -66,7 +68,7 @@ namespace MaCamp.Views.Detalhes
 
                     item.Visualizado = true;
 
-                    DBContract.Instance.InserirOuSubstituirModelo(item);
+                    DBContract.InserirOuSubstituirModelo(item);
                 }
             });
 
@@ -94,6 +96,42 @@ namespace MaCamp.Views.Detalhes
             wvDetalhes.Source = htmlSource;
             wvDetalhes.Loaded += WvDetalhes_Loaded;
             wvDetalhes.Navigating += WvDetalhes_Navigating;
+        }
+
+        private void ConfigurarToolbar(Item item)
+        {
+            ToolbarItems.Clear();
+
+            if (StorageHelper.IsFavoriteItem(item.Id))
+            {
+                var imagem = "icone_favoritos_on.png";
+
+                ToolbarItems.Add(new ToolbarItem("Remover Favorito", imagem, () =>
+                {
+                    item.Favoritado = false;
+
+                    StorageHelper.AddOrUpdateItem(item);
+                    DBContract.InserirOuSubstituirModelo(item);
+                    ConfigurarToolbar(item);
+
+                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                }));
+            }
+            else
+            {
+                var imagem = "icone_favoritos_off.png";
+
+                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, () =>
+                {
+                    item.Favoritado = true;
+
+                    StorageHelper.AddOrUpdateItem(item);
+                    DBContract.InserirOuSubstituirModelo(item);
+                    ConfigurarToolbar(item);
+
+                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                }));
+            }
         }
 
         private void WvDetalhes_Loaded(object? sender, EventArgs e)

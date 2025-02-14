@@ -7,16 +7,9 @@ using SQLite;
 
 namespace MaCamp.Services.DataAccess
 {
-    public class DBContract
+    public static class DBContract
     {
         public static SQLiteConnection? SqlConnection { get; set; }
-        public static DBContract Instance => AppExtensions.GetInstance<DBContract>(x =>
-        {
-            if (SqlConnection != null)
-            {
-                SqlConnection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
-            }
-        });
 
         private static object Lock => new object();
         private static Mutex Mutex => new Mutex();
@@ -26,7 +19,7 @@ namespace MaCamp.Services.DataAccess
         /// </summary>
         /// <param name="model"></param>
         /// <returns>Objeto inserido, com a Primary Key atualizada</returns>
-        public object? InserirModelo(object? model)
+        public static object? InserirModelo(object? model)
         {
             lock (Lock)
             {
@@ -56,7 +49,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public int InserirListaDeModelo(IEnumerable<object> model)
+        public static int InserirListaDeModelo<T>(IEnumerable<T> model)
         {
             lock (Lock)
             {
@@ -90,7 +83,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public int InserirOuSubstituirModelo(object model)
+        public static int InserirOuSubstituirModelo(object model)
         {
             lock (Lock)
             {
@@ -120,7 +113,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public Item? ObterItem(Expression<Func<Item, bool>> where)
+        public static Item? ObterItem(Expression<Func<Item, bool>> where)
         {
             lock (Lock)
             {
@@ -150,7 +143,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public string? ObterValorChave(string chave)
+        public static string? ObterValorChave(string chave)
         {
             lock (Lock)
             {
@@ -185,7 +178,7 @@ namespace MaCamp.Services.DataAccess
             public int IdItem { get; set; }
         }
 
-        public List<int> ListarIdsCampingsComComodidades(bool possuiFiltroComodidades, string comodidades)
+        public static List<int> ListarIdsCampingsComComodidades(bool possuiFiltroComodidades, string comodidades)
         {
             if (!possuiFiltroComodidades)
             {
@@ -220,7 +213,7 @@ namespace MaCamp.Services.DataAccess
             return QueryIdsIdentificadorCampings(query).Select(x => x.IdItem).ToList();
         }
 
-        public List<int> ListarIdsCampingsComCategorias(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
+        public static List<int> ListarIdsCampingsComCategorias(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
         {
             var queryIdsInCampingsComComodidade = string.Empty;
 
@@ -263,25 +256,7 @@ namespace MaCamp.Services.DataAccess
             return QueryIdsIdentificadorCampings(query).Select(x => x.IdItem).ToList();
         }
 
-        public List<int> BuscarIdsCampingsFavoritados()
-        {
-            // Se não possui filtro por categorias, ignora essa busca
-            // Se nenhum camping atende ao filtro de comodidades também ignora essa busca
-            var sbQuery = new StringBuilder();
-
-            sbQuery.Append($"SELECT * ");
-            sbQuery.Append($" FROM {nameof(Item)} ");
-            sbQuery.Append($" WHERE ");
-            sbQuery.Append($" {nameof(Item.Favoritado)} = 1 ");
-
-            var query = sbQuery.ToString();
-            var idsCampingsQueAtendemABusca = QueryItens(query).Select(x => x.IdCamping).ToList();
-
-            //List<Item> campings = QueryItens(query).ToList();
-            return idsCampingsQueAtendemABusca;
-        }
-
-        public List<Item> ListarCampings()
+        public static List<Item> ListarCampings()
         {
             if (SqlConnection == null)
             {
@@ -293,62 +268,49 @@ namespace MaCamp.Services.DataAccess
             return campings;
         }
 
-        public List<Item> BuscarCampings(string nomeDoCamping, string? cidade, string? estado)
+        public static List<Item> BuscarCampings(string nomeDoCamping, string? cidade, string? estado)
         {
-            var sbQuery = new StringBuilder();
-
-            sbQuery.Append($"SELECT * ");
-            sbQuery.Append($" FROM {nameof(Item)} ");
-            sbQuery.Append($" WHERE ");
-            sbQuery.Append($" {nameof(Item.Nome)}");
-
-            if (!string.IsNullOrWhiteSpace(nomeDoCamping))
+            lock (Lock)
             {
-                sbQuery.Append($" LIKE '%{nomeDoCamping}%'");
+                try
+                {
+                    //Mutex.WaitOne();
+
+                    if (SqlConnection == null)
+                    {
+                        throw new NullReferenceException("Conexão SQL não foi criada");
+                    }
+
+                    var nomeNormalizado = nomeDoCamping?.RemoveDiacritics().ToLower();
+                    var estadoNormalizado = estado?.RemoveDiacritics().ToLower();
+                    var cidadeNormalizada = cidade?.RemoveDiacritics().ToLower();
+                    var query = SqlConnection.Table<Item>().AsQueryable().Where(x =>
+                        (string.IsNullOrWhiteSpace(estadoNormalizado) || x.Estado != null && x.Estado.RemoveDiacritics().ToLower().Contains(estadoNormalizado)) &&
+                        (string.IsNullOrWhiteSpace(cidadeNormalizada) || x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(cidadeNormalizada)) &&
+                        (string.IsNullOrWhiteSpace(nomeNormalizado) ||
+                            x.Nome != null && x.Nome.RemoveDiacritics().ToLower().Contains(nomeNormalizado) ||
+                            x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(nomeNormalizado)
+                        //precisa converter base64 para string, não compensa
+                        //x.Descricao != null && x.Descricao.RemoveDiacritics().ToLower().Contains(nomeNormalizado)
+                        )
+                    );
+
+                    return query.ToList();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("<<Exceção>> " + ex);
+
+                    return new List<Item>();
+                }
+                //finally
+                //{
+                //    Mutex.ReleaseMutex();
+                //}
             }
-
-            if (!string.IsNullOrWhiteSpace(cidade))
-            {
-                sbQuery.Append($"and {nameof(Item.Cidade)} = '{cidade}'");
-            }
-
-            if (!string.IsNullOrWhiteSpace(estado))
-            {
-                sbQuery.Append($" and {nameof(Item.Estado)} = '{estado}'");
-            }
-
-            var query = sbQuery.ToString();
-            var buscaDeCampings = QueryItens(query).ToList();
-
-            //var resultado = campings.Where(x => x.Nome.Contains(nomeDoCamping)).ToList();
-            //var db = new DBContract();
-
-            //db.InserirOuSubstituirModelo(db.InserirOuSubstituirModelo(new ChaveValor
-            //{
-            //    Chave = AppConstants.Filtro_NomeCamping,
-            //    Valor = ""
-            //}));
-
-            return buscaDeCampings;
         }
 
-        public void AtualizarIdsCampingsFavoritados(List<int> campingsFavoritados)
-        {
-            var idCampings = string.Join(",", campingsFavoritados);
-            // Se não possui filtro por categorias, ignora essa busca
-            // Se nenhum camping atende ao filtro de comodidades também ignora essa busca
-            var sbQuery = new StringBuilder();
-
-            sbQuery.Append($"UPDATE {nameof(Item)} set {nameof(Item.Favoritado)} = 1");
-            sbQuery.Append($" WHERE ");
-            sbQuery.Append($" {nameof(Item.IdCamping)} in (");
-            sbQuery.Append(idCampings);
-            sbQuery.Append($")");
-
-            QueryItens(sbQuery.ToString());
-        }
-
-        public List<RetornoIdItem> QueryIdsIdentificadorCampings(string query)
+        public static List<RetornoIdItem> QueryIdsIdentificadorCampings(string query)
         {
             lock (Lock)
             {
@@ -378,7 +340,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public List<Item> QueryItens(string query, params object[] args)
+        public static List<Item> QueryItens(string query, params object[] args)
         {
             lock (Lock)
             {
@@ -408,7 +370,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public List<Item> FiltrarApenasCampingsDestaque(List<int> idsCampings)
+        public static List<Item> FiltrarApenasCampingsDestaque(List<int> idsCampings)
         {
             lock (Lock)
             {
@@ -451,7 +413,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public List<Item> ListarItens(Expression<Func<Item, bool>> where)
+        public static List<Item> ListarItens(Expression<Func<Item, bool>>? where = null)
         {
             lock (Lock)
             {
@@ -464,7 +426,7 @@ namespace MaCamp.Services.DataAccess
                         throw new NullReferenceException("Conexão SQL não foi criada");
                     }
 
-                    var itens = SqlConnection.Table<Item>().Where(where).ToList();
+                    var itens = where != null ? SqlConnection.Table<Item>().Where(where).ToList() : SqlConnection.Table<Item>().ToList();
 
                     itens.Where(x => x.type == "camping").ForEach(x => x.Identificadores = SqlConnection.Table<ItemIdentificador>().Where(y => y.IdItem == x.IdCamping).ToList());
 
@@ -483,7 +445,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public List<ItemIdentificador> ListarItensIdentificadores(Expression<Func<ItemIdentificador, bool>> where)
+        public static List<ItemIdentificador> ListarItensIdentificadores(Expression<Func<ItemIdentificador, bool>> where)
         {
             lock (Lock)
             {
@@ -513,7 +475,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public List<Cidade> ListarCidades()
+        public static List<Cidade> ListarCidades()
         {
             if (SqlConnection == null)
             {
@@ -523,7 +485,7 @@ namespace MaCamp.Services.DataAccess
             return SqlConnection.Table<Cidade>().ToList();
         }
 
-        public void ApagarItens()
+        public static void ApagarItens()
         {
             lock (Lock)
             {
@@ -538,7 +500,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public void ApagarItensIdentificadores()
+        public static void ApagarItensIdentificadores()
         {
             lock (Lock)
             {
@@ -553,7 +515,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public void ApagarCidades()
+        public static void ApagarCidades()
         {
             lock (Lock)
             {
@@ -568,7 +530,7 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        public Colaboracao Consultar()
+        public static Colaboracao Consultar()
         {
             if (SqlConnection == null)
             {

@@ -18,6 +18,7 @@ namespace MaCamp
         public static Location? LOCALIZACAO_USUARIO { get; set; }
         public static bool EXISTEM_CAMPINGS_DISPONIVEIS { get; set; }
         public static bool BAIXANDO_CAMPINGS { get; set; }
+        public static BackgroundUpdater? BackgroundUpdater { get; set; }
 
         public App()
         {
@@ -26,6 +27,7 @@ namespace MaCamp
             CarregarTamanhoTela();
 
             UserAppTheme = AppTheme.Light;
+            BackgroundUpdater = new BackgroundUpdater();
 
             //OneSignalServices.RegisterIOS();
             //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
@@ -44,12 +46,17 @@ namespace MaCamp
             {
                 DBContract.SqlConnection = sqlite.ObterConexao();
 
-                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+                if (DBContract.SqlConnection != null)
+                {
+                    DBContract.SqlConnection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
+                }
+
+                DBContract.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_ServicoSelecionados,
                     Valor = string.Empty
                 });
-                DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+                DBContract.InserirOuSubstituirModelo(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_NomeCamping,
                     Valor = string.Empty
@@ -100,6 +107,8 @@ namespace MaCamp
         protected override void OnStart()
         {
             //Task.Run(() => new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal());
+
+            BackgroundUpdater?.Start();
         }
 
         /// <summary>
@@ -115,23 +124,23 @@ namespace MaCamp
 
         public static async void ExibirNotificacaoPush()
         {
-            var tituloPush = DBContract.Instance.ObterValorChave(AppConstants.Chave_TituloNotificacao);
-            var mensagemPush = DBContract.Instance.ObterValorChave(AppConstants.Chave_MensagemNotificacao);
-            var itemPush = DBContract.Instance.ObterValorChave(AppConstants.Chave_IdItemNotificacao);
+            var tituloPush = DBContract.ObterValorChave(AppConstants.Chave_TituloNotificacao);
+            var mensagemPush = DBContract.ObterValorChave(AppConstants.Chave_MensagemNotificacao);
+            var itemPush = DBContract.ObterValorChave(AppConstants.Chave_IdItemNotificacao);
 
-            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Chave_TituloNotificacao,
                 Valor = null
             });
 
-            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Chave_MensagemNotificacao,
                 Valor = null
             });
 
-            DBContract.Instance.InserirOuSubstituirModelo(new ChaveValor
+            DBContract.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Chave_IdItemNotificacao,
                 Valor = null
@@ -168,7 +177,7 @@ namespace MaCamp
 
         public static bool BaixarUltimaVersaoConteudo()
         {
-            var dataUltimaAtualizacao = DBContract.Instance.ObterValorChave(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
+            var dataUltimaAtualizacao = DBContract.ObterValorChave(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
             var formato = "yyyy/MM/dd";
 
             if (DateTime.TryParseExact(dataUltimaAtualizacao, formato, CultureInfo.InvariantCulture, DateTimeStyles.None, out var data))

@@ -5,16 +5,23 @@ namespace MaCamp.Models.Services
 {
     public static class CidadesServices
     {
-        public static async Task AtualizarListaCidades()
+        public static async Task AtualizarListaCidades(ProgressoVisual? progressoVisual = null)
         {
             try
             {
+                ProgressoVisual.AumentarTotal(progressoVisual, 3);
+
                 var listaCidades = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
 
                 if (listaCidades != null)
                 {
-                    DBContract.Instance.ApagarCidades();
-                    DBContract.Instance.InserirListaDeModelo(listaCidades);
+                    DBContract.ApagarCidades();
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                    DBContract.InserirListaDeModelo(listaCidades);
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
                 }
             }
             catch (Exception ex)

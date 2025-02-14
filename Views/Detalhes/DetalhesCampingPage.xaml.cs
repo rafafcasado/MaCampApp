@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using MaCamp.Utils;
 using MaCamp.Models;
 using MaCamp.Models.Services;
 using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 
 namespace MaCamp.Views.Detalhes
 {
@@ -124,8 +124,10 @@ namespace MaCamp.Views.Detalhes
                 ItemAtual.Telefone4,
             };
             var listaTelefonesValidos = listaTelefones.Where(x => !string.IsNullOrEmpty(x)).ToList();
+            var visivel = listaTelefonesValidos.Count > 0;
 
-            gridTelefones.IsVisible = listaTelefonesValidos.Count > 0;
+            gridTelefones.IsVisible = visivel;
+            separadorTelefones.IsVisible = visivel;
 
             listaTelefonesValidos.ForEach(x =>
             {
@@ -196,21 +198,7 @@ namespace MaCamp.Views.Detalhes
         {
             ToolbarItems.Clear();
 
-            if (!item.Favoritado)
-            {
-                var imagem = "icone_favoritos_off.png";
-
-                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, () =>
-                {
-                    item.Favoritado = true;
-
-                    DBContract.Instance.InserirOuSubstituirModelo(item);
-                    ConfigurarToolbar(item);
-
-                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
-                }));
-            }
-            else
+            if (StorageHelper.IsFavoriteItem(item.Id))
             {
                 var imagem = "icone_favoritos_on.png";
 
@@ -218,7 +206,23 @@ namespace MaCamp.Views.Detalhes
                 {
                     item.Favoritado = false;
 
-                    DBContract.Instance.InserirOuSubstituirModelo(item);
+                    StorageHelper.AddOrUpdateItem(item);
+                    DBContract.InserirOuSubstituirModelo(item);
+                    ConfigurarToolbar(item);
+
+                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                }));
+            }
+            else
+            {
+                var imagem = "icone_favoritos_off.png";
+
+                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, () =>
+                {
+                    item.Favoritado = true;
+
+                    StorageHelper.AddOrUpdateItem(item);
+                    DBContract.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
                     MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);

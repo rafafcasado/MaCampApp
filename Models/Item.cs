@@ -300,7 +300,7 @@ namespace MaCamp.Models
             {
                 if (_identificadores.Count == 0)
                 {
-                    _identificadores = DBContract.Instance.ListarItensIdentificadores(i => i.IdItem == IdCamping);
+                    _identificadores = DBContract.ListarItensIdentificadores(i => i.IdItem == IdCamping);
                 }
 
                 return _identificadores;

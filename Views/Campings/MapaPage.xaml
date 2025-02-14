@@ -23,7 +23,7 @@
             x:Name="toggleButton"
             AbsoluteLayout.LayoutBounds="0.03,0.015,130,40"
             AbsoluteLayout.LayoutFlags="PositionProportional"
-            BackgroundColor="White"
+            BackgroundColor="#CCFFFFFF"
             Clicked="OnToggleButtonClicked"
             CornerRadius="2"
             ImageSource="{icon:SymbolImageSource Symbol=Map,
@@ -31,6 +31,15 @@
                                                  IconVariant=Regular}"
             IsVisible="False"
             Text="Terreno"
-            TextColor="#666666" />
+            TextColor="#666666">
+
+            <Button.Shadow>
+                <Shadow
+                    Brush="Black"
+                    Opacity="0.2"
+                    Radius="1"
+                    Offset="1,1" />
+            </Button.Shadow>
+        </Button>
     </AbsoluteLayout>
 </ContentPage>
