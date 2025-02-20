@@ -5,6 +5,7 @@ using MaCamp.Models.Services;
 using MaCamp.Services;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.ViewModels
 {
@@ -42,12 +43,16 @@ namespace MaCamp.ViewModels
                 var listaItensCampings = await ObterListaDeCampings(endpoint, pagina, tag, query, utilizarFiltros);
                 var idLocal = Itens.Count;
                 var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
+                var ultimoTipoIdentificador = Enum.GetValues<TipoIdentificador>().Last();
                 var anuncios = listaAnuncios.Where(x => x.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
+                var listaItensCampingsOrdenados = listaItensCampings
+                    .OrderBy(item => item.Identificadores
+                        .Select(ident => Enum.TryParse<TipoIdentificador>(ident.Identificador, true, out var tipoIdentificador) ? tipoIdentificador : ultimoTipoIdentificador)
+                        .Min())
+                    .ThenBy(item => item.Nome)
+                    .ToList();
 
-                var teste = listaItensCampings.Select(x => x.Tipo).Distinct().ToArray();
-                var asdasd = "asdasd";
-
-                listaItensCampings.ForEach(item =>
+                listaItensCampingsOrdenados.ForEach(item =>
                 {
                     item.IdLocal = ++idLocal;
 

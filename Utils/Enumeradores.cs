@@ -61,5 +61,18 @@
             AbrirDicasCampismo,
             AtualizarCampings
         }
+
+        public enum TipoIdentificador
+        {
+            Destaque = 1,
+            CampingEmFuncionamento = 2,
+            ApoioRV = 3,
+            CampingInformal = 4,
+            CampingEmSituacaoIncerta = 5,
+            CampingSelvagem = 6,
+            CampingParaGruposOuEventos = 7,
+            CampingEmReformas = 8,
+            CampingFechadoOuSemFuncao = 9
+        }
     }
 }
