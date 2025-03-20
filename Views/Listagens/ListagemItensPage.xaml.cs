@@ -1,6 +1,8 @@
-﻿using MaCamp.Resources.Locale;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.Resources.Locale;
 using MaCamp.Utils;
 using MaCamp.Views.Campings;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Listagens
 {
@@ -29,7 +31,7 @@ namespace MaCamp.Views.Listagens
         /// </summary>
         /// <param name="endpoint">URL de onde será carregado o JSON de Itens</param>
         /// <param name="nome">Nome da listagem, que será exibido no Título da Página e no Google Analytics</param>
-        public ListagemItensPage(string endpoint, string? nome, Enumeradores.TipoListagem tipoListagem = Enumeradores.TipoListagem.Noticias, string tag = "")
+        public ListagemItensPage(string endpoint, string? nome, TipoListagem tipoListagem = TipoListagem.Noticias, string? tag = null)
         {
             InitializeComponent();
 
@@ -42,13 +44,13 @@ namespace MaCamp.Views.Listagens
 
             NavigationPage.SetBackButtonTitle(this, AppLanguage.Texto_Voltar);
 
-            if (tipoListagem == Enumeradores.TipoListagem.Camping)
+            if (tipoListagem == TipoListagem.Camping)
             {
                 cvListagemItens.Content = new ListagemCampingsView(endpoint);
 
-                MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_AtualizarListagemCampings);
+                WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_AtualizarListagemCampings);
 
-                MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_AtualizarListagemCampings, s =>
+                WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_AtualizarListagemCampings, (recipient, message) =>
                 {
                     cvListagemItens.Content = new ListagemCampingsView(endpoint);
                 });

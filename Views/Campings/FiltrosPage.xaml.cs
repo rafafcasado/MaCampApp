@@ -1,4 +1,5 @@
-﻿using MaCamp.Models;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.Models;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 
@@ -35,11 +36,8 @@ namespace MaCamp.Views.Campings
             ParametroTODAS = " - TODAS - ";
             ParametroTODOS = " - TODOS - ";
 
-            //Task.Run(() =>
-            //{
-            //    CarregarCidadesEstados();
-            //    CarregarLocalizacaoUsuario();
-            //});
+            //CarregarCidadesEstados();
+            //CarregarLocalizacaoUsuario();
             CarregarFiltrosEstabelecimentoSelecionados();
             CarregarFiltrosServicosSelecionados();
 
@@ -53,25 +51,22 @@ namespace MaCamp.Views.Campings
 
         //private void AlterarBuscaLocalizacao(bool usarCidadeEstado)
         //{
-        //    Dispatcher.Dispatch(() =>
+        //    if (usarCidadeEstado)
         //    {
-        //        if (usarCidadeEstado)
-        //        {
-        //            slBuscaUFCidade.IsVisible = true;
-        //            UsarLocalizacaoUsuario = false;
-        //            lbUsandoLocalizacao.IsVisible = false;
-        //            slUsarMinhaLocalizacao.IsVisible = true;
-        //            btBuscarPorCidadeEstado.IsVisible = false;
-        //        }
-        //        else
-        //        {
-        //            slBuscaUFCidade.IsVisible = false;
-        //            UsarLocalizacaoUsuario = true;
-        //            lbUsandoLocalizacao.IsVisible = true;
-        //            slUsarMinhaLocalizacao.IsVisible = false;
-        //            btBuscarPorCidadeEstado.IsVisible = true;
-        //        }
-        //    });
+        //        slBuscaUFCidade.IsVisible = true;
+        //        UsarLocalizacaoUsuario = false;
+        //        lbUsandoLocalizacao.IsVisible = false;
+        //        slUsarMinhaLocalizacao.IsVisible = true;
+        //        btBuscarPorCidadeEstado.IsVisible = false;
+        //    }
+        //    else
+        //    {
+        //        slBuscaUFCidade.IsVisible = false;
+        //        UsarLocalizacaoUsuario = true;
+        //        lbUsandoLocalizacao.IsVisible = true;
+        //        slUsarMinhaLocalizacao.IsVisible = false;
+        //        btBuscarPorCidadeEstado.IsVisible = true;
+        //    }
         //}
 
         //private void CarregarLocalizacaoUsuario()
@@ -106,52 +101,50 @@ namespace MaCamp.Views.Campings
         //        estados.Add(grupoEstado.Key);
         //    }
 
-        //    Dispatcher.Dispatch(() =>
+        //    pkUF.Title = "Selecione o Estado";
+        //    pkUF.ItemsSource = estados;
+        //    pkUF.SelectedIndexChanged += (s, e) =>
         //    {
-        //        pkUF.Title = "Selecione o Estado";
-        //        pkUF.ItemsSource = estados;
-        //        pkUF.SelectedIndexChanged += (s, e) =>
+        //        EstadoSelecionado = s is Picker picker && picker.SelectedItem != null;
+
+        //        if (EstadoSelecionado == ParametroTODOS)
         //        {
-        //            EstadoSelecionado = s is Picker picker && picker.SelectedItem != null;
+        //            pkCidade.ItemsSource = null;
+        //            pkCidade.Title = " - ";
+        //            pkCidade.IsEnabled = false;
+        //            CidadeSelecionada = string.Empty;
+        //        }
+        //        else
+        //        {
+        //            var cidadesDisponiveis = cidadesWS.Where(x => x.Estado == EstadoSelecionado).ToList();
 
-        //            if (EstadoSelecionado == ParametroTODOS)
+        //            cidadesDisponiveis.Insert(0, new Cidade
         //            {
-        //                pkCidade.ItemsSource = null;
-        //                pkCidade.Title = " - ";
-        //                pkCidade.IsEnabled = false;
-        //                CidadeSelecionada = string.Empty;
-        //            }
-        //            else
+        //                Nome = ParametroTODAS,
+        //                Estado = EstadoSelecionado
+        //            });
+        //            pkCidade.ItemsSource = cidadesDisponiveis;
+        //            pkCidade.ItemDisplayBinding = new Binding(nameof(Cidade.Nome));
+        //            pkCidade.Title = "Selecione a cidade";
+        //            pkCidade.IsEnabled = true;
+
+        //            pkCidade.SelectedIndexChanged += (senderCidade, eventCidade) =>
         //            {
-        //                var cidadesDisponiveis = cidadesWS.Where(x => x.Estado == EstadoSelecionado).ToList();
-
-        //                cidadesDisponiveis.Insert(0, new Cidade
+        //                if (senderCidade is Picker pickerCidade && pickerCidade.SelectedItem is Cidade cidadeSelecionada)
         //                {
-        //                    Nome = ParametroTODAS,
-        //                    Estado = EstadoSelecionado
-        //                });
-        //                pkCidade.ItemsSource = cidadesDisponiveis;
-        //                pkCidade.ItemDisplayBinding = new Binding(nameof(Cidade.Nome));
-        //                pkCidade.Title = "Selecione a cidade";
-        //                pkCidade.IsEnabled = true;
-
-        //                pkCidade.SelectedIndexChanged += (senderCidade, eventCidade) =>
-        //                {
-        //                    if (senderCidade is Picker pickerCidade && pickerCidade.SelectedItem is Cidade cidadeSelecionada)
-        //                    {
-        //                        CidadeSelecionada = cidadeSelecionada.Nome;
-        //                    }
-        //                    else
-        //                    {
-        //                        CidadeSelecionada = string.Empty;
-        //                    }
-        //                };
-        //                if (CIDADE_BD != null && CIDADE_BD != null)
-        //                {
-        //                    pkCidade.SelectedItem = cidadesDisponiveis.Where(x => x.Nome == CIDADE_BD).FirstOrDefault();
+        //                    CidadeSelecionada = cidadeSelecionada.Nome;
         //                }
+        //                else
+        //                {
+        //                    CidadeSelecionada = string.Empty;
+        //                }
+        //            };
+        //            if (CIDADE_BD != null && CIDADE_BD != null)
+        //            {
+        //                pkCidade.SelectedItem = cidadesDisponiveis.Where(x => x.Nome == CIDADE_BD).FirstOrDefault();
         //            }
-        //        };
+        //        }
+
         //        pkUF.SelectedItem = EstadoBD;
         //    });
         //}
@@ -349,7 +342,7 @@ namespace MaCamp.Views.Campings
         //    {
         //        App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
         //    }
-        //    catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
+        //    catch (Exception ex) { Workaround.ShowExceptionOnlyDevolpmentMode(nameof(FiltrosPage), nameof(UsarMinhaLocalizacao), ex); }
 
         //    loader.IsVisible = false;
         //    loader.IsRunning = false;
@@ -396,7 +389,7 @@ namespace MaCamp.Views.Campings
             //        Valor = "false"
             //    });
             //}
-            EstabelecimentosSelecionados.Remove("");
+            EstabelecimentosSelecionados.Remove(string.Empty);
             var valorEstabelecimentos = string.Join(",", EstabelecimentosSelecionados);
 
             DBContract.InserirOuSubstituirModelo(new ChaveValor
@@ -405,7 +398,7 @@ namespace MaCamp.Views.Campings
                 Valor = valorEstabelecimentos
             });
 
-            ComodidadesSelecionadas.Remove("");
+            ComodidadesSelecionadas.Remove(string.Empty);
             var valorComodidades = string.Join(",", ComodidadesSelecionadas);
 
             DBContract.InserirOuSubstituirModelo(new ChaveValor
@@ -415,7 +408,7 @@ namespace MaCamp.Views.Campings
             });
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Filtro Estabelecimentos e Serviços", "Filtrar", valorEstabelecimentos + " - " + valorComodidades);
-            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
+            WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscaRealizada);
 
             await Navigation.PopAsync();
         }

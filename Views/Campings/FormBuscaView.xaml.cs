@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.Models;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
@@ -22,23 +22,20 @@ namespace MaCamp.Views.Campings
             ParametroTODOS = " - TODOS - ";
             CampingsTodos = " ";
 
-            Task.Run(() =>
+            DBContract.InserirOuSubstituirModelo(new ChaveValor
             {
-                DBContract.InserirOuSubstituirModelo(new ChaveValor
-                {
-                    Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
-                    Valor = ""
-                });
-
-                DBContract.InserirOuSubstituirModelo(new ChaveValor
-                {
-                    Chave = AppConstants.Filtro_ServicoSelecionados,
-                    Valor = ""
-                });
-
-                CarregarCidadesEstados();
-                CarregarLocalizacaoUsuario();
+                Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
+                Valor = string.Empty
             });
+
+            DBContract.InserirOuSubstituirModelo(new ChaveValor
+            {
+                Chave = AppConstants.Filtro_ServicoSelecionados,
+                Valor = string.Empty
+            });
+
+            CarregarCidadesEstados();
+            CarregarLocalizacaoUsuario();
 
             //TapGestureRecognizer buscarCidadeEstado = new TapGestureRecognizer();
             //buscarCidadeEstado.Tapped += (s, e) =>
@@ -77,56 +74,53 @@ namespace MaCamp.Views.Campings
 
             estados.AddRange(gruposCidadePorUF.Where(x => x.Key != null).Select(x => x.Key).OfType<string>().ToList());
 
-            Dispatcher.Dispatch(() =>
+            btBuscar.IsEnabled = true;
+            pkUF.Title = "Selecione o Estado";
+            pkUF.ItemsSource = estados;
+
+            pkUF.SelectedIndexChanged += (sender, args) =>
             {
-                btBuscar.IsEnabled = true;
-                pkUF.Title = "Selecione o Estado";
-                pkUF.ItemsSource = estados;
-
-                pkUF.SelectedIndexChanged += (sender, args) =>
+                if (sender is Picker picker && picker.SelectedItem is string selectedItem)
                 {
-                    if (sender is Picker picker && picker.SelectedItem is string selectedItem)
-                    {
-                        EstadoSelecionado = selectedItem;
-                    }
+                    EstadoSelecionado = selectedItem;
+                }
 
-                    if (EstadoSelecionado == ParametroTODOS)
-                    {
-                        pkCidade.ItemsSource = null;
-                        pkCidade.Title = " - ";
-                        pkCidade.IsEnabled = false;
-                        CidadeSelecionada = string.Empty;
-                    }
-                    else
-                    {
-                        var cidadesDisponiveis = cidadesWS.Where(x => x.Estado == EstadoSelecionado).ToList();
-
-                        cidadesDisponiveis.Insert(0, new Cidade
-                        {
-                            Nome = ParametroTODAS,
-                            Estado = EstadoSelecionado
-                        });
-
-                        pkCidade.ItemsSource = cidadesDisponiveis;
-                        pkCidade.ItemDisplayBinding = new Binding(nameof(Cidade.Nome));
-                        pkCidade.Title = "Selecione a cidade";
-                        pkCidade.IsEnabled = true;
-
-                        if (CIDADE_BD != null)
-                        {
-                            pkCidade.SelectedItem = cidadesDisponiveis.FirstOrDefault(c => c.Nome == CIDADE_BD);
-                        }
-                    }
-                };
-
-                pkCidade.SelectedIndexChanged += (sender, args) =>
+                if (EstadoSelecionado == ParametroTODOS)
                 {
-                    CidadeSelecionada = sender is Picker picker && picker.SelectedItem is Cidade selectedItem ? selectedItem.Nome : string.Empty;
-                };
+                    pkCidade.ItemsSource = null;
+                    pkCidade.Title = " - ";
+                    pkCidade.IsEnabled = false;
+                    CidadeSelecionada = string.Empty;
+                }
+                else
+                {
+                    var cidadesDisponiveis = cidadesWS.Where(x => x.Estado == EstadoSelecionado).ToList();
 
-                pkUF.SelectedItem = EstadoBD;
-                etNomeDoCamping.Text = NomeCampingBD ?? string.Empty;
-            });
+                    cidadesDisponiveis.Insert(0, new Cidade
+                    {
+                        Nome = ParametroTODAS,
+                        Estado = EstadoSelecionado
+                    });
+
+                    pkCidade.ItemsSource = cidadesDisponiveis;
+                    pkCidade.ItemDisplayBinding = new Binding(nameof(Cidade.Nome));
+                    pkCidade.Title = "Selecione a cidade";
+                    pkCidade.IsEnabled = true;
+
+                    if (CIDADE_BD != null)
+                    {
+                        pkCidade.SelectedItem = cidadesDisponiveis.FirstOrDefault(x => x.Nome == CIDADE_BD);
+                    }
+                }
+            };
+
+            pkCidade.SelectedIndexChanged += (sender, args) =>
+            {
+                CidadeSelecionada = sender is Picker picker && picker.SelectedItem is Cidade selectedItem ? selectedItem.Nome : string.Empty;
+            };
+
+            pkUF.SelectedItem = EstadoBD;
+            etNomeDoCamping.Text = NomeCampingBD ?? string.Empty;
         }
 
         private async void UsarMinhaLocalizacao(object sender, EventArgs e)
@@ -141,7 +135,7 @@ namespace MaCamp.Views.Campings
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(FormBuscaView), nameof(UsarMinhaLocalizacao), ex);
             }
 
             loader.IsVisible = false;
@@ -167,12 +161,12 @@ namespace MaCamp.Views.Campings
             DBContract.InserirOuSubstituirModelo(new ChaveValor
             {
                 Chave = AppConstants.Filtro_NomeCamping,
-                Valor = ""
+                Valor = string.Empty
             });
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Usar minha localização", "Buscando campings próximos");
 
-            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
+            WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscaRealizada);
         }
 
         private void btBuscar_Clicked(object sender, EventArgs e)
@@ -205,7 +199,7 @@ namespace MaCamp.Views.Campings
 
             pkUF.SelectedItem = null;
 
-            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_BuscaRealizada);
+            WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscaRealizada);
         }
     }
 }

@@ -14,6 +14,7 @@ namespace MaCamp.Platforms.iOS.Services
             if (NSLocale.PreferredLanguages.Length > 0)
             {
                 var pref = NSLocale.PreferredLanguages[0];
+
                 prefLanguageOnly = pref.Substring(0, 2);
 
                 if (prefLanguageOnly == "pt")
@@ -25,7 +26,6 @@ namespace MaCamp.Platforms.iOS.Services
                 }
 
                 netLanguage = pref.Replace("_", "-");
-                Console.WriteLine($@"preferred language: {netLanguage}");
             }
 
             try

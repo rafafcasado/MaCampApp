@@ -1,6 +1,7 @@
 ﻿using MaCamp.Utils;
 using MaCamp.Views.Campings;
 using MaCamp.Views.Listagens;
+using static MaCamp.Utils.Enumeradores;
 using AndroidSpecific = Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;
 
 namespace MaCamp.Views
@@ -38,7 +39,7 @@ namespace MaCamp.Views
                 IconImageSource = "icone_aba1.png",
                 Title = "Campings",
             });
-            Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "News", Enumeradores.TipoListagem.Noticias, "app-noticias")
+            Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "News", TipoListagem.Noticias, "app-noticias")
             {
                 Title = "Campismo & Caravanismo",
                 IconImageSource = "icone_aba2.png"
@@ -48,7 +49,7 @@ namespace MaCamp.Views
                 Title = "Favoritos",
                 IconImageSource = "icone_aba3.png"
             });
-            Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "Eventos", Enumeradores.TipoListagem.Noticias, "app-eventos")
+            Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "Eventos", TipoListagem.Noticias, "app-eventos")
             {
                 Title = "Eventos",
                 IconImageSource = "icone_aba4.png"
@@ -64,11 +65,9 @@ namespace MaCamp.Views
 
         protected override void OnAppearing()
         {
-            base.OnAppearing();
+            //var value = DeviceInfo.Platform != DevicePlatform.iOS ? 34 : 0;
 
-            var value = DeviceInfo.Platform == DevicePlatform.Android ? 34 : 0;
-
-            this.Padding = new Thickness(0, value, 0, value);
+            //Padding = new Thickness(0, value, 0, value);
 
             App.ExibirNotificacaoPush();
         }

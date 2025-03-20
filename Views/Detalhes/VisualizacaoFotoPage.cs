@@ -1,12 +1,11 @@
 ﻿using MaCamp.Utils;
-using MaCamp.Models;
 using MaCamp.Views.CustomViews;
 
 namespace MaCamp.Views.Detalhes
 {
     public class VisualizacaoFotoPage : ContentPage
     {
-        public VisualizacaoFotoPage(string imageSource, string titulo)
+        public VisualizacaoFotoPage(string imageSource, string? titulo = null)
         {
             NewVersion(imageSource, false, titulo);
         }
@@ -63,7 +62,7 @@ namespace MaCamp.Views.Detalhes
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                await AppConstants.CurrentPage.DisplayAlert("Erro ao carregar o Visualizador de Foto", ex.Message, "OK");
             }
         }
 

@@ -88,7 +88,7 @@ namespace MaCamp.Platforms.iOS.Handlers
                     mapPin.RemoveGestureRecognizer(r);
                 }
             }
-            var recognizer = new UITapGestureRecognizer(g => OnCalloutClicked(annotation))
+            var recognizer = new UITapGestureRecognizer(x => OnCalloutClicked(annotation))
             {
                 ShouldReceiveTouch = (gestureRecognizer, touch) =>
                 {

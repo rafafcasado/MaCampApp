@@ -37,8 +37,8 @@ namespace MaCamp.Platforms.iOS.Handlers
 
         private UIViewController? GetRootViewController()
         {
-            var listScenes = UIApplication.SharedApplication.ConnectedScenes.OfType<UIWindowScene>().SelectMany(scene => scene.Windows).ToList();
-            var viewController = listScenes.FirstOrDefault(window => window.IsKeyWindow)?.RootViewController;
+            var listScenes = UIApplication.SharedApplication.ConnectedScenes.OfType<UIWindowScene>().SelectMany(x => x.Windows).ToList();
+            var viewController = listScenes.FirstOrDefault(x => x.IsKeyWindow)?.RootViewController;
 
             return viewController;
         }

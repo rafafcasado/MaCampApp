@@ -4,8 +4,9 @@ namespace MaCamp.Utils
 {
     public static class AppConstants
     {
+        public static string Path => Workaround.GetPath();
         public static Dictionary<string, object?> DictionaryData => new Dictionary<string, object?>();
-        public static Page CurrentPage => Application.Current?.Windows[0].Page ?? throw new NullReferenceException();
+        public static Page CurrentPage => Application.Current?.MainPage ?? throw new NullReferenceException();
 
         public static string CharsAcentuados => "αßÁáÀàÂâÃãĀāÅåÄäÆæÇçÉéÈèÊêÍíÌìÎîÑñÓóÒòÔôÖöŌōØøÚúÙùÜüŽž";
         public static string CharsRegulares => "abAaAaAaAaAaAaAaAaCcEeEeEeIiIiIiNnOoOoOoOoOoOoUuUuUuZz";
@@ -15,8 +16,10 @@ namespace MaCamp.Utils
         public static string AdmobIdBannerAndroid => Debugger.IsAttached ? "ca-app-pub-8959365990645001/9280664891" : "ca-app-pub-3940256099942544/6300978111";
         public static string AdmobIdBannerIOs => Debugger.IsAttached ? "ca-app-pub-8959365990645001/7917696236" : "ca-app-pub-3940256099942544/6300978111";
 
-        public static string FavoritesFilename => "favoritos_macamp.json";
+        public static string FavoritesFilename => "favoritos.json";
         public static string SqliteFilename => "app.db3";
+        public static string SqliteBackupFilename => "backup.db3";
+        public static string SqliteTemporaryFilename => "temp.db3";
         public static string NomeApp => "MaCamp";
         public static string ParametroTodasTags => "Todas";
         public static int QuantidadeNoticiasPorLote => 20;
@@ -52,13 +55,14 @@ namespace MaCamp.Utils
         public static string Url_TermoUso => "https://macamp.com.br/guia/termos-de-uso/";
         public static string Url_EasyTransports => "http://www.easytransport.com.br/";
 
-        // MessagingCenter
-        public static string MessagingCenter_AtualizarListagemCampings => "AtualizarListagemCampings";
-        public static string MessagingCenter_AtualizarListagemFavoritos => "AtualizarListagemFavoritos";
-        public static string MessagingCenter_AlternarModoNoturno => "AtualizarModoNoturno";
-        public static string MessagingCenter_BuscaRealizada => "BUSCA_REALIZADA";
-        public static string MessagingCenter_BuscarCampingsAtualizados => "BuscarCampingsAtualizados";
-        public static string MessagingCenter_ExibirBuscaCampings => "EXIBIR_BUSCA_CAMPINGS";
+        // WeakReferenceMessenger
+        public static string WeakReferenceMessenger_AtualizarListagemCampings => "AtualizarListagemCampings";
+        public static string WeakReferenceMessenger_AtualizarListagemFavoritos => "AtualizarListagemFavoritos";
+        public static string WeakReferenceMessenger_AlternarModoNoturno => "AtualizarModoNoturno";
+        public static string WeakReferenceMessenger_BuscaRealizada => "BUSCA_REALIZADA";
+        public static string WeakReferenceMessenger_BuscarCampingsAtualizados => "BuscarCampingsAtualizados";
+        public static string WeakReferenceMessenger_ExibirBuscaCampings => "EXIBIR_BUSCA_CAMPINGS";
+        public static string WeakReferenceMessenger_AtualizarProgressoWebView => "ATUALIZAR_PROGRESSO_WEBVIEW";
 
         // Chaves
         public static string Chave_TituloNotificacao => "TituloNotificacao";
@@ -83,5 +87,23 @@ namespace MaCamp.Utils
         public static string Busca_InicialRealizada => "BUSCA_INICIAL_REALIZADA";
         public static string Quantidade_AberturasDetalhes => "QTD_ABERTURAS_DETALHES";
         public static string Atualizar_ProgressoWebView => "ATUALIZAR_PROGRESSO_WEBVIEW";
+
+        // NotificationManagerService
+        public static string NotificationManager_ChannelId => "default";
+        public static string NotificationManager_ChannelName => "Atualizações";
+        public static string NotificationManager_ChannelDescription => "Usado para atualização do banco de dados.";
+
+        public static string NotificationManager_Id => "NotificationManager_Id";
+        public static string NotificationManager_Data => "NotificationManager_Data";
+
+        static AppConstants()
+        {
+            var appPath = Workaround.GetPath();
+
+            if (!Directory.Exists(appPath))
+            {
+                Directory.CreateDirectory(appPath);
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ namespace MaCamp.Services.DataAccess
             NIGHTVIEW_V = string.Empty;
         }
 
-        public async Task<List<T>> GetListAsync<T>(string endPoint, int pagina, string tag = "", string? parametrosBusca = "") where T : class
+        public async Task<List<T>> GetListAsync<T>(string endPoint, int pagina, string? tag = null, string? parametrosBusca = null) where T : class
         {
             PAGE_V = pagina;
             //Só envia o parâmetro TAG se o usuário tiver selecionado alguma efetivamente

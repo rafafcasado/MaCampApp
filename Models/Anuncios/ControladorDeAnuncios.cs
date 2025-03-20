@@ -3,6 +3,7 @@ using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using MaCamp.Views.Popups;
 using RGPopup.Maui.Extensions;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Models.Anuncios
 {
@@ -24,13 +25,13 @@ namespace MaCamp.Models.Anuncios
                     {
                         await AppConstants.CurrentPage.Navigation.PushPopupAsync(new AnuncioPopupPage());
 
-                        DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Quantidade_AberturasDetalhes, 0.ToString(), Enumeradores.TipoChave.ControleInterno));
+                        DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Quantidade_AberturasDetalhes, 0.ToString(), TipoChave.ControleInterno));
                     }
                     else
                     {
                         quantidadeAberturasDetalhes += 1;
 
-                        DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Quantidade_AberturasDetalhes, quantidadeAberturasDetalhes.ToString(), Enumeradores.TipoChave.ControleInterno));
+                        DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Quantidade_AberturasDetalhes, quantidadeAberturasDetalhes.ToString(), TipoChave.ControleInterno));
                     }
                 }
             }

@@ -1,5 +1,6 @@
-﻿using MaCamp.Models;
-using MaCamp.Models.Services;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.Models;
+using MaCamp.Services;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 
@@ -55,17 +56,13 @@ namespace MaCamp.Views.Detalhes
 
             ConfigurarToolbar(item);
 
-            MessagingCenter.Subscribe<Application, int>(this, AppConstants.Atualizar_ProgressoWebView, (s, e) =>
+            WeakReferenceMessenger.Default.Register<object, string>(this, AppConstants.Atualizar_ProgressoWebView, (recipient, message) =>
             {
-                if (e == 100)
+                if (message is int value && value == 100)
                 {
-                    MessagingCenter.Unsubscribe<Application, int>(this, AppConstants.Atualizar_ProgressoWebView);
+                    WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.Atualizar_ProgressoWebView);
 
-                    Dispatcher.Dispatch(() =>
-                    {
-                        progress.IsVisible = false;
-                    });
-
+                    progress.IsVisible = false;
                     item.Visualizado = true;
 
                     DBContract.InserirOuSubstituirModelo(item);
@@ -114,7 +111,7 @@ namespace MaCamp.Views.Detalhes
                     DBContract.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
-                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                    WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
                 }));
             }
             else
@@ -129,7 +126,7 @@ namespace MaCamp.Views.Detalhes
                     DBContract.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
-                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                    WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
                 }));
             }
         }
@@ -181,7 +178,7 @@ namespace MaCamp.Views.Detalhes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    await AppConstants.CurrentPage.DisplayAlert("Erro ao abrir o mapa", ex.Message, "OK");
                 }
             }
             else if (DeviceInfo.Platform == DevicePlatform.iOS)

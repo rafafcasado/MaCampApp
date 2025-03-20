@@ -1,18 +1,245 @@
-﻿using System.Diagnostics;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Text;
 using MaCamp.Models;
 using MaCamp.Utils;
 using SQLite;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Services.DataAccess
 {
     public static class DBContract
     {
-        public static SQLiteConnection? SqlConnection { get; set; }
+        private static Mutex Mutex { get; }
+        private static object Lock { get; }
+        private static SQLiteConnection? SqlConnection { get; set; }
 
-        private static object Lock => new object();
-        private static Mutex Mutex => new Mutex();
+        public class RetornoIdItem
+        {
+            public int IdItem { get; set; }
+        }
+
+        static DBContract()
+        {
+            Mutex = new Mutex();
+            Lock = new object();
+            SqlConnection = GetConnection(AppConstants.SqliteFilename);
+
+            if (SqlConnection != null)
+            {
+                SqlConnection.InsertOrReplace(new ChaveValor
+                {
+                    Chave = AppConstants.Filtro_ServicoSelecionados,
+                    Valor = string.Empty
+                });
+                SqlConnection.InsertOrReplace(new ChaveValor
+                {
+                    Chave = AppConstants.Filtro_NomeCamping,
+                    Valor = string.Empty
+                });
+            }
+        }
+
+        private static SQLiteConnection? GetConnection(string filename)
+        {
+            try
+            {
+                var path = Path.Combine(AppConstants.Path, filename);
+                var connection = new SQLiteConnection(path);
+
+                connection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
+
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(GetConnection), ex);
+            }
+
+            return null;
+        }
+
+        public static async Task<bool> UpdateAsync<T>(bool clean, List<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
+        {
+            var dataDictionary = new Dictionary<Type, List<object>>
+            {
+                { typeof(T), listPrimaryData.OfType<object>().ToList() }
+            };
+
+            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+        }
+
+        public static async Task<bool> UpdateAsync<T, TK>(bool clean, List<T> listPrimaryData, List<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
+        {
+            var dataDictionary = new Dictionary<Type, List<object>>
+            {
+                { typeof(T), listPrimaryData.OfType<object>().ToList() },
+                { typeof(TK), listaSecondaryData.OfType<object>().ToList() }
+            };
+
+            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+        }
+
+        public static async Task<bool> UpdateAsync<T, TK, TR>(bool clean, List<T> listPrimaryData, List<TK> listaSecondaryData, List<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
+        {
+            var dataDictionary = new Dictionary<Type, List<object>>
+            {
+                { typeof(T), listPrimaryData.OfType<object>().ToList() },
+                { typeof(TK), listaSecondaryData.OfType<object>().ToList() },
+                { typeof(TR), listaTertiaryData.OfType<object>().ToList() }
+            };
+
+            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+        }
+
+        private static async Task<bool> UpdateAsync(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
+        {
+            var backupDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteBackupFilename);
+            var currentDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteFilename);
+            var temporaryDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteTemporaryFilename);
+
+            ProgressoVisual.AumentarTotal(progressoVisual, 7 + dataDictionary.Count);
+
+            try
+            {
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                if (File.Exists(currentDatabasePath))
+                {
+                    File.Copy(currentDatabasePath, backupDatabasePath, true);
+                }
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                if (clean)
+                {
+                    if (File.Exists(temporaryDatabasePath))
+                    {
+                        File.Delete(temporaryDatabasePath);
+                    }
+                }
+                else
+                {
+                    File.Copy(currentDatabasePath, temporaryDatabasePath, true);
+                }
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                var temporaryConnection = GetConnection(AppConstants.SqliteTemporaryFilename);
+
+                if (temporaryConnection == null)
+                {
+                    throw new NullReferenceException("Conexão SQL não foi criada");
+                }
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                foreach (var (key, value) in dataDictionary)
+                {
+                    var table = temporaryConnection.TableMappings.FirstOrDefault(x => x.MappedType == key);
+
+                    if (table != null)
+                    {
+                        if (!clean)
+                        {
+                            temporaryConnection.DeleteAll(table);
+                        }
+
+                        temporaryConnection.InsertAll(value);
+                    }
+
+                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                }
+
+                temporaryConnection.InsertOrReplace(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", TipoChave.ControleInterno));
+
+                temporaryConnection.InsertOrReplace(new ChaveValor
+                {
+                    Chave = AppConstants.Chave_DataUltimaAtualizacaoConteudo,
+                    Valor = DateTime.Now.ToString("yyyy/MM/dd")
+                });
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                if (!VerifyDatabaseIntegrity(AppConstants.SqliteTemporaryFilename))
+                {
+                    throw new Exception("Integridade do banco atualizado falhou.");
+                }
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                lock (Lock)
+                {
+                    if (SqlConnection != null)
+                    {
+                        SqlConnection.Close();
+                        SqlConnection.Dispose();
+                    }
+
+                    if (File.Exists(currentDatabasePath))
+                    {
+                        File.Delete(currentDatabasePath);
+                    }
+
+                    File.Move(temporaryDatabasePath, currentDatabasePath);
+
+                    SqlConnection = GetConnection(AppConstants.SqliteFilename);
+                }
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex);
+
+                lock (Lock)
+                {
+                    if (SqlConnection != null)
+                    {
+                        SqlConnection.Close();
+                        SqlConnection.Dispose();
+                    }
+
+                    if (File.Exists(currentDatabasePath))
+                    {
+                        File.Delete(currentDatabasePath);
+                    }
+
+                    if (File.Exists(backupDatabasePath))
+                    {
+                        File.Copy(backupDatabasePath, currentDatabasePath, true);
+                    }
+
+                    SqlConnection = GetConnection(AppConstants.SqliteFilename);
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifica a integridade do banco de dados usando PRAGMA integrity_check.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns>Estado do banco de dados</returns>
+        private static bool VerifyDatabaseIntegrity(string filename)
+        {
+            try
+            {
+                var path = Path.Combine(AppConstants.Path, filename);
+                using var connection = new SQLiteConnection(path);
+                var result = connection.ExecuteScalar<string>("PRAGMA integrity_check;");
+
+                return result == "ok";
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(VerifyDatabaseIntegrity), ex);
+
+                return false;
+            }
+        }
 
         /// <summary>
         /// Insere um objeto no BD.
@@ -38,7 +265,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(InserirModelo), ex);
 
                     return 0;
                 }
@@ -72,7 +299,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(InserirListaDeModelo), ex);
 
                     return 0;
                 }
@@ -102,7 +329,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(InserirOuSubstituirModelo), ex);
 
                     return 0;
                 }
@@ -132,7 +359,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ObterItem), ex);
 
                     return null;
                 }
@@ -156,13 +383,13 @@ namespace MaCamp.Services.DataAccess
                         throw new NullReferenceException("Conexão SQL não foi criada");
                     }
 
-                    var valor = SqlConnection.Table<ChaveValor>().FirstOrDefault(c => c.Chave == chave)?.Valor;
+                    var valor = SqlConnection.Table<ChaveValor>().FirstOrDefault(x => x.Chave == chave)?.Valor;
 
                     return valor;
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ObterValorChave), ex);
 
                     return default;
                 }
@@ -171,11 +398,6 @@ namespace MaCamp.Services.DataAccess
                 //    Mutex.ReleaseMutex();
                 //}
             }
-        }
-
-        public class RetornoIdItem
-        {
-            public int IdItem { get; set; }
         }
 
         public static List<int> ListarIdsCampingsComComodidades(bool possuiFiltroComodidades, string comodidades)
@@ -228,7 +450,7 @@ namespace MaCamp.Services.DataAccess
             sbQueryCategorias.Append($" WHERE ");
             var complementoDaQuery = string.Empty;
 
-            if (categorias.Count() == 104)
+            if (categorias.Length == 104)
             {
                 var identificadoresQueNaoEstaoNosFiltros = "'CampingEmFuncionamento'" + ",'CampingEmReformas'" + ",'CampingemSituaçãoIncerta'" + ",'CampingInformal'" + ",'CampingParaGruposouEventos'" + ",'Destaque'" + ",'Empresa'" + ",'EstacionamentoUrbanoouPraça'" + ",'Hotel/Pousada/Hostel'" + ",'PostodeCombustível'" + ",'Quiosque/Restaurante/PontoTurístico'" + ",'RVPark(ExclusivoRV`s)'" + ",'RVPark(SóMensalistas)'";
                 complementoDaQuery = $" OR II.{nameof(ItemIdentificador.Identificador)} IN ({identificadoresQueNaoEstaoNosFiltros})  ";
@@ -281,7 +503,7 @@ namespace MaCamp.Services.DataAccess
                         throw new NullReferenceException("Conexão SQL não foi criada");
                     }
 
-                    var nomeNormalizado = nomeDoCamping?.RemoveDiacritics().ToLower();
+                    var nomeNormalizado = nomeDoCamping.RemoveDiacritics().ToLower();
                     var estadoNormalizado = estado?.RemoveDiacritics().ToLower();
                     var cidadeNormalizada = cidade?.RemoveDiacritics().ToLower();
                     var query = SqlConnection.Table<Item>().AsQueryable().Where(x =>
@@ -299,7 +521,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(BuscarCampings), ex);
 
                     return new List<Item>();
                 }
@@ -329,7 +551,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(QueryIdsIdentificadorCampings), ex);
 
                     return new List<RetornoIdItem>();
                 }
@@ -359,7 +581,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(QueryItens), ex);
 
                     return new List<Item>();
                 }
@@ -402,7 +624,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(FiltrarApenasCampingsDestaque), ex);
                 }
                 //finally
                 //{
@@ -434,7 +656,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListarItens), ex);
 
                     return new List<Item>();
                 }
@@ -464,7 +686,7 @@ namespace MaCamp.Services.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("<<Exceção>> " + ex);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListarItensIdentificadores), ex);
 
                     return new List<ItemIdentificador>();
                 }

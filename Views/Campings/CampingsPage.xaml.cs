@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
-using MaCamp.Utils;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.Models;
 using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Campings
 {
@@ -20,30 +21,33 @@ namespace MaCamp.Views.Campings
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Página do Camping: ");
 
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_ExibirBuscaCampings);
+            WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings);
 
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_ExibirBuscaCampings, r =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings, (recipient, message) =>
             {
-                Dispatcher.Dispatch(() =>
-                {
-                    cvContent.Content = new FormBuscaView();
-                });
+                cvContent.Content = new FormBuscaView();
             });
 
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada);
+            WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada);
 
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada, r =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, (recipient, message) =>
             {
-                DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", Enumeradores.TipoChave.ControleInterno));
+                DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno));
 
-                Dispatcher.Dispatch(() =>
-                {
-                    cvContent.Content = new ListagemCampingsView("");
-                });
+                cvContent.Content = new ListagemCampingsView(string.Empty);
+            });
+
+            WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados);
+
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, (recipient, message) =>
+            {
+                DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno));
+
+                cvContent.Content = new ListagemCampingsView();
             });
 
             CarregarConteudo();
-            Task.Run(ObterPermissaoLocalizacao);
+            ObterPermissaoLocalizacao();
         }
 
         private void CarregarConteudo()
@@ -52,7 +56,7 @@ namespace MaCamp.Views.Campings
 
             if (buscaInicialRealizada != null)
             {
-                //cvContent.Content = new ListagemCampingsView("");
+                cvContent.Content = new ListagemCampingsView(string.Empty);
             }
             else
             {
@@ -119,7 +123,7 @@ namespace MaCamp.Views.Campings
 
                         if (shouldShowRationale)
                         {
-                            await Dispatcher.DispatchAsync(async () => await AppConstants.CurrentPage.DisplayAlert("Localização", "Forneça a permissão de localização para poder visualizar a distância entre você e os campings", "OK"));
+                            await AppConstants.CurrentPage.DisplayAlert("Localização", "Forneça a permissão de localização para poder visualizar a distância entre você e os campings", "OK");
                         }
 
                         await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
@@ -133,7 +137,7 @@ namespace MaCamp.Views.Campings
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(CampingsPage), nameof(ObterPermissaoLocalizacao), ex);
             }
         }
     }

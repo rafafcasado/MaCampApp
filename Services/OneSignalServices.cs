@@ -1,4 +1,4 @@
-﻿namespace MaCamp.Models.Services
+﻿namespace MaCamp.Services
 {
     public class OneSignalServices
     {
@@ -87,7 +87,7 @@
         //    }
         //    catch (System.Exception ex)
         //    {
-        //        System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+        //        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(OneSignalService), nameof(ExtrairETrabalharInformacoesRecebidas), ex);
         //    }
         //}
     }

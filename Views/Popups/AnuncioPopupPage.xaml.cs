@@ -1,6 +1,6 @@
-﻿using MaCamp.Utils;
-using RGPopup.Maui.Extensions;
+﻿using RGPopup.Maui.Extensions;
 using RGPopup.Maui.Pages;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Popups
 {
@@ -12,7 +12,7 @@ namespace MaCamp.Views.Popups
 
             var fecharPopup = new TapGestureRecognizer();
 
-            anuncioView.Content = new AnuncioView(Enumeradores.TipoAnuncio.Popup);
+            anuncioView.Content = new AnuncioView(TipoAnuncio.Popup);
 
             fecharPopup.Tapped += btFechar_Clicked;
 

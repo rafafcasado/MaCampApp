@@ -4,6 +4,6 @@ namespace MaCamp.Dependencias
 {
     public interface ISQLite
     {
-        SQLiteConnection? ObterConexao();
+        SQLiteConnection? ObterConexao(string filename);
     }
 }

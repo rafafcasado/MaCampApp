@@ -4,14 +4,14 @@ namespace MaCamp.Views
 {
     public partial class SplashScreen : ContentPage
     {
-        public SplashScreen(Type type)
+        public SplashScreen(Func<Task<Page>> task)
         {
             InitializeComponent();
 
-            AnimateSplashScreen(type);
+            Animated(task);
         }
 
-        private async void AnimateSplashScreen(Type type)
+        private async void Animated(Func<Task<Page>> task)
         {
             var duration = Convert.ToUInt32(500);
 
@@ -20,18 +20,18 @@ namespace MaCamp.Views
                 await layout.ColorTo(Colors.White, AppColors.CorPrimaria, x => layout.BackgroundColor = x, duration);
                 await image.FadeTo(1, duration, Easing.CubicInOut);
 
-                var instance = Activator.CreateInstance(type);
+                var page = await task.Invoke();
 
                 await Task.Delay(Convert.ToInt32(duration * 4));
 
-                if (Application.Current != null && instance is Page page)
+                if (Application.Current != null)
                 {
                     Application.Current.MainPage = page;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(SplashScreen), nameof(Animated), ex);
             }
             finally
             {

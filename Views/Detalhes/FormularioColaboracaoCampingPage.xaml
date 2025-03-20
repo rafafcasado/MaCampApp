@@ -22,7 +22,8 @@
             <Entry
                 x:Name="etNome"
                 MaxLength="50"
-                Placeholder="Digite seu nome" />
+                Placeholder="Digite seu nome"
+                TextColor="#252525" />
 
             <!--  Email  -->
             <Entry

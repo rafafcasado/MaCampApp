@@ -1,6 +1,7 @@
 ﻿using Android.Content;
 using Android.OS;
 using MaCamp.Dependencias;
+using MaCamp.Utils;
 using Environment = Android.OS.Environment;
 using Settings = Android.Provider.Settings;
 using Uri = Android.Net.Uri;
@@ -9,6 +10,24 @@ namespace MaCamp.Platforms.Android.Services
 {
     public class StoragePermission : IStoragePermission
     {
+        public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
+
+        public StoragePermission()
+        {
+            TaskCompletionSource = new TaskCompletionSource<bool>();
+        }
+
+        public async Task<bool> Check()
+        {
+            // Somente necessário no Android 11+
+            if (Build.VERSION.SdkInt < BuildVersionCodes.R)
+            {
+                return await Task.FromResult(true);
+            }
+
+            return await Task.FromResult(Environment.IsExternalStorageManager);
+        }
+
         public async Task<bool> Request()
         {
             // Somente necessário no Android 11+
@@ -23,6 +42,8 @@ namespace MaCamp.Platforms.Android.Services
                 return true;
             }
 
+            App.Resumed += OnResumed;
+
             try
             {
                 var uri = Uri.Parse("package:" + AppInfo.PackageName);
@@ -35,15 +56,25 @@ namespace MaCamp.Platforms.Android.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erro ao solicitar MANAGE_EXTERNAL_STORAGE: " + ex.Message);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(StoragePermission), nameof(Request), ex);
+
+                App.Resumed -= OnResumed;
 
                 return false;
             }
 
-            // Espera um pequeno tempo para a permissão ser concedida
-            await Task.Delay(3000);
+            // Aguarda o TaskCompletionSource ser completado quando o app retomar
+            var permissionGranted = await TaskCompletionSource.Task;
 
-            return Environment.IsExternalStorageManager;
+            return permissionGranted;
+        }
+
+        private void OnResumed(object? sender, EventArgs e)
+        {
+            // Quando o app retomar, verifica se a permissão foi concedida
+            TaskCompletionSource.TrySetResult(Environment.IsExternalStorageManager);
+
+            App.Resumed -= OnResumed;
         }
     }
 }

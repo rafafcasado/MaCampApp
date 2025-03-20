@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
-using MaCamp.Models.Services;
 using MaCamp.Services;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
@@ -20,7 +19,7 @@ namespace MaCamp.ViewModels
             WebService = new WebService();
         }
 
-        public async Task Carregar(string endpoint, int pagina, string tag, string query = "", Enumeradores.TipoListagem tipoListagem = Enumeradores.TipoListagem.Noticias, bool utilizarFiltros = true)
+        public async Task Carregar(string endpoint, int pagina, string? tag = null, string? query = null, TipoListagem tipoListagem = TipoListagem.Noticias, bool utilizarFiltros = true)
         {
             var configs = default(ConfiguracoesAnuncios?);
             var countAnuncio = 0;
@@ -38,25 +37,22 @@ namespace MaCamp.ViewModels
             var countAdMob = 14;
             var r = new Random();
 
-            if (tipoListagem == Enumeradores.TipoListagem.Camping)
+            if (tipoListagem == TipoListagem.Camping)
             {
                 var listaItensCampings = await ObterListaDeCampings(endpoint, pagina, tag, query, utilizarFiltros);
                 var idLocal = Itens.Count;
                 var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
-                var ultimoTipoIdentificador = Enum.GetValues<TipoIdentificador>().Last();
-                var anuncios = listaAnuncios.Where(x => x.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
+                var anuncios = listaAnuncios.Where(x => x.Tipo == TipoAnuncio.Nativo).ToList();
                 var listaItensCampingsOrdenados = listaItensCampings
-                    .OrderBy(item => item.Identificadores
-                        .Select(ident => Enum.TryParse<TipoIdentificador>(ident.Identificador, true, out var tipoIdentificador) ? tipoIdentificador : ultimoTipoIdentificador)
-                        .Min())
-                    .ThenBy(item => item.Nome)
+                    .OrderBy(x => x.Identificadores.GetEnumValue<ItemIdentificador, TipoIdentificador>(y => y.Identificador, TipoEnumValue.Smallest))
+                    .ThenBy(x => x.Nome)
                     .ToList();
 
-                listaItensCampingsOrdenados.ForEach(item =>
+                listaItensCampingsOrdenados.ForEach(x =>
                 {
-                    item.IdLocal = ++idLocal;
+                    x.IdLocal = ++idLocal;
 
-                    Itens.Add(item);
+                    Itens.Add(x);
 
                     if (configs != null)
                     {
@@ -89,7 +85,7 @@ namespace MaCamp.ViewModels
                         Itens.Add(new Item
                         {
                             DeveAbrirExternamente = true,
-                            UrlExterna = "",
+                            UrlExterna = string.Empty,
                             IdLocal = idLocal++,
                             EhAdMobRetangulo = true
                         });
@@ -107,26 +103,26 @@ namespace MaCamp.ViewModels
                 var listItens = await WebService.GetListAsync<Item>(endpoint, pagina, tag, query);
                 var idLocal = Itens.Count;
 
-                await listItens.ForEachAsync(async item =>
+                await listItens.ForEachAsync(async x =>
                 {
-                    var itemBD = StorageHelper.GetItemById(item.IdPost);
+                    var savedItem = StorageHelper.GetItemById(x.IdPost);
 
-                    if (itemBD != null)
+                    if (savedItem != null)
                     {
-                        item.Visualizado = itemBD.Visualizado;
-                        item.Favoritado = itemBD.Favoritado;
+                        x.Visualizado = savedItem.Visualizado;
+                        x.Favoritado = savedItem.Favoritado;
                     }
 
-                    item.IdLocal = ++idLocal;
+                    x.IdLocal = ++idLocal;
 
-                    Itens.Add(item);
+                    Itens.Add(x);
 
                     if (configs != null)
                     {
                         if (countAnuncio == 1)
                         {
                             var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
-                            var anuncios = listaAnuncios.Where(x => x.Tipo == Enumeradores.TipoAnuncio.Nativo).ToList();
+                            var anuncios = listaAnuncios.Where(x => x.Tipo == TipoAnuncio.Nativo).ToList();
 
                             if (anuncios.Count > 0)
                             {
@@ -157,7 +153,7 @@ namespace MaCamp.ViewModels
                             Itens.Add(new Item
                             {
                                 DeveAbrirExternamente = true,
-                                UrlExterna = "",
+                                UrlExterna = string.Empty,
                                 IdLocal = idLocal++,
                                 EhAdMobRetangulo = true
                             });
@@ -173,7 +169,7 @@ namespace MaCamp.ViewModels
             }
         }
 
-        private async Task<List<Item>> ObterListaDeCampings(string endpoint, int pagina, string tag, string query, bool filtrar = true)
+        private async Task<List<Item>> ObterListaDeCampings(string endpoint, int pagina, string? tag = null, string? query = null, bool filtrar = true)
         {
             var campings = await CampingServices.CarregarCampings(filtrar);
 

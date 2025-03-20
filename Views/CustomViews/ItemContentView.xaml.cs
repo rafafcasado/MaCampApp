@@ -1,6 +1,6 @@
-﻿using MaCamp.Utils;
-using MaCamp.Models;
-using MaCamp.Models.Services;
+﻿using MaCamp.Models;
+using MaCamp.Services;
+using MaCamp.Utils;
 
 namespace MaCamp.Views.CustomViews
 {

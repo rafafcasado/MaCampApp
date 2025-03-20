@@ -9,18 +9,19 @@ using MaCamp.ViewModels;
 using MaCamp.Views.Detalhes;
 using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
+using static MaCamp.Utils.Enumeradores;
 using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace MaCamp.Views.Campings
 {
     public partial class MapaPage : ContentPage
     {
-        public MapaPage(bool usarFiltros = true)
+        public MapaPage(bool usarFiltros)
         {
             InitializeComponent();
 
             Title = "Mapa";
-            NavigationPage.SetBackButtonTitle(this, "");
+            NavigationPage.SetBackButtonTitle(this, string.Empty);
             BackgroundColor = Colors.White;
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView(Title);
@@ -36,13 +37,13 @@ namespace MaCamp.Views.Campings
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
 
-            Task.Run(async () =>
+            MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 var vm = new ListagemInfinitaVM();
 
                 if (Connectivity.NetworkAccess == NetworkAccess.Internet)
                 {
-                    await vm.Carregar("", -1, "", "", Enumeradores.TipoListagem.Camping, usarFiltros);
+                    await vm.Carregar(string.Empty, -1, string.Empty, string.Empty, TipoListagem.Camping, usarFiltros);
                 }
                 else
                 {
@@ -72,7 +73,7 @@ namespace MaCamp.Views.Campings
             InitializeComponent();
 
             Title = "Ver no Mapa";
-            NavigationPage.SetBackButtonTitle(this, "");
+            NavigationPage.SetBackButtonTitle(this, string.Empty);
 
             cvMapa.Content = new ActivityIndicator
             {
@@ -84,7 +85,7 @@ namespace MaCamp.Views.Campings
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
 
-            Task.Run(async () =>
+            MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 if (DeviceInfo.Platform == DevicePlatform.iOS)
                 {
@@ -123,6 +124,7 @@ namespace MaCamp.Views.Campings
                 var isStreet = map.MapType == MapType.Street;
 
                 map.MapType = isStreet ? MapType.Satellite : MapType.Street;
+
                 toggleButton.Text = isStreet ? "Satélite" : "Terreno";
                 toggleButton.BackgroundColor = isStreet ? Colors.White : Color.FromArgb("#b8bdcb");
                 toggleButton.ImageSource = new SymbolImageSource
@@ -163,7 +165,7 @@ namespace MaCamp.Views.Campings
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                await AppConstants.CurrentPage.DisplayAlert("Erro ao carregar o mapa", ex.Message, "OK");
             }
 
             return false;
@@ -191,14 +193,14 @@ namespace MaCamp.Views.Campings
 
             foreach (var item in itens)
             {
-                if (item.Latitude is double latitude && item.Longitude is double longitude)
+                if (item.Latitude is double latitude && latitude != 0 && item.Longitude is double longitude && longitude != 0)
                 {
-                    var tipos = item.Identificadores.Where(x => x.Opcao == 0 && x.Identificador != null && identificadoresPermitidos.Contains(x.Identificador.Replace("`", "").Replace("çã", "ca").Replace("/", "").ToLower())).ToList();
+                    var tipos = item.Identificadores.Where(x => x.Opcao == 0 && x.Identificador != null && identificadoresPermitidos.Contains(x.Identificador.Replace("`", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower())).ToList();
 
                     if (tipos.Any())
                     {
                         var identificador = tipos.FirstOrDefault()?.Identificador ?? string.Empty;
-                        var imagem = "pointer_" + identificador.Replace("`", "").Replace("çã", "ca").Replace("/", "").ToLower() + "_small.png";
+                        var imagem = "pointer_" + identificador.Replace("`", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + "_small.png";
                         var pin = new StylishPin
                         {
                             Label = item.Nome ?? string.Empty,
@@ -223,7 +225,6 @@ namespace MaCamp.Views.Campings
             //if (valorChaveEstadoSelecionado != null && valorChaveEstadoSelecionado != null)
             //{
             map.MoveMapToRegion(positionsCampings);
-
             //}
             //else
             //{

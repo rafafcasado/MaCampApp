@@ -9,7 +9,7 @@ namespace MaCamp.Platforms.iOS.Handlers
     {
         private static IPropertyMapper<IconView, IconViewHandler> Mapper => new PropertyMapper<IconView, IconViewHandler>(ViewMapper)
         {
-            [nameof(Microsoft.Maui.Controls.WebView.Source)] = MapSource
+            [nameof(WebView.Source)] = MapSource
         };
         private bool IsDisposed { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿using Android.Webkit;
 using MaCamp.CustomControls;
 using MaCamp.Platforms.Android.Handlers;
+using MaCamp.Utils;
 using WebView = Android.Webkit.WebView;
 
 namespace MaCamp.Platforms.Android.Extenders
@@ -40,7 +41,7 @@ namespace MaCamp.Platforms.Android.Extenders
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(ExtendedWebViewClient), nameof(OnPageFinished), ex);
             }
         }
 
@@ -51,7 +52,7 @@ namespace MaCamp.Platforms.Android.Extenders
             if (url != null)
             {
                 // Abre links externos no navegador padrão
-                Task.Run(async () => await Launcher.OpenAsync(url));
+                MainThread.InvokeOnMainThreadAsync(async () => await Launcher.OpenAsync(url));
             }
 
             // Interrompe o carregamento no WebView

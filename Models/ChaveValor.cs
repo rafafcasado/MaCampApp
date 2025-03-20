@@ -1,5 +1,5 @@
-﻿using MaCamp.Utils;
-using SQLite;
+﻿using SQLite;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Models
 {
@@ -9,14 +9,14 @@ namespace MaCamp.Models
         public string Chave { get; set; }
 
         public string? Valor { get; set; }
-        public Enumeradores.TipoChave Tipo { get; set; }
+        public TipoChave Tipo { get; set; }
 
         public ChaveValor()
         {
             Chave = null!;
         }
 
-        public ChaveValor(string chave, string valor, Enumeradores.TipoChave tipo)
+        public ChaveValor(string chave, string valor, TipoChave tipo)
         {
             Chave = chave;
             Valor = valor;

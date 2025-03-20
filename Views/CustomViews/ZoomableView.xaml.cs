@@ -2,12 +2,14 @@ namespace MaCamp.Views.CustomViews
 {
     public partial class ZoomableView : ContentView
     {
-        private double CurrentScale { get; set; }
+        public double CurrentScale { get; set; }
+
         private double StartScale { get; set; }
         private double XOffset { get; set; }
         private double YOffset { get; set; }
-        private Point Point { get; }
-        private double PreviousX, PreviousY;
+        private Point Point { get; set; }
+        private double PreviousX { get; set; }
+        private double PreviousY { get; set; }
 
         public ZoomableView()
         {

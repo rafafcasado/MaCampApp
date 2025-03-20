@@ -2,20 +2,4 @@
     x:Class="MaCamp.Views.Detalhes.ListagemFotosPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="Galeria">
-
-    <ScrollView>
-        <StackLayout
-            x:Name="layout"
-            Margin="5"
-            Orientation="Horizontal"
-            Spacing="5">
-
-            <StackLayout
-                Spacing="5" />
-            <StackLayout
-                Spacing="5" />
-        </StackLayout>
-    </ScrollView>
-
-</ContentPage>
+    Title="Galeria" />

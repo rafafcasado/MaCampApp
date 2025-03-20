@@ -1,8 +1,10 @@
 ﻿using System.Text;
+using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.Models;
-using MaCamp.Models.Services;
+using MaCamp.Services;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Detalhes
 {
@@ -43,7 +45,7 @@ namespace MaCamp.Views.Detalhes
 
                     tapGesture.Tapped += async delegate
                     {
-                        await Navigation.PushAsync(new ListagemFotosPage(item.LinksFotos.Split('|').ToList()));
+                        await Navigation.PushAsync(new ListagemFotosPage(TipoListagemFotos.Carousel, item.LinksFotos.Split('|').ToList()));
                     };
 
                     grdFotoPrincipal.GestureRecognizers.Add(tapGesture);
@@ -56,19 +58,16 @@ namespace MaCamp.Views.Detalhes
 
             lbTitulo.Text = item.Nome?.ToUpper() ?? string.Empty;
 
-            Task.Delay(500).ContinueWith(r =>
+            Task.Delay(500).ContinueWith(x =>
             {
                 if (item.Descricao != null)
                 {
                     var descricao = Encoding.UTF8.GetString(Convert.FromBase64String(item.Descricao));
 
-                    Dispatcher.Dispatch(() =>
-                    {
-                        //lbDescricao.Text = descricao;
-                        lbDescricao.Text = descricao.Replace("\r\n", "<br/>");
-                        cvTipo.Content = new TipoEstabelecimentoView(item.Identificadores);
-                        cvComodidades.Content = new ComodidadesView(item.Identificadores);
-                    });
+                    //lbDescricao.Text = descricao;
+                    lbDescricao.Text = descricao.Replace("\r\n", "<br/>");
+                    cvTipo.Content = new TipoEstabelecimentoView(item.Identificadores);
+                    cvComodidades.Content = new ComodidadesView(item.Identificadores);
                 }
             });
 
@@ -82,13 +81,13 @@ namespace MaCamp.Views.Detalhes
 
             abrirMapa.Tapped += async delegate
             {
-                var tipoMedia = existeCoordenadas ? Enumeradores.TipoMedia.Mapa : Enumeradores.TipoMedia.Endereco;
+                var tipoMedia = existeCoordenadas ? TipoMedia.Mapa : TipoMedia.Endereco;
 
                 await AppMedia.AbrirAsync(tipoMedia, ItemAtual);
             };
             abrirEmail.Tapped += async delegate
             {
-                await AppMedia.AbrirAsync(Enumeradores.TipoMedia.Email, ItemAtual.Email);
+                await AppMedia.AbrirAsync(TipoMedia.Email, ItemAtual.Email);
             };
 
             slEndereco.GestureRecognizers.Add(abrirMapa);
@@ -110,7 +109,7 @@ namespace MaCamp.Views.Detalhes
 
                 tapGestureRecognizer.Tapped += async delegate
                 {
-                    await AppMedia.AbrirAsync(Enumeradores.TipoMedia.URL, url);
+                    await AppMedia.AbrirAsync(TipoMedia.URL, url);
                 };
 
                 element.GestureRecognizers.Add(tapGestureRecognizer);
@@ -139,7 +138,7 @@ namespace MaCamp.Views.Detalhes
                 {
                     FontAttributes = FontAttributes.Bold,
                     FontSize = 14,
-                    Text = x,
+                    Text = x ?? string.Empty,
                     TextColor = Colors.Gray,
                     VerticalTextAlignment = TextAlignment.Center
                 };
@@ -184,10 +183,10 @@ namespace MaCamp.Views.Detalhes
                     switch (imageButton.ClassId)
                     {
                         case "dialer":
-                            await AppMedia.AbrirAsync(Enumeradores.TipoMedia.Telefone, label.Text);
+                            await AppMedia.AbrirAsync(TipoMedia.Telefone, label.Text);
                             break;
                         case "whatsapp":
-                            await AppMedia.AbrirAsync(Enumeradores.TipoMedia.WhatsApp, label.Text);
+                            await AppMedia.AbrirAsync(TipoMedia.WhatsApp, label.Text);
                             break;
                     }
                 }
@@ -210,7 +209,7 @@ namespace MaCamp.Views.Detalhes
                     DBContract.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
-                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                    WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
                 }));
             }
             else
@@ -225,7 +224,7 @@ namespace MaCamp.Views.Detalhes
                     DBContract.InserirOuSubstituirModelo(item);
                     ConfigurarToolbar(item);
 
-                    MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_AtualizarListagemFavoritos);
+                    WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
                 }));
             }
 
@@ -278,7 +277,7 @@ namespace MaCamp.Views.Detalhes
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    await AppConstants.CurrentPage.DisplayAlert("Erro ao abrir o mapa", ex.Message, "OK");
                 }
             }
             else if (DeviceInfo.Platform == DevicePlatform.iOS)

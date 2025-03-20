@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Text.Json;
-using DynamicData;
 using MaCamp.Models;
 using MaCamp.Utils;
 
@@ -17,7 +15,7 @@ namespace MaCamp.Services.DataAccess
 
         static StorageHelper()
         {
-            FilePath = GetStoragePath();
+            FilePath = AppConstants.Path;
             JsonSerializerOptions = new JsonSerializerOptions
             {
                 WriteIndented = true
@@ -36,40 +34,10 @@ namespace MaCamp.Services.DataAccess
 
         public static bool IsFavoriteItem(int id) => ListFavorites.Any(x => x.Id == id);
 
-        private static string GetStoragePath()
-        {
-            if (DeviceInfo.Platform == DevicePlatform.Android)
-            {
-                return Path.Combine("/storage/emulated/0/Documents", "MaCamp");
-            }
-
-            if (DeviceInfo.Platform == DevicePlatform.iOS)
-            {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "..", "Library", "MaCamp");
-            }
-
-            if (DeviceInfo.Platform == DevicePlatform.WinUI)
-            {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MaCamp");
-            }
-
-            if (DeviceInfo.Platform == DevicePlatform.macOS)
-            {
-                return Path.Combine("Users/Shared/MaCamp");
-            }
-
-            return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        }
-
         private static void SaveData<T>(T data, string fileName)
         {
             try
             {
-                if (!Directory.Exists(FilePath))
-                {
-                    Directory.CreateDirectory(FilePath);
-                }
-
                 var fullPath = Path.Combine(FilePath, fileName);
                 var json = JsonSerializer.Serialize(data, JsonSerializerOptions);
 
@@ -77,7 +45,7 @@ namespace MaCamp.Services.DataAccess
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Erro ao salvar arquivo: " + ex.Message);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(StorageHelper), nameof(SaveData), ex);
             }
         }
 
@@ -96,7 +64,7 @@ namespace MaCamp.Services.DataAccess
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Erro ao carregar arquivo: " + ex.Message);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(StorageHelper), nameof(LoadData), ex);
             }
 
             return default;

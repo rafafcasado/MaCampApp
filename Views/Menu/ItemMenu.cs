@@ -1,4 +1,4 @@
-﻿using MaCamp.Utils;
+﻿using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Menu
 {
@@ -9,8 +9,8 @@ namespace MaCamp.Views.Menu
         public string? TituloListagem { get; set; }
         public string? IconSource { get; set; }
         public int IdExterno { get; set; }
-        public Enumeradores.TipoLayoutMenu TipoLayout { get; set; }
-        public Enumeradores.TipoAcaoMenu? TipoAcao { get; set; }
+        public TipoLayoutMenu TipoLayout { get; set; }
+        public TipoAcaoMenu? TipoAcao { get; set; }
         public bool ExibirIcone { get; set; } = false;
         public string? ValorComportamento { get; set; }
         public string HexCorTexto { get; set; }

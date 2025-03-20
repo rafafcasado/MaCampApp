@@ -1,8 +1,8 @@
 using System.Globalization;
 using MaCamp.Dependencias;
 using MaCamp.Models;
-using MaCamp.Models.Services;
 using MaCamp.Resources.Locale;
+using MaCamp.Services;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using MaCamp.Views;
@@ -18,7 +18,8 @@ namespace MaCamp
         public static Location? LOCALIZACAO_USUARIO { get; set; }
         public static bool EXISTEM_CAMPINGS_DISPONIVEIS { get; set; }
         public static bool BAIXANDO_CAMPINGS { get; set; }
-        public static BackgroundUpdater? BackgroundUpdater { get; set; }
+
+        public static event EventHandler? Resumed;
 
         public App()
         {
@@ -27,88 +28,68 @@ namespace MaCamp
             CarregarTamanhoTela();
 
             UserAppTheme = AppTheme.Light;
-            BackgroundUpdater = new BackgroundUpdater();
 
             //OneSignalServices.RegisterIOS();
             //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
 
-            //Task.Run(() => VerificarDownloadCampings());
             //VerificarDownloadCampings();
-        }
-
-        protected override void OnHandlerChanged()
-        {
-            base.OnHandlerChanged();
-
-            var sqlite = Handler.MauiContext?.Services.GetService<ISQLite>();
-
-            if (sqlite != null)
-            {
-                DBContract.SqlConnection = sqlite.ObterConexao();
-
-                if (DBContract.SqlConnection != null)
-                {
-                    DBContract.SqlConnection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
-                }
-
-                DBContract.InserirOuSubstituirModelo(new ChaveValor
-                {
-                    Chave = AppConstants.Filtro_ServicoSelecionados,
-                    Valor = string.Empty
-                });
-                DBContract.InserirOuSubstituirModelo(new ChaveValor
-                {
-                    Chave = AppConstants.Filtro_NomeCamping,
-                    Valor = string.Empty
-                });
-            }
-
-            // A plataforma Windows não precisa da dependência.
-            if (DeviceInfo.Platform == DevicePlatform.Android || DeviceInfo.Platform == DevicePlatform.iOS)
-            {
-                var localize = Handler?.MauiContext?.Services.GetService<ILocalize>();
-
-                if (localize != null)
-                {
-                    var culture = localize.PegarCultureInfoUsuario();
-
-                    AppLanguage.Culture = culture;
-                    Thread.CurrentThread.CurrentCulture = culture;
-                    Thread.CurrentThread.CurrentUICulture = culture;
-                    CultureInfo.DefaultThreadCurrentCulture = culture;
-                    CultureInfo.DefaultThreadCurrentUICulture = culture;
-                }
-            }
         }
 
         private async void VerificarDownloadCampings()
         {
             if (BaixarUltimaVersaoConteudo())
             {
-                await AppConstants.CurrentPage.Dispatcher.DispatchAsync(async () =>
+                var baixar = await AppConstants.CurrentPage.DisplayAlert("Dados atualizados disponiveis", "Deseja baixar agora?", "Baixar", "Cancelar");
+
+                if (baixar)
                 {
-                    var baixar = await AppConstants.CurrentPage.DisplayAlert("Dados atualizados disponiveis", "Deseja baixar agora?", "Baixar", "Cancelar");
-
-                    if (baixar)
-                    {
-                        await Task.Run(() => CampingServices.BaixarCampings(true));
-                    }
-                });
+                    await CampingServices.BaixarCampings(true);
+                }
             }
-
-            await CampingServices.BaixarCampings();
+            else
+            {
+                await CampingServices.BaixarCampings(false);
+            }
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new SplashScreen(typeof(RootPage)));
+            return new Window(new SplashScreen(async () =>
+            {
+                var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
+                var storagePermissionResult = await storagePermissionService.Request();
+
+                if (storagePermissionResult && Current != null)
+                {
+                    return new RootPage();
+                }
+
+                return new ContentPage();
+            }));
         }
 
-        protected override void OnStart()
+        protected override async void OnStart()
         {
-            //Task.Run(() => new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal());
+            //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
 
-            BackgroundUpdater?.Start();
+            var localizeService = await Workaround.GetServiceAsync<ILocalize>();
+            var cultureInfo = localizeService.PegarCultureInfoUsuario();
+
+            await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+            await Permissions.RequestAsync<Permissions.PostNotifications>();
+
+            AppLanguage.Culture = cultureInfo;
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+            Thread.CurrentThread.CurrentUICulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+
+            Resumed?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -148,10 +129,7 @@ namespace MaCamp
 
             if (mensagemPush != null)
             {
-                await AppConstants.CurrentPage.Dispatcher.DispatchAsync(async () =>
-                {
-                    await AppConstants.CurrentPage.DisplayAlert($"{tituloPush}", $"{mensagemPush}", "OK");
-                });
+                await AppConstants.CurrentPage.DisplayAlert($"{tituloPush}", $"{mensagemPush}", "OK");
             }
 
             if (itemPush != null)

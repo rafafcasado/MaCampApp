@@ -537,14 +537,6 @@
     </Style>
 
     <Style
-        TargetType="RefreshView">
-        <Setter
-            Property="RefreshColor"
-            Value="{AppThemeBinding Light={StaticResource Gray900},
-                                    Dark={StaticResource Gray200}}" />
-    </Style>
-
-    <Style
         TargetType="SearchBar">
         <Setter
             Property="TextColor"

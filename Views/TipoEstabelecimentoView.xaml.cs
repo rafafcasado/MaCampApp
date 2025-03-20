@@ -1,6 +1,6 @@
 ﻿using FFImageLoading.Maui;
-using MaCamp.Utils;
 using MaCamp.Models;
+using MaCamp.Utils;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace MaCamp.Views
@@ -46,7 +46,7 @@ namespace MaCamp.Views
                         {
                             new CachedImage
                             {
-                                Source = tipo.Identificador?.Replace("`", "").Replace("(", "").Replace(")", "").Replace("çã", "ca").Replace("/", "").ToLower() + ".png",
+                                Source = tipo.Identificador?.Replace("`", string.Empty).Replace("(", string.Empty).Replace(")", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + ".png",
                                 HeightRequest = tamanhoIcone,
                                 WidthRequest = tamanhoIcone,
                                 HorizontalOptions = LayoutOptions.CenterAndExpand,
@@ -101,7 +101,7 @@ namespace MaCamp.Views
                         {
                             new CachedImage
                             {
-                                Source = tipo.Identificador?.Replace("`", "").Replace("(", "").Replace(")", "").Replace("çã", "ca").Replace("/", "").ToLower() + ".png",
+                                Source = tipo.Identificador?.Replace("`", string.Empty).Replace("(", string.Empty).Replace(")", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + ".png",
                                 HeightRequest = tamanhoIcone,
                                 WidthRequest = tamanhoIcone,
                                 HorizontalOptions = LayoutOptions.CenterAndExpand,

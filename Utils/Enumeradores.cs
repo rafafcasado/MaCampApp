@@ -56,6 +56,7 @@
             NaoImplementadoNessaVersao,
             AbrirNoticias,
             AbrirEventos,
+            AbrirClassificados,
             CadastreUmCamping,
             AbrirParceiros,
             AbrirDicasCampismo,
@@ -73,6 +74,18 @@
             CampingParaGruposOuEventos = 7,
             CampingEmReformas = 8,
             CampingFechadoOuSemFuncao = 9
+        }
+
+        public enum TipoListagemFotos
+        {
+            Masonary,
+            Carousel
+        }
+
+        public enum TipoEnumValue
+        {
+            Biggest,
+            Smallest
         }
     }
 }

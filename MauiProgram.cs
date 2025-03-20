@@ -20,6 +20,7 @@ namespace MaCamp
 
             builder.UseMauiMaps();
             builder.UseMauiMTAdmob();
+            builder.UseMauiApp<App>();
             builder.UseFFImageLoading();
             builder.UseFluentIcons(false);
             builder.UseMauiCommunityToolkit();
@@ -33,8 +34,7 @@ namespace MaCamp
             builder.Services.AddPlatformSingleton<ILocalize>();
             builder.Services.AddPlatformSingleton<ISQLite>();
             builder.Services.AddPlatformSingleton<IStoragePermission>();
-
-            builder.UseMauiApp<App>();
+            builder.Services.AddPlatformSingleton<INotification>();
 
             builder.ConfigureMauiHandlers(collection =>
             {

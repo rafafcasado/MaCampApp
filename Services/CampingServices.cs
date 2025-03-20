@@ -1,8 +1,10 @@
 ﻿using System.Text;
+using MaCamp.Models;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
+using static MaCamp.Utils.Enumeradores;
 
-namespace MaCamp.Models.Services
+namespace MaCamp.Services
 {
     public static class CampingServices
     {
@@ -10,12 +12,12 @@ namespace MaCamp.Models.Services
         {
             var valorChaveDownloadConcluido = DBContract.ObterValorChave(AppConstants.Chave_DownloadCampingsCompleto);
             var downloadConcluido = !string.IsNullOrWhiteSpace(valorChaveDownloadConcluido) && Convert.ToBoolean(valorChaveDownloadConcluido);
-            var tem = downloadConcluido && DBContract.ObterItem(i => i.IdPost == 0) != null;
+            var tem = downloadConcluido && DBContract.ObterItem(x => x.IdPost == 0) != null;
 
             return tem;
         }
 
-        public static async Task BaixarCampings(bool forcarAtualizacao = false, ProgressoVisual? progressoVisual = null)
+        public static async Task BaixarCampings(bool forcarAtualizacao, ProgressoVisual? progressoVisual = null)
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
@@ -35,22 +37,20 @@ namespace MaCamp.Models.Services
             }
             else
             {
-                ProgressoVisual.AumentarTotal(progressoVisual, 12);
-
                 var existemCampingsSalvos = ExistemCampingsBD();
-                var identificadores = new List<ItemIdentificador>();
-
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
 
                 if (!existemCampingsSalvos || forcarAtualizacao)
                 {
                     App.BAIXANDO_CAMPINGS = true;
 
-                    DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "false", Enumeradores.TipoChave.ControleInterno));
+                    ProgressoVisual.AumentarTotal(progressoVisual, 3);
+
+                    DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "false", TipoChave.ControleInterno));
 
                     await ProgressoVisual.AumentarAtualAsync(progressoVisual);
 
                     var campings = new List<Item>();
+                    var identificadores = new List<ItemIdentificador>();
                     var chamadasWS = new List<Task>
                     {
                         Task.Run(async () =>
@@ -65,28 +65,9 @@ namespace MaCamp.Models.Services
                         })
                     };
 
-                    Task.WaitAll(chamadasWS.ToArray());
+                    await Task.WhenAll(chamadasWS);
+                    await DBContract.UpdateAsync(true, campings, identificadores, progressoVisual);
 
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-
-                    DBContract.ApagarItens();
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-                    DBContract.InserirListaDeModelo(campings);
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-                    DBContract.ApagarItensIdentificadores();
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-                    DBContract.InserirListaDeModelo(identificadores);
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-                    DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", Enumeradores.TipoChave.ControleInterno));
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-                    DBContract.InserirOuSubstituirModelo(new ChaveValor
-                    {
-                        Chave = AppConstants.Chave_DataUltimaAtualizacaoConteudo,
-                        Valor = DateTime.Now.ToString("yyyy/MM/dd")
-                    });
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
                     App.BAIXANDO_CAMPINGS = false;
                 }
             }
@@ -94,7 +75,7 @@ namespace MaCamp.Models.Services
 
         public static async Task<List<Item>> CarregarCampings(bool utilizarFiltros = false)
         {
-            await BaixarCampings();
+            await BaixarCampings(false);
 
             App.EXISTEM_CAMPINGS_DISPONIVEIS = ExistemCampingsBD();
 
@@ -182,7 +163,7 @@ namespace MaCamp.Models.Services
 
         public static string MontarUrlImagemTemporaria(string urlImagem)
         {
-            var imagem = AppConstants.Url_DominioTemporario + "carregarImagem.aspx?src=" + urlImagem.Replace(AppConstants.Url_DominioOficial, "");
+            var imagem = AppConstants.Url_DominioTemporario + "carregarImagem.aspx?src=" + urlImagem.Replace(AppConstants.Url_DominioOficial, string.Empty);
 
             return imagem;
         }

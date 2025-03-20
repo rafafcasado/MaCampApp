@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 using Newtonsoft.Json;
 
 namespace MaCamp.Utils
@@ -27,7 +26,7 @@ namespace MaCamp.Utils
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FALHOU: " + ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(AppNet), nameof(GetAsync), ex);
             }
 
             return default;
@@ -52,7 +51,7 @@ namespace MaCamp.Utils
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FALHOU: " + ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(AppNet), nameof(GetListAsync), ex);
             }
 
             return new List<T>();
@@ -66,7 +65,7 @@ namespace MaCamp.Utils
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FALHOU: " + ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(AppNet), nameof(GetBytesAsync), ex);
             }
 
             return Array.Empty<byte>();
@@ -80,7 +79,7 @@ namespace MaCamp.Utils
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FALHOU: " + ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(AppNet), nameof(GetStringAsync), ex);
             }
 
             return string.Empty;
@@ -98,7 +97,7 @@ namespace MaCamp.Utils
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("FALHOU: " + ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(AppNet), nameof(PostAsync), ex);
             }
 
             return false;

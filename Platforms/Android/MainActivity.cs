@@ -26,4 +26,5 @@ namespace MaCamp.Platforms.Android
             }
         }
     }
+
 }

@@ -8,7 +8,7 @@ namespace MaCamp.Platforms.Android.Handlers
     {
         private static IPropertyMapper<IconView, IconViewHandler> Mapper => new PropertyMapper<IconView, IconViewHandler>(ViewMapper)
         {
-            [nameof(Microsoft.Maui.Controls.WebView.Source)] = MapSource
+            [nameof(WebView.Source)] = MapSource
         };
 
         public IconViewHandler() : base(Mapper)

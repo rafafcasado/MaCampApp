@@ -1,4 +1,5 @@
-﻿using MaCamp.Dependencias;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.Dependencias;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Services.DataAccess;
@@ -14,7 +15,7 @@ namespace MaCamp.Views.Listagens
         {
             InitializeComponent();
 
-            NavigationPage.SetBackButtonTitle(this, "");
+            NavigationPage.SetBackButtonTitle(this, string.Empty);
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Campings Favoritos");
 
@@ -22,7 +23,7 @@ namespace MaCamp.Views.Listagens
 
             Loaded += ListagemItensFavoritosView_Loaded;
 
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_AtualizarListagemFavoritos, s =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos, (recipient, message) =>
             {
                 Handle_Refreshing(null, null);
             });
@@ -49,8 +50,10 @@ namespace MaCamp.Views.Listagens
                         await ControladorDeAnuncios.VerificarEExibirAnuncioPopup();
                         await Navigation.PushAsync(new DetalhesPage(item));
                     }
-
-                    throw new Exception("Item não foi tratado");
+                    else
+                    {
+                        throw new Exception("Item não foi tratado");
+                    }
                 }
             }
         }
@@ -72,17 +75,13 @@ namespace MaCamp.Views.Listagens
 
         private async void CarregarConteudo()
         {
-            var storagePermission = Handler?.MauiContext?.Services.GetService<IStoragePermission>();
+            var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
+            var storagePermissionResult = await storagePermissionService.Request();
 
-            if (storagePermission != null)
+            if (storagePermissionResult)
             {
-                await storagePermission.Request();
-            }
+                var itensFavoritos = StorageHelper.LoadData<List<Item>>(AppConstants.FavoritesFilename);
 
-            var itensFavoritos = StorageHelper.LoadData<List<Item>>(AppConstants.FavoritesFilename);
-
-            Dispatcher.Dispatch(() =>
-            {
                 loaderConteudoInicial.IsVisible = false;
                 loaderConteudoInicial.IsRunning = false;
                 loaderConteudoAdicional.IsVisible = false;
@@ -90,6 +89,7 @@ namespace MaCamp.Views.Listagens
                 if (itensFavoritos != null && itensFavoritos.Count > 0)
                 {
                     lbMensagemAviso.IsVisible = false;
+
                     cvItens.ItemsSource = itensFavoritos;
                     rvItens.IsRefreshing = false;
                     cvItens.IsVisible = true;
@@ -98,9 +98,10 @@ namespace MaCamp.Views.Listagens
                 {
                     lbMensagemAviso.Text = "Favorite itens para que eles sejam exibidos aqui";
                     lbMensagemAviso.IsVisible = true;
+
                     cvItens.IsVisible = false;
                 }
-            });
+            }
         }
 
         private void ListagemItensFavoritosView_Loaded(object? sender, EventArgs e)

@@ -3,7 +3,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using MaCamp.Dependencias;
 using Microsoft.Maui.Maps;
+using static MaCamp.Utils.Enumeradores;
 using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace MaCamp.Utils
@@ -140,10 +142,10 @@ namespace MaCamp.Utils
             }
 
             // Encontra os limites da lista de localizações
-            var minLatitude = locations.Min(loc => loc.Latitude);
-            var maxLatitude = locations.Max(loc => loc.Latitude);
-            var minLongitude = locations.Min(loc => loc.Longitude);
-            var maxLongitude = locations.Max(loc => loc.Longitude);
+            var minLatitude = locations.Min(x => x.Latitude);
+            var maxLatitude = locations.Max(x => x.Latitude);
+            var minLongitude = locations.Min(x => x.Longitude);
+            var maxLongitude = locations.Max(x => x.Longitude);
 
             // Calcula o centro do mapa
             var centerLatitude = (minLatitude + maxLatitude) / 2;
@@ -165,12 +167,12 @@ namespace MaCamp.Utils
 
         public static Task ColorTo(this VisualElement self, Color fromColor, Color toColor, Action<Color> callback, uint duration)
         {
-            var animation = new Animation(v =>
+            var animation = new Animation(x =>
             {
-                var red = Convert.ToSingle(fromColor.Red + (toColor.Red - fromColor.Red) * v);
-                var green = Convert.ToSingle(fromColor.Green + (toColor.Green - fromColor.Green) * v);
-                var blue = Convert.ToSingle(fromColor.Blue + (toColor.Blue - fromColor.Blue) * v);
-                var alpha = Convert.ToSingle(fromColor.Alpha + (toColor.Alpha - fromColor.Alpha) * v);
+                var red = Convert.ToSingle(fromColor.Red + (toColor.Red - fromColor.Red) * x);
+                var green = Convert.ToSingle(fromColor.Green + (toColor.Green - fromColor.Green) * x);
+                var blue = Convert.ToSingle(fromColor.Blue + (toColor.Blue - fromColor.Blue) * x);
+                var alpha = Convert.ToSingle(fromColor.Alpha + (toColor.Alpha - fromColor.Alpha) * x);
 
                 callback(new Color(red, green, blue, alpha));
             });
@@ -205,12 +207,7 @@ namespace MaCamp.Utils
         {
             var current = DeviceInfo.Platform;
 
-            if (keyValuePair.TryGetValue(current, out var value))
-            {
-                return value;
-            }
-
-            return defaultValue;
+            return keyValuePair.GetValueOrDefault(current, defaultValue);
         }
 
         public static T GetInstance<T>() where T : new()
@@ -248,6 +245,55 @@ namespace MaCamp.Utils
             {
                 collection.Add(newItem);
             }
+        }
+
+        public class RunActions
+        {
+            public Action? Start { get; set; }
+            public Action? End { get; set; }
+            public Action? Granted { get; set; }
+            public Action? Denied { get; set; }
+        }
+
+        public static async Task Run(this IStoragePermission service, RunActions actions)
+        {
+            actions.Start?.Invoke();
+
+            var response = await service.Request();
+
+            if (response)
+            {
+                actions.Granted?.Invoke();
+            }
+            else
+            {
+                actions.Denied?.Invoke();
+            }
+
+            actions.End?.Invoke();
+        }
+
+        public static TK GetEnumValue<T, TK>(this List<T>? source, Func<T, string?> predicate, TK defaultValue) where TK : struct, Enum
+        {
+            if (source != null && source.Count > 0)
+            {
+                return source.Select(x => Enum.TryParse<TK>(predicate(x), true, out var value) ? value : defaultValue).Min();
+            }
+
+            return defaultValue;
+        }
+
+        public static TK GetEnumValue<T, TK>(this List<T>? source, Func<T, string?> predicate, TipoEnumValue tipo) where TK : struct, Enum
+        {
+            var listValues = Enum.GetValues<TK>();
+            var defaultValue = tipo == TipoEnumValue.Smallest ? listValues.Last() : listValues.First();
+
+            if (source != null && source.Count > 0)
+            {
+                return source.Select(x => Enum.TryParse<TK>(predicate(x), true, out var value) ? value : defaultValue).Min();
+            }
+
+            return defaultValue;
         }
     }
 }

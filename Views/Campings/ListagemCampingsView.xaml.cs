@@ -1,7 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
-using MaCamp.Models.Services;
+using MaCamp.Services;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using MaCamp.ViewModels;
@@ -9,6 +10,7 @@ using MaCamp.Views.CustomViews;
 using MaCamp.Views.Detalhes;
 using MaCamp.Views.Popups;
 using RGPopup.Maui.Extensions;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Campings
 {
@@ -17,66 +19,79 @@ namespace MaCamp.Views.Campings
         private ListagemInfinitaVM ViewModel { get; }
         private int PaginaAtual { get; set; }
         private List<int> IdsQueJaChamaramPaginacao { get; set; }
+        private bool CarregandoItem { get; set; }
         private string EndpointListagem { get; }
-        private string Tag { get; }
-        private string ParametrosBusca { get; }
-        private bool carregandoItem { get; set; }
-
+        private string? Tag { get; }
+        private string? ParametrosBusca { get; }
         //Controle da barra de busca e filtro
-        private int idUltimoItemExibido { get; set; }
-        private bool viewFiltroAberta { get; set; }
+        private int IdUltimoItemExibido { get; set; }
+        private bool ViewFiltroAberta { get; set; }
 
-        public ListagemCampingsView(string endpointListagem, string tag = "", string parametrosBusca = "")
+        public ListagemCampingsView()
         {
             InitializeComponent();
 
-            NavigationPage.SetBackButtonTitle(this, "");
+            NavigationPage.SetBackButtonTitle(this, string.Empty);
+
+            ViewModel = new ListagemInfinitaVM();
+            IdsQueJaChamaramPaginacao = new List<int>();
+            EndpointListagem = string.Empty;
+            ViewFiltroAberta = true;
+            Tag = null;
+            ParametrosBusca = null;
+            cvItens.ItemTemplate = new ItemDataTemplateSelector();
+
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                var progressoVisual = new ProgressoVisual(progressBar);
+
+                cvItens.IsVisible = false;
+                grBotoesFiltroMapa.IsVisible = false;
+                slBaixandoCampings.IsVisible = true;
+                slMensagemAviso.IsVisible = false;
+
+                await Task.WhenAll(
+                    CidadesServices.AtualizarListaCidades(progressoVisual),
+                    CampingServices.BaixarCampings(true, progressoVisual),
+                    CarregarConteudo(progressoVisual)
+                );
+            });
+        }
+
+        public ListagemCampingsView(string endpointListagem, string? tag = null, string? parametrosBusca = null)
+        {
+            InitializeComponent();
+
+            NavigationPage.SetBackButtonTitle(this, string.Empty);
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Listagem de Campings");
 
             ViewModel = new ListagemInfinitaVM();
             IdsQueJaChamaramPaginacao = new List<int>();
             EndpointListagem = endpointListagem;
-            viewFiltroAberta = true;
+            ViewFiltroAberta = true;
             Tag = tag;
             ParametrosBusca = parametrosBusca;
             cvItens.ItemTemplate = new ItemDataTemplateSelector();
 
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_BuscarCampingsAtualizados);
+            WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados);
 
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscarCampingsAtualizados, s =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, async (recipient, message) =>
             {
-                Task.Run(() =>
-                {
-                    var progressoVisual = new ProgressoVisual(progressBar);
-                    var temInternet = Connectivity.NetworkAccess == NetworkAccess.Internet;
+                var progressoVisual = new ProgressoVisual(progressBar);
 
-                    Dispatcher.Dispatch(() =>
-                    {
-                        cvItens.IsVisible = !temInternet;
-                        grBotoesFiltroMapa.IsVisible = !temInternet;
-                        slBaixandoCampings.IsVisible = temInternet;
-                        slMensagemAviso.IsVisible = !temInternet;
-                        loaderConteudoInicial.IsVisible = temInternet;
-                        loaderConteudoInicial.IsRunning = temInternet;
-                        progressBar.IsVisible = !temInternet;
-                        progressBar.Progress = 0;
-                    });
+                cvItens.IsVisible = false;
+                grBotoesFiltroMapa.IsVisible = false;
+                slBaixandoCampings.IsVisible = true;
+                slMensagemAviso.IsVisible = false;
 
-                    if (temInternet)
-                    {
-                        var tarefas = new List<Task>
-                        {
-                            Task.Run(async () => await CidadesServices.AtualizarListaCidades(progressoVisual)),
-                            Task.Run(async () => await CampingServices.BaixarCampings(true, progressoVisual)),
-                            Task.Run(async () => await CarregarConteudo(true, progressoVisual))
-                        };
-
-                        Task.WaitAll(tarefas.ToArray());
-                    }
-                });
+                await Task.WhenAll(
+                    CidadesServices.AtualizarListaCidades(progressoVisual),
+                    CampingServices.BaixarCampings(true, progressoVisual),
+                    CarregarConteudo(progressoVisual)
+                );
             });
 
-            Task.Run(async () => await CarregarConteudo(false, new ProgressoVisual(progressBar)));
+            MainThread.InvokeOnMainThreadAsync(async () => await CarregarConteudo(new ProgressoVisual(progressBar)));
         }
 
         private async void Handle_Scrolled(object sender, ItemsViewScrolledEventArgs e)
@@ -87,25 +102,25 @@ namespace MaCamp.Views.Campings
 
                 if (item != null)
                 {
-                    if (!viewFiltroAberta && (item.IdLocal <= 2 || idUltimoItemExibido > item.IdLocal))
+                    if (!ViewFiltroAberta && (item.IdLocal <= 2 || IdUltimoItemExibido > item.IdLocal))
                     {
                         await slFiltrosEBusca.TranslateTo(0, 0);
 
-                        viewFiltroAberta = true;
+                        ViewFiltroAberta = true;
                     }
-                    else if (viewFiltroAberta && item.IdLocal > 2 && idUltimoItemExibido < item.IdLocal)
+                    else if (ViewFiltroAberta && item.IdLocal > 2 && IdUltimoItemExibido < item.IdLocal)
                     {
                         await slFiltrosEBusca.TranslateTo(0, -slFiltrosEBusca.Height);
 
-                        viewFiltroAberta = false;
+                        ViewFiltroAberta = false;
                     }
 
-                    idUltimoItemExibido = item.IdLocal;
+                    IdUltimoItemExibido = item.IdLocal;
 
                     //if (ViewModel.Itens != null && ViewModel.Itens.Count >= AppConstants.QUANTIDADE_NOTICIAS_POR_LOTE && ViewModel.Itens.Count - 5 > 0 && e.Item == ViewModel.Itens[ViewModel.Itens.Count - 5] && !IdsQueJaChamaramPaginacao.Contains(itemAtual.IdLocal))
                     //{
                     //    IdsQueJaChamaramPaginacao.Add(itemAtual.IdLocal);
-                    //    await Task.Run(() => CarregarConteudo());
+                    //    CarregarConteudo(true);
                     //}
                 }
             }
@@ -113,9 +128,9 @@ namespace MaCamp.Views.Campings
 
         private async void Handle_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            if (e.CurrentSelection.FirstOrDefault() is Item item && !carregandoItem)
+            if (e.CurrentSelection.FirstOrDefault() is Item item && !CarregandoItem)
             {
-                carregandoItem = true;
+                CarregandoItem = true;
                 cvItens.SelectedItem = null;
 
                 if (item.DeveAbrirExternamente && item.UrlExterna != null)
@@ -131,7 +146,7 @@ namespace MaCamp.Views.Campings
 
                     await Navigation.PushAsync(new DetalhesCampingPage(item));
 
-                    carregandoItem = false;
+                    CarregandoItem = false;
                 }
             }
         }
@@ -143,8 +158,8 @@ namespace MaCamp.Views.Campings
 
             if (sender != null)
             {
-                loaderConteudoInicial.IsVisible = true;
-                loaderConteudoInicial.IsRunning = true;
+                indicadorCarregamento.IsVisible = true;
+                indicadorCarregamento.IsRunning = true;
             }
 
             cvItens.ItemsSource = new ObservableCollection<Item>();
@@ -154,7 +169,7 @@ namespace MaCamp.Views.Campings
             await CarregarConteudo();
         }
 
-        private async Task CarregarConteudo(bool forcandoAtualizacao = false, ProgressoVisual? progressoVisual = null)
+        private async Task CarregarConteudo(ProgressoVisual? progressoVisual = null)
         {
             ProgressoVisual.AumentarTotal(progressoVisual, 5);
 
@@ -164,161 +179,136 @@ namespace MaCamp.Views.Campings
 
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                if (forcandoAtualizacao)
-                {
-                    await AppConstants.CurrentPage.DisplayAlert(AppConstants.Titulo_SemInternet, "Para atualizar a listagem de campings, conecte-se à internet e tente novamente.", "OK");
-
-                    return;
-                }
-
                 if (!existemCampingsBD)
                 {
-                    Dispatcher.Dispatch(() =>
-                    {
-                        var fs = new FormattedString();
-
-                        loaderConteudoInicial.IsVisible = false;
-                        loaderConteudoInicial.IsRunning = false;
-                        loaderConteudoAdicional.IsVisible = false;
-
-                        fs.Spans.Add(new Span
-                        {
-                            Text = "O primeiro acesso requer conexão com a internet.\n\n",
-                            FontAttributes = FontAttributes.Bold,
-                            FontSize = 20
-                        });
-                        fs.Spans.Add(new Span
-                        {
-                            Text = "Verifique sua conexão e toque para tentar novamente.\n(após o primeiro acesso, os campings estarão disponíveis off-line)"
-                        });
-
-                        lbMensagemAviso.FormattedText = fs;
-                        slMensagemAviso.IsVisible = true;
-                    });
-
-                    return;
-                }
-            }
-
-            if (forcandoAtualizacao)
-            {
-                ViewModel.Itens.Clear();
-            }
-
-            if (PaginaAtual > 0)
-            {
-                Dispatcher.Dispatch(() =>
-                {
-                    loaderConteudoAdicional.IsVisible = true;
-                });
-            }
-            else
-            {
-                Dispatcher.Dispatch(() =>
-                {
-                    slBaixandoCampings.IsVisible = forcandoAtualizacao || !existemCampingsBD;
-
-                    if (slBaixandoCampings.IsVisible)
-                    {
-                        slMensagemAviso.IsVisible = false;
-                    }
-
-                    loaderConteudoInicial.IsVisible = false;
-                    loaderConteudoInicial.IsRunning = false;
-                    loaderConteudoInicial.IsVisible = true;
-                });
-            }
-
-            await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, Enumeradores.TipoListagem.Camping);
-
-            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-
-            Dispatcher.Dispatch(async () =>
-            {
-                var valorChaveUsarLocalizacaoUsuario = DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
-                var valorChaveBuscaCamping = DBContract.ObterValorChave(AppConstants.Filtro_NomeCamping);
-
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-
-                if (!string.IsNullOrWhiteSpace(valorChaveUsarLocalizacaoUsuario) && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
-                {
-                    lbBuscaAtual.Text = "EXIBINDO OS VINTE CAMPINGS MAIS PRÓXIMOS A VOCÊ (20)";
-                }
-                else
-                {
-                    var EstadoBD = DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
-                    var CIDADE_BD = DBContract.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
-                    var quantidadeAnuncios = ViewModel.Itens.Count(x => !x.EhAnuncio && !x.EhAdMobRetangulo);
-
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-
-                    if (string.IsNullOrWhiteSpace(EstadoBD))
-                    {
-                        lbBuscaAtual.Text = $"EXIBINDO CAMPINGS DE TODOS OS ESTADOS ({quantidadeAnuncios})";
-                    }
-                    else
-                    {
-                        var cidade = string.IsNullOrWhiteSpace(CIDADE_BD) ? "" : " - " + CIDADE_BD;
-
-                        lbBuscaAtual.Text = $"EXIBINDO CAMPINGS EM: {EstadoBD.ToUpper()}{cidade.ToUpper()} ({quantidadeAnuncios})";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(valorChaveBuscaCamping))
-                    {
-                        lbBuscaAtual.Text += $" COM NOME: {valorChaveBuscaCamping.ToUpper()}";
-                    }
-                }
-
-                slBaixandoCampings.IsVisible = false;
-                rvItens.IsRefreshing = false;
-                loaderConteudoInicial.IsVisible = false;
-                loaderConteudoInicial.IsRunning = false;
-                loaderConteudoAdicional.IsVisible = false;
-
-                if (ViewModel.Itens.Count > 0)
-                {
-                    slMensagemAviso.IsVisible = false;
-                    cvItens.ItemsSource = ViewModel.Itens;
-                    grFiltroMapa.IsVisible = true;
-                    slAlterarFiltros.IsVisible = false;
-                    cvItens.IsVisible = true;
-                    grBotoesFiltroMapa.IsVisible = true;
-                }
-                else
-                {
-                    var mensagem = "Realize a busca novamente com outros critérios.";
-
-                    cvItens.IsVisible = true;
-                    grBotoesFiltroMapa.IsVisible = true;
-                    grFiltroMapa.IsVisible = false;
-                    grBuscaAtual.IsVisible = false;
-                    slAlterarFiltros.IsVisible = false;
-
-                    if (!App.EXISTEM_CAMPINGS_DISPONIVEIS)
-                    {
-                        mensagem = "Conecte-se à uma internet mais rápida e estável para baixar a lista de campings.";
-                        cvItens.IsVisible = false;
-                        grBotoesFiltroMapa.IsVisible = false;
-                    }
-
                     var fs = new FormattedString();
+
+                    indicadorCarregamento.IsVisible = false;
+                    indicadorCarregamento.IsRunning = false;
 
                     fs.Spans.Add(new Span
                     {
-                        Text = "Nenhum item disponível.\n\n",
+                        Text = "O primeiro acesso requer conexão com a internet.\n\n",
                         FontAttributes = FontAttributes.Bold,
                         FontSize = 20
                     });
                     fs.Spans.Add(new Span
                     {
-                        Text = mensagem
+                        Text = "Verifique sua conexão e toque para tentar novamente.\n(após o primeiro acesso, os campings estarão disponíveis off-line)"
                     });
 
                     lbMensagemAviso.FormattedText = fs;
                     slMensagemAviso.IsVisible = true;
-                    slNovaBusca.IsVisible = true;
+
+                    return;
                 }
-            });
+            }
+
+            ViewModel.Itens.Clear();
+
+            if (PaginaAtual > 0)
+            {
+                indicadorCarregamento.IsVisible = true;
+            }
+            else
+            {
+                slBaixandoCampings.IsVisible = !existemCampingsBD;
+
+                if (slBaixandoCampings.IsVisible)
+                {
+                    slMensagemAviso.IsVisible = false;
+                }
+
+                indicadorCarregamento.IsVisible = false;
+                indicadorCarregamento.IsRunning = false;
+            }
+
+            await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, TipoListagem.Camping);
+
+            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+            var valorChaveUsarLocalizacaoUsuario = DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
+            var valorChaveBuscaCamping = DBContract.ObterValorChave(AppConstants.Filtro_NomeCamping);
+
+            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+            if (!string.IsNullOrWhiteSpace(valorChaveUsarLocalizacaoUsuario) && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
+            {
+                lbBuscaAtual.Text = "EXIBINDO OS VINTE CAMPINGS MAIS PRÓXIMOS A VOCÊ (20)";
+            }
+            else
+            {
+                var EstadoBD = DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+                var CIDADE_BD = DBContract.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
+                var quantidadeAnuncios = ViewModel.Itens.Count(x => !x.EhAnuncio && !x.EhAdMobRetangulo);
+
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
+                if (string.IsNullOrWhiteSpace(EstadoBD))
+                {
+                    lbBuscaAtual.Text = $"EXIBINDO CAMPINGS DE TODOS OS ESTADOS ({quantidadeAnuncios})";
+                }
+                else
+                {
+                    var cidade = string.IsNullOrWhiteSpace(CIDADE_BD) ? string.Empty : " - " + CIDADE_BD;
+
+                    lbBuscaAtual.Text = $"EXIBINDO CAMPINGS EM: {EstadoBD.ToUpper()}{cidade.ToUpper()} ({quantidadeAnuncios})";
+                }
+
+                if (!string.IsNullOrWhiteSpace(valorChaveBuscaCamping))
+                {
+                    lbBuscaAtual.Text += $" COM NOME: {valorChaveBuscaCamping.ToUpper()}";
+                }
+            }
+
+            slBaixandoCampings.IsVisible = false;
+            rvItens.IsRefreshing = false;
+            indicadorCarregamento.IsVisible = false;
+            indicadorCarregamento.IsRunning = false;
+
+            if (ViewModel.Itens.Count > 0)
+            {
+                slMensagemAviso.IsVisible = false;
+                cvItens.ItemsSource = ViewModel.Itens;
+                grFiltroMapa.IsVisible = true;
+                slAlterarFiltros.IsVisible = false;
+                cvItens.IsVisible = true;
+                grBotoesFiltroMapa.IsVisible = true;
+            }
+            else
+            {
+                var mensagem = "Realize a busca novamente com outros critérios.";
+
+                cvItens.IsVisible = true;
+                grBotoesFiltroMapa.IsVisible = true;
+                grFiltroMapa.IsVisible = false;
+                grBuscaAtual.IsVisible = false;
+                slAlterarFiltros.IsVisible = false;
+
+                if (!App.EXISTEM_CAMPINGS_DISPONIVEIS)
+                {
+                    mensagem = "Conecte-se à uma internet mais rápida e estável para baixar a lista de campings.";
+                    cvItens.IsVisible = false;
+                    grBotoesFiltroMapa.IsVisible = false;
+                }
+
+                var fs = new FormattedString();
+
+                fs.Spans.Add(new Span
+                {
+                    Text = "Nenhum item disponível.\n\n",
+                    FontAttributes = FontAttributes.Bold,
+                    FontSize = 20
+                });
+                fs.Spans.Add(new Span
+                {
+                    Text = mensagem
+                });
+
+                lbMensagemAviso.FormattedText = fs;
+                slMensagemAviso.IsVisible = true;
+                slNovaBusca.IsVisible = true;
+            }
 
             await ProgressoVisual.AumentarAtualAsync(progressoVisual);
         }
@@ -340,14 +330,14 @@ namespace MaCamp.Views.Campings
 
         private async void VerNoMapa(object sender, EventArgs e)
         {
-            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+            if (Connectivity.NetworkAccess == NetworkAccess.Internet)
+            {
+                await Navigation.PushAsync(new MapaPage(ViewModel.Itens));
+            }
+            else
             {
                 await AppConstants.CurrentPage.DisplayAlert(AppConstants.Titulo_SemInternet, AppConstants.Descricao_SemInternet, "OK");
-
-                return;
             }
-
-            await Navigation.PushAsync(new MapaPage(ViewModel.Itens));
         }
     }
 }

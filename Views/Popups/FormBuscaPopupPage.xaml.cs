@@ -1,4 +1,5 @@
-﻿using MaCamp.Utils;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.Utils;
 using RGPopup.Maui.Extensions;
 using RGPopup.Maui.Pages;
 
@@ -10,8 +11,8 @@ namespace MaCamp.Views.Popups
         {
             InitializeComponent();
 
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada);
-            MessagingCenter.Subscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada, async r =>
+            WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada);
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, async (recipient, message) =>
             {
                 await Navigation.PopPopupAsync();
             });
@@ -27,7 +28,7 @@ namespace MaCamp.Views.Popups
         {
             base.OnDisappearing();
 
-            MessagingCenter.Unsubscribe<Application>(this, AppConstants.MessagingCenter_BuscaRealizada);
+            WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada);
         }
 
         private async void btFechar_Clicked(object? sender, EventArgs e)

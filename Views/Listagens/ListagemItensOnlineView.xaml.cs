@@ -1,7 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
-using MaCamp.Models.Services;
+using MaCamp.Services;
 using MaCamp.Utils;
 using MaCamp.ViewModels;
 using MaCamp.Views.CustomViews;
@@ -16,14 +17,14 @@ namespace MaCamp.Views.Listagens
         private int PaginaAtual;
         private List<int> IdsQueJaChamaramPaginacao { get; set; }
         private string EndpointListagem { get; }
-        private string Tag { get; }
-        private string ParametrosBusca { get; }
+        private string? Tag { get; }
+        private string? ParametrosBusca { get; }
 
-        public ListagemItensOnlineView(string endpointListagem, string tag = "", string parametrosBusca = "")
+        public ListagemItensOnlineView(string endpointListagem, string? tag = null, string? parametrosBusca = null)
         {
             InitializeComponent();
 
-            NavigationPage.SetBackButtonTitle(this, "");
+            NavigationPage.SetBackButtonTitle(this, string.Empty);
 
             _viewModel = new ListagemInfinitaVM();
             IdsQueJaChamaramPaginacao = new List<int>();
@@ -33,7 +34,7 @@ namespace MaCamp.Views.Listagens
 
             cvItens.ItemTemplate = new ItemDataTemplateSelector();
 
-            Task.Run(async () => await CarregarConteudo());
+            MainThread.InvokeOnMainThreadAsync(async () => await CarregarConteudo());
         }
 
         private async void Handle_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -69,7 +70,7 @@ namespace MaCamp.Views.Listagens
                     {
                         IdsQueJaChamaramPaginacao.Add(item.IdLocal);
 
-                        await Task.Run(CarregarConteudo);
+                        await CarregarConteudo();
                     }
                 }
             }
@@ -99,127 +100,115 @@ namespace MaCamp.Views.Listagens
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
-                Dispatcher.Dispatch(() =>
+                loaderConteudoInicial.IsVisible = false;
+                loaderConteudoInicial.IsRunning = false;
+                loaderConteudoAdicional.IsVisible = false;
+
+                //Verifica se existem Campings baixados
+                var existemCampingsBD = CampingServices.ExistemCampingsBD();
+                var fs = new FormattedString();
+                var tap = new TapGestureRecognizer();
+
+                fs.Spans.Add(new Span
                 {
-                    loaderConteudoInicial.IsVisible = false;
-                    loaderConteudoInicial.IsRunning = false;
-                    loaderConteudoAdicional.IsVisible = false;
+                    Text = $"{AppConstants.Titulo_SemInternet}.\n\n",
+                    FontAttributes = FontAttributes.Bold,
+                    FontSize = 20
+                });
 
-                    //Verifica se existem Campings baixados
-                    var existemCampingsBD = CampingServices.ExistemCampingsBD();
-                    var fs = new FormattedString();
-                    var tap = new TapGestureRecognizer();
-
+                if (existemCampingsBD)
+                {
                     fs.Spans.Add(new Span
                     {
-                        Text = $"{AppConstants.Titulo_SemInternet}.\n\n",
-                        FontAttributes = FontAttributes.Bold,
-                        FontSize = 20
+                        Text = "Se preferir acesse o guia de campings, disponível off-line!"
+                    });
+                    fs.Spans.Add(new Span
+                    {
+                        Text = "\nToque aqui para acessar",
+                        TextColor = AppColors.CorDestaque,
+                        FontAttributes = FontAttributes.Bold
                     });
 
-                    if (existemCampingsBD)
+                    tap.Tapped += delegate
                     {
-                        fs.Spans.Add(new Span
+                        WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings);
+
+                        if (AppConstants.CurrentPage is RootPage rootPage && rootPage.Detail is NavigationPage navigationPage && navigationPage.CurrentPage is MainPage mainPage)
                         {
-                            Text = "Se preferir acesse o guia de campings, disponível off-line!"
-                        });
-                        fs.Spans.Add(new Span
-                        {
-                            Text = "\nToque aqui para acessar",
-                            TextColor = AppColors.CorDestaque,
-                            FontAttributes = FontAttributes.Bold
-                        });
-
-                        tap.Tapped += delegate
-                        {
-                            MessagingCenter.Send(Application.Current, AppConstants.MessagingCenter_ExibirBuscaCampings);
-
-                            if (AppConstants.CurrentPage is RootPage rootPage && rootPage.Detail is NavigationPage navigationPage && navigationPage.CurrentPage is MainPage mainPage)
-                            {
-                                mainPage.SelectedItem = null;
-                                mainPage.SelectedItem = mainPage.Children[0];
-                            }
-                        };
-
-                        lbMensagemAviso.GestureRecognizers.Add(tap);
-                    }
-                    else
-                    {
-                        fs.Spans.Add(new Span
-                        {
-                            Text = AppConstants.Descricao_SemInternet
-                        });
-
-                        tap.Tapped += Handle_Refreshing;
-                    }
-
-                    lbMensagemAviso.FormattedText = fs;
-                    lbMensagemAviso.IsVisible = true;
+                            mainPage.SelectedItem = null;
+                            mainPage.SelectedItem = mainPage.Children[0];
+                        }
+                    };
 
                     lbMensagemAviso.GestureRecognizers.Add(tap);
-                });
+                }
+                else
+                {
+                    fs.Spans.Add(new Span
+                    {
+                        Text = AppConstants.Descricao_SemInternet
+                    });
+
+                    tap.Tapped += Handle_Refreshing;
+                }
+
+                lbMensagemAviso.FormattedText = fs;
+                lbMensagemAviso.IsVisible = true;
+
+                lbMensagemAviso.GestureRecognizers.Add(tap);
 
                 return;
             }
 
             if (PaginaAtual > 0)
             {
-                Dispatcher.Dispatch(() =>
-                {
-                    loaderConteudoAdicional.IsVisible = true;
-                });
+                loaderConteudoAdicional.IsVisible = true;
             }
             else
             {
-                Dispatcher.Dispatch(() =>
-                {
-                    loaderConteudoInicial.IsVisible = true;
-                    loaderConteudoInicial.IsRunning = true;
-                    loaderConteudoInicial.IsVisible = true;
-                });
+                loaderConteudoInicial.IsVisible = true;
+                loaderConteudoInicial.IsRunning = true;
+                loaderConteudoInicial.IsVisible = true;
             }
 
             await _viewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca);
 
-            Dispatcher.Dispatch(() =>
+            loaderConteudoInicial.IsVisible = false;
+            loaderConteudoInicial.IsRunning = false;
+            loaderConteudoAdicional.IsVisible = false;
+            rvItens.IsRefreshing = false;
+
+            if (_viewModel.Itens.Count > 0)
             {
-                loaderConteudoInicial.IsVisible = false;
-                loaderConteudoInicial.IsRunning = false;
-                loaderConteudoAdicional.IsVisible = false;
-                rvItens.IsRefreshing = false;
+                lbMensagemAviso.IsVisible = false;
+                cvItens.ItemsSource = _viewModel.Itens;
+                cvItens.IsVisible = true;
+            }
+            else
+            {
+                var formattedString = new FormattedString();
 
-                if (_viewModel.Itens.Count > 0)
+                formattedString.Spans.Add(new Span
                 {
-                    lbMensagemAviso.IsVisible = false;
-                    cvItens.ItemsSource = _viewModel.Itens;
-                    cvItens.IsVisible = true;
-                }
-                else
+                    Text = "Nenhum item disponível.\n\n",
+                    FontAttributes = FontAttributes.Bold,
+                    FontSize = 20
+                });
+
+                formattedString.Spans.Add(new Span
                 {
-                    var formattedString = new FormattedString();
+                    Text = "Confira sua internet e/ou tente novamente mais tarde."
+                });
 
-                    formattedString.Spans.Add(new Span
-                    {
-                        Text = "Nenhum item disponível.\n\n",
-                        FontAttributes = FontAttributes.Bold,
-                        FontSize = 20
-                    });
+                lbMensagemAviso.FormattedText = formattedString;
+                lbMensagemAviso.IsVisible = true;
 
-                    formattedString.Spans.Add(new Span
-                    {
-                        Text = "Confira sua internet e/ou tente novamente mais tarde."
-                    });
+                var tap = new TapGestureRecognizer();
 
-                    lbMensagemAviso.FormattedText = formattedString;
-                    lbMensagemAviso.IsVisible = true;
+                tap.Tapped += Handle_Refreshing;
 
-                    var tap = new TapGestureRecognizer();
-
-                    tap.Tapped += Handle_Refreshing;
-
-                    lbMensagemAviso.GestureRecognizers.Add(tap);
-                }
-            });
+                lbMensagemAviso.GestureRecognizers.Add(tap);
+            }
         }
     }
 }

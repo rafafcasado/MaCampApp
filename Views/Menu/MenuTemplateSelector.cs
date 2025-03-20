@@ -1,5 +1,5 @@
-﻿using MaCamp.Utils;
-using MaCamp.Views.CustomViews;
+﻿using MaCamp.Views.CustomViews;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Menu
 {
@@ -22,11 +22,11 @@ namespace MaCamp.Views.Menu
             {
                 switch (itemMenu.TipoLayout)
                 {
-                    case Enumeradores.TipoLayoutMenu.Item:
+                    case TipoLayoutMenu.Item:
                         return MasterPageItemTemplate;
-                    case Enumeradores.TipoLayoutMenu.SubItem:
+                    case TipoLayoutMenu.SubItem:
                         return MasterPageSubItemTemplate;
-                    case Enumeradores.TipoLayoutMenu.Divisoria:
+                    case TipoLayoutMenu.Divisoria:
                         return DivisoriaTemplate;
                     default:
                         return MasterPageItemTemplate;

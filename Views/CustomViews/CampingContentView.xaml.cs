@@ -1,6 +1,6 @@
 ﻿using FFImageLoading.Maui;
 using MaCamp.Models;
-using MaCamp.Models.Services;
+using MaCamp.Services;
 using MaCamp.Utils;
 using Microsoft.Maui.Controls.Shapes;
 
@@ -26,22 +26,22 @@ namespace MaCamp.Views.CustomViews
 
             imIconeTipo1.Error += delegate
             {
-                Dispatcher.Dispatch(() => imIconeTipo1.IsVisible = false);
+                imIconeTipo1.IsVisible = false;
             };
 
             imIconeTipo2.Error += delegate
             {
-                Dispatcher.Dispatch(() => imIconeTipo2.IsVisible = false);
+                imIconeTipo2.IsVisible = false;
             };
 
             imIconeTipo1.Success += delegate
             {
-                Dispatcher.Dispatch(() => imIconeTipo1.IsVisible = true);
+                imIconeTipo1.IsVisible = true;
             };
 
             imIconeTipo2.Success += delegate
             {
-                Dispatcher.Dispatch(() => imIconeTipo2.IsVisible = true);
+                imIconeTipo2.IsVisible = true;
             };
 
         }
@@ -54,14 +54,15 @@ namespace MaCamp.Views.CustomViews
                 imItem.Source = string.IsNullOrWhiteSpace(itemAtual.LinkUltimaFoto) ? "placeholder.jpg" : CampingServices.MontarUrlImagemTemporaria(itemAtual.LinkUltimaFoto);
                 imDirecoes.IsVisible = itemAtual.Latitude != 0 && itemAtual.Longitude != 0;
 
-                Task.Run(() => CalcularDistancia());
-                Task.Run(() => ExibirEstrelasETipos());
+                CalcularDistancia();
+                //ExibirEstrelas();
+                ExibirTipos();
 
                 base.OnBindingContextChanged();
             }
         }
 
-        private void ExibirEstrelasETipos()
+        private void ExibirTipos()
         {
             var tipos = ItemAtual?.Identificadores.Where(x => x.Opcao == 0) ?? new List<ItemIdentificador>();
             var tipo1Foi = false;
@@ -75,49 +76,48 @@ namespace MaCamp.Views.CustomViews
                 if (!tipo1Foi)
                 {
                     tipo1Foi = true;
-                    sourceIconeTipo1 = tipo.Identificador?.Replace("`", "").Replace("(", "").Replace(")", "").Replace("çã", "ca").Replace("/", "").ToLower() + ".png";
+                    sourceIconeTipo1 = tipo.Identificador?.Replace("`", string.Empty).Replace("(", string.Empty).Replace(")", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + ".png";
                     textoTipo1 = tipo.NomeExibicao;
                 }
                 else
                 {
-                    sourceIconeTipo2 = tipo.Identificador?.Replace("`", "").Replace("(", "").Replace(")", "").Replace("çã", "ca").Replace("/", "").ToLower() + ".png";
+                    sourceIconeTipo2 = tipo.Identificador?.Replace("`", string.Empty).Replace("(", string.Empty).Replace(")", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + ".png";
                     textoTipo2 = tipo.NomeExibicao;
                 }
             }
 
-            Dispatcher.Dispatch(() =>
+            imIconeTipo1.Source = sourceIconeTipo1;
+            lbTipo1.Text = textoTipo1 ?? string.Empty;
+
+            if (textoTipo2 != null)
             {
-                imIconeTipo1.Source = sourceIconeTipo1;
-                lbTipo1.Text = textoTipo1 ?? string.Empty;
+                frTipo2.IsVisible = true;
+                imIconeTipo2.Source = sourceIconeTipo2;
+                lbTipo2.Text = textoTipo2;
+            }
 
-                if (textoTipo2 != null)
+            //cvTipo.Content = new TipoEstabelecimentoView(ItemAtual.Identificadores);
+        }
+        private void ExibirEstrelas()
+        {
+            if (ItemAtual != null)
+            {
+                slEstrelas.IsVisible = ItemAtual.QuantidadeEstrelas > 0;
+
+                Enumerable.Range(0, 5).ForEach(x =>
                 {
-                    frTipo2.IsVisible = true;
-                    imIconeTipo2.Source = sourceIconeTipo2;
-                    lbTipo2.Text = textoTipo2;
-                }
-
-                if (ItemAtual != null && "não exibir" == "solicitado por Marcos")
-                {
-                    slEstrelas.IsVisible = ItemAtual.QuantidadeEstrelas > 0;
-
-                    Enumerable.Range(0, 5).ForEach(x =>
+                    var estrelaSelecionada = ItemAtual.QuantidadeEstrelas > x;
+                    var imageSource = estrelaSelecionada ? "estrela_selecionada.png" : "estrela.png";
+                    var estrela = new CachedImage
                     {
-                        var estrelaSelecionada = ItemAtual.QuantidadeEstrelas > x;
-                        var imageSource = estrelaSelecionada ? "estrela_selecionada.png" : "estrela.png";
-                        var estrela = new CachedImage
-                        {
-                            HeightRequest = 15,
-                            WidthRequest = 15,
-                            Source = imageSource
-                        };
+                        HeightRequest = 15,
+                        WidthRequest = 15,
+                        Source = imageSource
+                    };
 
-                        slEstrelas.Children.Add(estrela);
-                    });
-                }
-
-                //cvTipo.Content = new TipoEstabelecimentoView(ItemAtual.Identificadores);
-            });
+                    slEstrelas.Children.Add(estrela);
+                });
+            }
         }
 
         private void CalcularDistancia()
@@ -131,10 +131,7 @@ namespace MaCamp.Views.CustomViews
                     var d = distancia > 1000 ? Math.Round(distancia / 1000, 2) : Math.Round(distancia, 2);
                     var unidade = distancia > 1000 ? "km" : "m";
 
-                    Dispatcher.Dispatch(() =>
-                    {
-                        lbDistancia.Text = d + unidade + " de distância";
-                    });
+                    lbDistancia.Text = d + unidade + " de distância";
                 }
             }
         }

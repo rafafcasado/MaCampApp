@@ -1,7 +1,8 @@
-﻿using MaCamp.Services.DataAccess;
+﻿using MaCamp.Models;
+using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 
-namespace MaCamp.Models.Services
+namespace MaCamp.Services
 {
     public static class CidadesServices
     {
@@ -11,22 +12,17 @@ namespace MaCamp.Models.Services
             {
                 ProgressoVisual.AumentarTotal(progressoVisual, 3);
 
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+
                 var listaCidades = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
 
                 await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-
-                if (listaCidades != null)
-                {
-                    DBContract.ApagarCidades();
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-
-                    DBContract.InserirListaDeModelo(listaCidades);
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-                }
+                await DBContract.UpdateAsync(false, listaCidades, progressoVisual);
+                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                await AppConstants.CurrentPage.DisplayAlert("Erro ao atualizar lista de cidades", ex.Message, "OK");
             }
         }
     }

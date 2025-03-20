@@ -8,42 +8,32 @@
 
         <StackLayout
             x:Name="slBaixandoCampings"
+            Margin="20,15,20,0"
             HorizontalOptions="CenterAndExpand"
             IsVisible="False"
-            VerticalOptions="CenterAndExpand">
+            Spacing="15">
 
             <Label
-                Margin="15"
                 FontAttributes="Bold"
                 FontSize="Medium"
-                HorizontalOptions="CenterAndExpand"
-                HorizontalTextAlignment="Center"
                 Text="A lista de campings está sendo atualizada. Isso pode levar alguns minutos. Por favor aguarde..."
-                TextColor="{DynamicResource CorTextoMenuLateral}"
-                VerticalOptions="CenterAndExpand" />
+                TextColor="{DynamicResource CorTextoMenuLateral}" />
 
             <Label
-                Margin="15"
                 FontSize="Medium"
-                HorizontalOptions="CenterAndExpand"
-                HorizontalTextAlignment="Center"
-                Text="Obs: Após este primeiro carregamento, os campings estarão disponíveis de forma off-line para consulta."
-                TextColor="{DynamicResource CorTextoMenuLateral}"
-                VerticalOptions="CenterAndExpand" />
+                Text="Ao concluir, os campings estarão disponíveis de forma off-line para consulta."
+                TextColor="{DynamicResource CorTextoMenuLateral}" />
 
             <ProgressBar
                 x:Name="progressBar"
-                Margin="20, 0, 20, 0"
-                ProgressColor="{DynamicResource CorPrimaria}"
                 HeightRequest="15"
-                HorizontalOptions="FillAndExpand"
                 IsVisible="False"
                 Progress="0"
-                VerticalOptions="CenterAndExpand" />
+                ProgressColor="{DynamicResource CorPrimaria}" />
         </StackLayout>
 
         <ActivityIndicator
-            x:Name="loaderConteudoInicial"
+            x:Name="indicadorCarregamento"
             HorizontalOptions="CenterAndExpand"
             IsRunning="True"
             IsVisible="False"
@@ -264,21 +254,6 @@
 
             </StackLayout>
         </Grid>
-
-        <StackLayout
-            x:Name="loaderConteudoAdicional"
-            Padding="15"
-            BackgroundColor="{DynamicResource BgListagemNoticias}"
-            IsVisible="False"
-            VerticalOptions="End">
-
-            <ActivityIndicator
-                HeightRequest="25"
-                HorizontalOptions="CenterAndExpand"
-                IsRunning="True"
-                IsVisible="True"
-                Color="{DynamicResource CorPrimaria}" />
-        </StackLayout>
     </StackLayout>
 
 </ContentView>

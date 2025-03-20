@@ -77,7 +77,7 @@ namespace MaCamp.Models
             {
                 if (pubdate == null)
                 {
-                    return "";
+                    return string.Empty;
                 }
 
                 return pubdate.Value.ToString("dd 'de' MMMM 'de' yyyy");
@@ -300,7 +300,7 @@ namespace MaCamp.Models
             {
                 if (_identificadores.Count == 0)
                 {
-                    _identificadores = DBContract.ListarItensIdentificadores(i => i.IdItem == IdCamping);
+                    _identificadores = DBContract.ListarItensIdentificadores(x => x.IdItem == IdCamping);
                 }
 
                 return _identificadores;

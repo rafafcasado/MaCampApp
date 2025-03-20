@@ -1,4 +1,5 @@
-﻿using MaCamp.CustomControls;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.CustomControls;
 using MaCamp.Platforms.iOS.Handlers;
 using MaCamp.Utils;
 using WebKit;
@@ -17,17 +18,17 @@ namespace MaCamp.Platforms.iOS.Extenders
         public override void DidStartProvisionalNavigation(WKWebView webView, WKNavigation navigation)
         {
             // Envia mensagem para atualizar o progresso
-            MessagingCenter.Send(AppConstants.CurrentPage, "ATUALIZAR_PROGRESSO_WEBVIEW", 20);
+            WeakReferenceMessenger.Default.Send<object, string>(20, AppConstants.WeakReferenceMessenger_AtualizarProgressoWebView);
         }
 
-        public override void DidFinishNavigation(WKWebView webView, WKNavigation navigation)
+        public override async void DidFinishNavigation(WKWebView webView, WKNavigation navigation)
         {
             try
             {
                 if (Handler.VirtualView is CustomWebView extendedWebView)
                 {
                     // Atualiza o progresso
-                    MessagingCenter.Send(AppConstants.CurrentPage, "ATUALIZAR_PROGRESSO_WEBVIEW", 100);
+                    WeakReferenceMessenger.Default.Send<object, string>(100, AppConstants.WeakReferenceMessenger_AtualizarProgressoWebView);
 
                     // Ajusta a altura do WebView dinamicamente após o carregamento do conteúdo
                     var attempts = 30;
@@ -39,14 +40,14 @@ namespace MaCamp.Platforms.iOS.Extenders
                         extendedWebView.HeightRequest = webView.ScrollView.ContentSize.Height;
 
                         // Aguarda para garantir que o conteúdo seja renderizado.
-                        Task.Delay(1000).Wait();
+                        await Task.Delay(1000);
                     }
                 }
             }
             catch (Exception ex)
             {
                 // Proteção para evitar exceções durante o descarte do controle
-                Console.WriteLine(ex.Message);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(ExtendedWKNavigationDelegate), nameof(DidFinishNavigation), ex);
             }
         }
 
@@ -57,7 +58,7 @@ namespace MaCamp.Platforms.iOS.Extenders
             if (navigationAction.NavigationType == WKNavigationType.LinkActivated)
             {
                 // Abre links externos no navegador padrão
-                Task.Run(async () => await Launcher.OpenAsync(url));
+                MainThread.InvokeOnMainThreadAsync(async () => await Launcher.OpenAsync(url));
 
                 // Cancela a navegação no WebView para links externos
                 decisionHandler(WKNavigationActionPolicy.Cancel);
