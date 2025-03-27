@@ -47,7 +47,7 @@ namespace MaCamp.Services
 
                     DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "false", TipoChave.ControleInterno));
 
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                    ProgressoVisual.AumentarAtual(progressoVisual);
 
                     var campings = new List<Item>();
                     var identificadores = new List<ItemIdentificador>();
@@ -56,17 +56,18 @@ namespace MaCamp.Services
                         Task.Run(async () =>
                         {
                             campings = await new WebService().GetListAsync<Item>(AppConstants.Url_ListaCampings, 0, string.Empty, string.Empty);
-                            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                            ProgressoVisual.AumentarAtual(progressoVisual);
                         }),
                         Task.Run(async () =>
                         {
                             identificadores = await new WebService().GetListAsync<ItemIdentificador>(AppConstants.Url_ListaIdentificadores, 1);
-                            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                            ProgressoVisual.AumentarAtual(progressoVisual);
                         })
                     };
 
                     await Task.WhenAll(chamadasWS);
-                    await DBContract.UpdateAsync(true, campings, identificadores, progressoVisual);
+
+                    DBContract.Update(true, campings, identificadores, progressoVisual);
 
                     App.BAIXANDO_CAMPINGS = false;
                 }

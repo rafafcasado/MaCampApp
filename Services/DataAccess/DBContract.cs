@@ -58,17 +58,17 @@ namespace MaCamp.Services.DataAccess
             return null;
         }
 
-        public static async Task<bool> UpdateAsync<T>(bool clean, List<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
+        public static bool Update<T>(bool clean, List<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
                 { typeof(T), listPrimaryData.OfType<object>().ToList() }
             };
 
-            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+            return Update(clean, dataDictionary, progressoVisual);
         }
 
-        public static async Task<bool> UpdateAsync<T, TK>(bool clean, List<T> listPrimaryData, List<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
+        public static bool Update<T, TK>(bool clean, List<T> listPrimaryData, List<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
@@ -76,10 +76,10 @@ namespace MaCamp.Services.DataAccess
                 { typeof(TK), listaSecondaryData.OfType<object>().ToList() }
             };
 
-            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+            return Update(clean, dataDictionary, progressoVisual);
         }
 
-        public static async Task<bool> UpdateAsync<T, TK, TR>(bool clean, List<T> listPrimaryData, List<TK> listaSecondaryData, List<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
+        public static bool Update<T, TK, TR>(bool clean, List<T> listPrimaryData, List<TK> listaSecondaryData, List<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
@@ -88,10 +88,10 @@ namespace MaCamp.Services.DataAccess
                 { typeof(TR), listaTertiaryData.OfType<object>().ToList() }
             };
 
-            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+            return Update(clean, dataDictionary, progressoVisual);
         }
 
-        private static async Task<bool> UpdateAsync(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
+        private static bool Update(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
         {
             var backupDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteBackupFilename);
             var currentDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteFilename);
@@ -101,14 +101,14 @@ namespace MaCamp.Services.DataAccess
 
             try
             {
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 if (File.Exists(currentDatabasePath))
                 {
                     File.Copy(currentDatabasePath, backupDatabasePath, true);
                 }
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 if (clean)
                 {
@@ -122,7 +122,7 @@ namespace MaCamp.Services.DataAccess
                     File.Copy(currentDatabasePath, temporaryDatabasePath, true);
                 }
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 var temporaryConnection = GetConnection(AppConstants.SqliteTemporaryFilename);
 
@@ -131,7 +131,7 @@ namespace MaCamp.Services.DataAccess
                     throw new NullReferenceException("Conexão SQL não foi criada");
                 }
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 foreach (var (key, value) in dataDictionary)
                 {
@@ -147,7 +147,7 @@ namespace MaCamp.Services.DataAccess
                         temporaryConnection.InsertAll(value);
                     }
 
-                    await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                    ProgressoVisual.AumentarAtual(progressoVisual);
                 }
 
                 temporaryConnection.InsertOrReplace(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", TipoChave.ControleInterno));
@@ -158,14 +158,14 @@ namespace MaCamp.Services.DataAccess
                     Valor = DateTime.Now.ToString("yyyy/MM/dd")
                 });
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 if (!VerifyDatabaseIntegrity(AppConstants.SqliteTemporaryFilename))
                 {
                     throw new Exception("Integridade do banco atualizado falhou.");
                 }
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 lock (Lock)
                 {
@@ -185,13 +185,13 @@ namespace MaCamp.Services.DataAccess
                     SqlConnection = GetConnection(AppConstants.SqliteFilename);
                 }
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 return true;
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex);
 
                 lock (Lock)
                 {

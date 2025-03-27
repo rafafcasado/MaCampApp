@@ -52,7 +52,7 @@ namespace MaCamp.Platforms.Android.Extenders
             if (url != null)
             {
                 // Abre links externos no navegador padrão
-                MainThread.InvokeOnMainThreadAsync(async () => await Launcher.OpenAsync(url));
+                Workaround.Dispatch(async () => await Launcher.OpenAsync(url));
             }
 
             // Interrompe o carregamento no WebView

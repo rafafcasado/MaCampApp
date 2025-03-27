@@ -29,13 +29,13 @@ namespace MaCamp.Utils
             return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         }
 
-        public static void ShowExceptionOnlyDevolpmentMode(string className, string methodName, Exception exception)
+        public static void ShowExceptionOnlyDevolpmentMode(string className, string methodName, Exception? exception)
         {
-            var message = $"{className}_{methodName}\n\n{exception.Message}";
+            var message = $"{className}_{methodName}\n\n{exception?.Message}";
 
             Debug.WriteLine("-----------<< Exceção >>-----------");
             Debug.WriteLine(message);
-            Debug.WriteLine(exception.StackTrace);
+            Debug.WriteLine(exception?.StackTrace);
 
             if (Debugger.IsAttached)
             {
@@ -65,6 +65,118 @@ namespace MaCamp.Utils
             }
 
             throw new ArgumentNullException(nameof(service), $@"Não foi possível encontrar o serviço {typeof(T).Name}");
+        }
+
+        public static void Dispatch(Func<Task> task) => AppConstants.CurrentPage.Dispatcher.Dispatch(async () =>
+        {
+            try
+            {
+                await task();
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(Dispatch), ex);
+            }
+        });
+
+        public static Task TaskWork(Func<Task> task) => Task.Run(async () =>
+        {
+            try
+            {
+                await task();
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWork), ex);
+            }
+        });
+
+        public static async Task TaskUI(Action action) => await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUI), ex);
+            }
+        });
+
+        public static async Task<bool> CheckPermission<T>(string title, string message) where T : Permissions.BasePermission, new()
+        {
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+            {
+                try
+                {
+                    var checkStatus = await Permissions.CheckStatusAsync<T>();
+
+                    if (checkStatus != PermissionStatus.Granted)
+                    {
+                        var shouldShowRationale = Permissions.ShouldShowRationale<T>();
+
+                        if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(message) && shouldShowRationale)
+                        {
+                            await AppConstants.CurrentPage.DisplayAlert(title, message, "OK");
+                        }
+
+                        var requestStatus = await Permissions.RequestAsync<T>();
+
+                        if (requestStatus == PermissionStatus.Granted)
+                        {
+                            return true;
+                        }
+
+                        if (requestStatus != PermissionStatus.Unknown)
+                        {
+                            if (!string.IsNullOrEmpty(title))
+                            {
+                                await AppConstants.CurrentPage.DisplayAlert(title, "Não é possível continuar com a ação, tente novamente.", "OK");
+                            }
+
+                            return false;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(CheckPermission), ex);
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static async Task<bool> CheckPermission(params Permissions.BasePermission[] permissions)
+        {
+            var results = new List<bool>();
+
+            foreach (var permission in permissions)
+            {
+                var type = permission.GetType();
+                var method = typeof(Workaround).GetMethod(nameof(CheckPermission))?.MakeGenericMethod(type);
+
+                if (method != null)
+                {
+                    var parameters = new object[]
+                    {
+                        string.Empty,
+                        string.Empty
+                    };
+                    var response = method.Invoke(null, parameters);
+
+                    if (response is Task<bool> task)
+                    {
+                        var result = await task;
+
+                        results.Add(result);
+                    }
+                }
+            }
+
+            return results.All(x => x);
         }
     }
 }

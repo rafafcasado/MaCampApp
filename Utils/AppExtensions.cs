@@ -4,7 +4,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using MaCamp.Dependencias;
+using MaCamp.Models;
 using Microsoft.Maui.Maps;
+using SkiaSharp;
 using static MaCamp.Utils.Enumeradores;
 using Map = Microsoft.Maui.Controls.Maps.Map;
 
@@ -294,6 +296,69 @@ namespace MaCamp.Utils
             }
 
             return defaultValue;
+        }
+
+        public static bool IsInside(this MapSpan region, Location location)
+        {
+            var minLat = region.Center.Latitude - (region.LatitudeDegrees / 2);
+            var maxLat = region.Center.Latitude + (region.LatitudeDegrees / 2);
+            var minLon = region.Center.Longitude - (region.LongitudeDegrees / 2);
+            var maxLon = region.Center.Longitude + (region.LongitudeDegrees / 2);
+
+            return location.Latitude >= minLat && location.Latitude <= maxLat && location.Longitude >= minLon && location.Longitude <= maxLon;
+        }
+
+        public static bool IsInsideRegion(this MapSpan region, double? latitude, double? longetitude)
+        {
+            if (latitude != null && longetitude != null)
+            {
+                return region.IsInside(new Location(latitude.Value, longetitude.Value));
+            }
+
+            return false;
+        }
+
+        public static Location GetLocation(this Item? item)
+        {
+            if (item != null && item.Latitude != null && item.Longitude != null)
+            {
+                return new Location(item.Latitude.Value, item.Longitude.Value);
+            }
+
+            return new Location();
+        }
+
+        public static SKColor ToSKColor(this Color color)
+        {
+            var red = Convert.ToByte(color.Red * 255);
+            var green = Convert.ToByte(color.Green * 255);
+            var blue = Convert.ToByte(color.Blue * 255);
+            var alpha = Convert.ToByte(color.Alpha * 255);
+
+            return new SKColor(red, green, blue, alpha);
+        }
+
+        public static string NormalizeText(this string value)
+        {
+            var text = value.ToLowerInvariant();
+            var normalized = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalized)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(c);
+
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            var mounted = stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+            var cleared = Regex.Replace(mounted, @"\s+", "_");
+            var filtered = Regex.Replace(cleared, @"[^a-z0-9_]", "");
+
+            return filtered;
         }
     }
 }

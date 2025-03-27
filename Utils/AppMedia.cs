@@ -98,72 +98,61 @@ namespace MaCamp.Utils
         /// <returns>bool = sucesso ao obter a imagem. FileResult = caso sucesso, o arquivo que foi obtido. NULL caso contrário.</returns>
         public static async Task<Tuple<bool, FileResult?>> RequisitarMidiaSistema(Page paginaParaAlertas, bool incluirVideo = false)
         {
-            var cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
-            var storageReadStatus = await Permissions.CheckStatusAsync<Permissions.StorageRead>();
-            var storageWriteStatus = await Permissions.CheckStatusAsync<Permissions.StorageWrite>();
-            //var photosStatus = await Permissions.CheckStatusAsync<Permissions.Photos>();
+            var permissionGranted = await Workaround.CheckPermission(new Permissions.Camera(), new Permissions.Photos(), new Permissions.StorageRead(), new Permissions.StorageWrite());
 
-            if (cameraStatus != PermissionStatus.Granted || storageReadStatus != PermissionStatus.Granted || storageWriteStatus != PermissionStatus.Granted)
+            if (permissionGranted)
             {
-                var requestedCamera = await Permissions.RequestAsync<Permissions.Camera>();
-                var requestedStorageRead = await Permissions.RequestAsync<Permissions.StorageRead>();
-                var requestedStorageWrite = await Permissions.RequestAsync<Permissions.StorageWrite>();
-                var requestedPhotos = await Permissions.RequestAsync<Permissions.Photos>();
+                //var fileName = Guid.NewGuid().ToString();
 
-                if (requestedCamera == PermissionStatus.Granted && requestedStorageRead == PermissionStatus.Granted && requestedStorageWrite == PermissionStatus.Granted && requestedPhotos == PermissionStatus.Granted)
+                //var string gravarVideo = "Gravar Vídeo"; //Não será permitido para não dar problema na exibição (FORMATO)
+
+                var videoParams = new[]
                 {
-                    //var fileName = Guid.NewGuid().ToString();
+                    AppLanguage.Texto_Tirar_uma_foto,
+                    AppLanguage.Escolher_foto_galeria,
+                    AppLanguage.Escolher_video_galeria
+                };
 
-                    //var string gravarVideo = "Gravar Vídeo"; //Não será permitido para não dar problema na exibição (FORMATO)
+                var photoParams = new[]
+                {
+                    AppLanguage.Texto_Tirar_uma_foto,
+                    AppLanguage.Escolher_foto_galeria
+                };
 
-                    var videoParams = new[]
+                var title = incluirVideo ? AppLanguage.SelecioneUmaFotoOuVideo : AppLanguage.SelecioneUmaFoto;
+                var listParams = incluirVideo ? videoParams : photoParams;
+                var action = await paginaParaAlertas.DisplayActionSheet(title, AppLanguage.Cancelar, null, listParams);
+
+                await Task.Delay(500);
+
+                if (action == AppLanguage.Texto_Tirar_uma_foto)
+                {
+                    if (!MediaPicker.IsCaptureSupported)
                     {
-                        AppLanguage.Texto_Tirar_uma_foto,
-                        AppLanguage.Escolher_foto_galeria,
-                        AppLanguage.Escolher_video_galeria
-                    };
-
-                    var photoParams = new[]
-                    {
-                        AppLanguage.Texto_Tirar_uma_foto,
-                        AppLanguage.Escolher_foto_galeria
-                    };
-
-                    var title = incluirVideo ? AppLanguage.SelecioneUmaFotoOuVideo : AppLanguage.SelecioneUmaFoto;
-                    var listParams = incluirVideo ? videoParams : photoParams;
-                    var action = await paginaParaAlertas.DisplayActionSheet(title, AppLanguage.Cancelar, null, listParams);
-
-                    await Task.Delay(500);
-
-                    if (action == AppLanguage.Texto_Tirar_uma_foto)
-                    {
-                        if (!MediaPicker.IsCaptureSupported)
-                        {
-                            await paginaParaAlertas.DisplayAlert(AppLanguage.Titulo_CameraNaoDisponivel, AppLanguage.Mensagem_CameraNaoDisponivel, "OK");
-                        }
-
-                        var takePhotoFile = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
-                        {
-                            //Directory = "FotoUsuarioApp",
-                            //Name = FileName + ".jpg"
-                        });
-
-                        return new Tuple<bool, FileResult?>(true, takePhotoFile);
+                        await paginaParaAlertas.DisplayAlert(AppLanguage.Titulo_CameraNaoDisponivel, AppLanguage.Mensagem_CameraNaoDisponivel, "OK");
                     }
 
-                    if (action == AppLanguage.Escolher_foto_galeria)
+                    var takePhotoFile = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
                     {
-                        var pickPhotoFile = await MediaPicker.PickPhotoAsync();
+                        //Directory = "FotoUsuarioApp",
+                        //Name = FileName + ".jpg"
+                    });
 
-                        return new Tuple<bool, FileResult?>(true, pickPhotoFile);
-                    }
+                    return new Tuple<bool, FileResult?>(true, takePhotoFile);
+                }
 
-                    if (action == AppLanguage.Escolher_video_galeria)
-                    {
-                        var pickVideoFile = await MediaPicker.PickVideoAsync();
+                if (action == AppLanguage.Escolher_foto_galeria)
+                {
+                    var pickPhotoFile = await MediaPicker.PickPhotoAsync();
 
-                        return new Tuple<bool, FileResult?>(true, pickVideoFile);
-                    }
+                    return new Tuple<bool, FileResult?>(true, pickPhotoFile);
+                }
+
+                if (action == AppLanguage.Escolher_video_galeria)
+                {
+                    var pickVideoFile = await MediaPicker.PickVideoAsync();
+
+                    return new Tuple<bool, FileResult?>(true, pickVideoFile);
                 }
             }
             else

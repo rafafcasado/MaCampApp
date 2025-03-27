@@ -1,14 +1,15 @@
-﻿using MaCamp.Models.Anuncios;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using MaCamp.Models.Anuncios;
 using MaCamp.Services.DataAccess;
-using MaCamp.ViewModels;
 using SQLite;
 
 namespace MaCamp.Models
 {
-    public class Item : ObservableModel
+    public class Item : INotifyPropertyChanged
     {
-
         public int id;
+        public int idlocal;
         public string? title;
         public string? subtitle;
         public DateTime? pubdate;
@@ -37,6 +38,17 @@ namespace MaCamp.Models
             set
             {
                 id = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public int IdLocal
+        {
+            get => idlocal;
+            set
+            {
+                idlocal = value;
                 OnPropertyChanged();
             }
         }
@@ -343,9 +355,16 @@ namespace MaCamp.Models
         {
             return Nome;
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
-    public class Video : ObservableModel
+    public class Video : INotifyPropertyChanged
     {
         public string? id;
         public string? views;
@@ -400,5 +419,12 @@ namespace MaCamp.Models
 
         [PrimaryKey]
         public string? IdItem { get; set; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

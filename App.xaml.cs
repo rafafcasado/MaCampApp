@@ -10,7 +10,7 @@ using MaCamp.Views.Menu;
 
 namespace MaCamp
 {
-    public partial class App : IApplication
+    public partial class App : Application
     {
         public static int SCREEN_HEIGHT;
         public static int SCREEN_WIDTH;
@@ -75,8 +75,7 @@ namespace MaCamp
             var localizeService = await Workaround.GetServiceAsync<ILocalize>();
             var cultureInfo = localizeService.PegarCultureInfoUsuario();
 
-            await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-            await Permissions.RequestAsync<Permissions.PostNotifications>();
+            await Workaround.CheckPermission<Permissions.PostNotifications>("Notificação", "Forneça a permissão para exibir os status das atualizações de dados");
 
             AppLanguage.Culture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
@@ -90,6 +89,15 @@ namespace MaCamp
             base.OnResume();
 
             Resumed?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void CleanUp()
+        {
+            base.CleanUp();
+
+            BackgroundUpdater.Stop();
+
+            Workaround.ShowExceptionOnlyDevolpmentMode(nameof(AppConstants), "constructor", null);
         }
 
         /// <summary>

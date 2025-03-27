@@ -1,4 +1,5 @@
 ﻿using Android.Views;
+using AndroidX.Core.View;
 using Color = Android.Graphics.Color;
 using View = Android.Views.View;
 
@@ -7,21 +8,18 @@ namespace MaCamp.Platforms.Android.Utils
     public class InsetsListener : Java.Lang.Object, View.IOnApplyWindowInsetsListener
     {
         public Color? MainColor { get; set; }
-        public Func<bool>? ShouldApplyInsets { get; set; }
 
         public WindowInsets OnApplyWindowInsets(View view, WindowInsets insets)
         {
-            if (ShouldApplyInsets == null || ShouldApplyInsets())
+            var insetsCompat = WindowInsetsCompat.ToWindowInsetsCompat(insets, view);
+            var statusBarInsets = insetsCompat.GetInsets(WindowInsetsCompat.Type.StatusBars());
+            var navigationBarInsets = insetsCompat.GetInsets(WindowInsetsCompat.Type.NavigationBars());
+
+            view.SetPadding(0, statusBarInsets.Top, 0, navigationBarInsets.Bottom);
+
+            if (MainColor is Color color)
             {
-                var topInset = insets.StableInsetTop;
-                var bottomInset = insets.StableInsetBottom;
-
-                view.SetPadding(0, topInset, 0, bottomInset);
-
-                if (MainColor is Color color)
-                {
-                    view.SetBackgroundColor(color);
-                }
+                view.SetBackgroundColor(color);
             }
 
             return insets;

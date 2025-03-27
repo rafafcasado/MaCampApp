@@ -34,7 +34,13 @@ namespace MaCamp.Views.Listagens
 
             cvItens.ItemTemplate = new ItemDataTemplateSelector();
 
-            MainThread.InvokeOnMainThreadAsync(async () => await CarregarConteudo());
+
+            Loaded += ListagemItensOnlineView_Loaded;
+        }
+
+        private async void ListagemItensOnlineView_Loaded(object? sender, EventArgs e)
+        {
+            await CarregarConteudo();
         }
 
         private async void Handle_SelectionChanged(object sender, SelectionChangedEventArgs e)

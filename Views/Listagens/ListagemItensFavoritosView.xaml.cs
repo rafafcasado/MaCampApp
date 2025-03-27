@@ -58,7 +58,7 @@ namespace MaCamp.Views.Listagens
             }
         }
 
-        private void Handle_Refreshing(object? sender, EventArgs? e)
+        private async void Handle_Refreshing(object? sender, EventArgs? e)
         {
             lbMensagemAviso.IsVisible = false;
 
@@ -70,10 +70,10 @@ namespace MaCamp.Views.Listagens
 
             cvItens.ItemsSource = null;
 
-            CarregarConteudo();
+            await CarregarConteudoAsync();
         }
 
-        private async void CarregarConteudo()
+        private async Task CarregarConteudoAsync()
         {
             var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
             var storagePermissionResult = await storagePermissionService.Request();
@@ -104,11 +104,11 @@ namespace MaCamp.Views.Listagens
             }
         }
 
-        private void ListagemItensFavoritosView_Loaded(object? sender, EventArgs e)
+        private async void ListagemItensFavoritosView_Loaded(object? sender, EventArgs e)
         {
             if (cvItens.ItemsSource is not List<Item> listaFavoritos || listaFavoritos.Count == 0)
             {
-                CarregarConteudo();
+                await CarregarConteudoAsync();
             }
         }
     }

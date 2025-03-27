@@ -98,11 +98,18 @@ namespace MaCamp.Utils
 
         static AppConstants()
         {
-            var appPath = Workaround.GetPath();
-
-            if (!Directory.Exists(appPath))
+            try
             {
-                Directory.CreateDirectory(appPath);
+                var appPath = Workaround.GetPath();
+
+                if (!Directory.Exists(appPath))
+                {
+                    Directory.CreateDirectory(appPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(AppConstants), "constructor", ex);
             }
         }
     }

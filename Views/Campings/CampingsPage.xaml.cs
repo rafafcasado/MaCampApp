@@ -46,11 +46,15 @@ namespace MaCamp.Views.Campings
                 cvContent.Content = new ListagemCampingsView();
             });
 
-            CarregarConteudo();
-            ObterPermissaoLocalizacao();
+            Loaded += CampingsPage_Loaded;
         }
 
-        private void CarregarConteudo()
+        private async void CampingsPage_Loaded(object? sender, EventArgs e)
+        {
+            await CarregarConteudoAsync();
+        }
+
+        private async Task CarregarConteudoAsync()
         {
             var buscaInicialRealizada = DBContract.ObterValorChave(AppConstants.Busca_InicialRealizada);
 
@@ -94,7 +98,10 @@ namespace MaCamp.Views.Campings
 
                     var carregarNovamente = new TapGestureRecognizer();
 
-                    carregarNovamente.Tapped += (s, e) => CarregarConteudo();
+                    carregarNovamente.Tapped += async delegate
+                    {
+                        await CarregarConteudoAsync();
+                    };
 
                     lbMensagemAviso.GestureRecognizers.Add(carregarNovamente);
 
@@ -107,37 +114,19 @@ namespace MaCamp.Views.Campings
                 BackgroundColor = Colors.White;
                 cvContent.Content = new FormBuscaView();
             }
-        }
 
-        private async void ObterPermissaoLocalizacao()
-        {
-            if (DeviceInfo.Platform == DevicePlatform.Android)
+            var permissionGranted = await Workaround.CheckPermission<Permissions.LocationWhenInUse>("Localização", "Forneça a permissão de localização para poder visualizar a distância entre você e os campings");
+
+            if (permissionGranted)
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
+                try
                 {
-                    var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-
-                    if (status != PermissionStatus.Granted)
-                    {
-                        var shouldShowRationale = Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>();
-
-                        if (shouldShowRationale)
-                        {
-                            await AppConstants.CurrentPage.DisplayAlert("Localização", "Forneça a permissão de localização para poder visualizar a distância entre você e os campings", "OK");
-                        }
-
-                        await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-                    }
-                });
-            }
-
-            try
-            {
-                App.LOCALIZACAO_USUARIO = await Geolocation.GetLastKnownLocationAsync();
-            }
-            catch (Exception ex)
-            {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(CampingsPage), nameof(ObterPermissaoLocalizacao), ex);
+                    App.LOCALIZACAO_USUARIO = await Geolocation.GetLastKnownLocationAsync();
+                }
+                catch (Exception ex)
+                {
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(CampingsPage), nameof(CarregarConteudoAsync), ex);
+                }
             }
         }
     }

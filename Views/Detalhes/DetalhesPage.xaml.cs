@@ -149,41 +149,11 @@ namespace MaCamp.Views.Detalhes
 
         public static async Task AbrirMapa(string uriArquivoKml)
         {
-            if (DeviceInfo.Platform == DevicePlatform.Android)
+            var permissionGranted = await Workaround.CheckPermission<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
+
+            if (permissionGranted)
             {
-                try
-                {
-                    var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-
-                    if (status != PermissionStatus.Granted)
-                    {
-                        var shouldShowRationale = Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>();
-
-                        if (shouldShowRationale)
-                        {
-                            await AppConstants.CurrentPage.DisplayAlert("Localização necessária", "A permissão de localização será necessária para exibir o mapa", "OK");
-                        }
-
-                        var requestedStatus = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-
-                        if (requestedStatus == PermissionStatus.Granted)
-                        {
-                            //await (currentPage as RootPage).Detail.Navigation.PushAsync(new MapaPage(uriArquivoKml));
-                        }
-                        else if (requestedStatus == PermissionStatus.Unknown)
-                        {
-                            await AppConstants.CurrentPage.DisplayAlert("Localização negada", "Não é possível continuar, tente novamente.", "OK");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await AppConstants.CurrentPage.DisplayAlert("Erro ao abrir o mapa", ex.Message, "OK");
-                }
-            }
-            else if (DeviceInfo.Platform == DevicePlatform.iOS)
-            {
-                //await (AppConstants.CurrentPage as RootPage).Detail.Navigation.PushAsync(new MapaPage(uriArquivoKml));
+                //await (currentPage as RootPage).Detail.Navigation.PushAsync(new MapaPage(uriArquivoKml));
             }
         }
     }

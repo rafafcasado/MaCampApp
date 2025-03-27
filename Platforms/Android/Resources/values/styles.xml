@@ -3,6 +3,7 @@
   <style name="Theme.SplashScreen" parent="Maui.SplashTheme">
     <item name="android:windowIsTranslucent">true</item>
     <item name="android:windowSplashScreenAnimationDuration">0</item>
+    <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
 
     <item name="android:datePickerDialogTheme">@style/AppCompatDialogStyle</item>
   </style>

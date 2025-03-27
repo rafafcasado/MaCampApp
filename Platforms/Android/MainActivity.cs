@@ -2,6 +2,7 @@
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
+using AndroidX.Core.View;
 using MaCamp.Platforms.Android.Utils;
 using MaCamp.Utils;
 using Color = Android.Graphics.Color;
@@ -18,6 +19,8 @@ namespace MaCamp.Platforms.Android
             if (Window != null)
             {
                 var color = Color.ParseColor(AppColors.CorPrimaria.ToHex());
+
+                WindowCompat.SetDecorFitsSystemWindows(Window, false);
 
                 Window.DecorView.SetOnApplyWindowInsetsListener(new InsetsListener
                 {

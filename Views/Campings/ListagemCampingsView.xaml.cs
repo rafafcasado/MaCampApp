@@ -41,21 +41,7 @@ namespace MaCamp.Views.Campings
             ParametrosBusca = null;
             cvItens.ItemTemplate = new ItemDataTemplateSelector();
 
-            MainThread.BeginInvokeOnMainThread(async () =>
-            {
-                var progressoVisual = new ProgressoVisual(progressBar);
-
-                cvItens.IsVisible = false;
-                grBotoesFiltroMapa.IsVisible = false;
-                slBaixandoCampings.IsVisible = true;
-                slMensagemAviso.IsVisible = false;
-
-                await Task.WhenAll(
-                    CidadesServices.AtualizarListaCidades(progressoVisual),
-                    CampingServices.BaixarCampings(true, progressoVisual),
-                    CarregarConteudo(progressoVisual)
-                );
-            });
+            Loaded += ListagemCampingsView_Loaded;
         }
 
         public ListagemCampingsView(string endpointListagem, string? tag = null, string? parametrosBusca = null)
@@ -91,7 +77,23 @@ namespace MaCamp.Views.Campings
                 );
             });
 
-            MainThread.InvokeOnMainThreadAsync(async () => await CarregarConteudo(new ProgressoVisual(progressBar)));
+            Loaded += ListagemCampingsView_Loaded;
+        }
+
+        private async void ListagemCampingsView_Loaded(object? sender, EventArgs e)
+        {
+            var progressoVisual = new ProgressoVisual(progressBar);
+
+            cvItens.IsVisible = false;
+            grBotoesFiltroMapa.IsVisible = false;
+            slBaixandoCampings.IsVisible = true;
+            slMensagemAviso.IsVisible = false;
+
+            await Task.WhenAll(
+                CidadesServices.AtualizarListaCidades(progressoVisual),
+                CampingServices.BaixarCampings(true, progressoVisual),
+                CarregarConteudo(progressoVisual)
+            );
         }
 
         private async void Handle_Scrolled(object sender, ItemsViewScrolledEventArgs e)
@@ -175,7 +177,7 @@ namespace MaCamp.Views.Campings
 
             var existemCampingsBD = CampingServices.ExistemCampingsBD();
 
-            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+            ProgressoVisual.AumentarAtual(progressoVisual);
 
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
@@ -225,12 +227,12 @@ namespace MaCamp.Views.Campings
 
             await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, TipoListagem.Camping);
 
-            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+            ProgressoVisual.AumentarAtual(progressoVisual);
 
             var valorChaveUsarLocalizacaoUsuario = DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
             var valorChaveBuscaCamping = DBContract.ObterValorChave(AppConstants.Filtro_NomeCamping);
 
-            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+            ProgressoVisual.AumentarAtual(progressoVisual);
 
             if (!string.IsNullOrWhiteSpace(valorChaveUsarLocalizacaoUsuario) && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
             {
@@ -242,7 +244,7 @@ namespace MaCamp.Views.Campings
                 var CIDADE_BD = DBContract.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
                 var quantidadeAnuncios = ViewModel.Itens.Count(x => !x.EhAnuncio && !x.EhAdMobRetangulo);
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 if (string.IsNullOrWhiteSpace(EstadoBD))
                 {
@@ -310,7 +312,7 @@ namespace MaCamp.Views.Campings
                 slNovaBusca.IsVisible = true;
             }
 
-            await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+            ProgressoVisual.AumentarAtual(progressoVisual);
         }
 
         private async void FiltrarListagem(object sender, EventArgs e)

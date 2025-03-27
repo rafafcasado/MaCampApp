@@ -83,7 +83,7 @@ namespace MaCamp.Views.Menu
                             //    return;
                             //}
 
-                            await Navigation.PushAsync(new MapaPage(false));
+                            await navigationPage.PushAsync(new MapaPage(false));
                             break;
                         case TipoAcaoMenu.CadastreUmCamping:
                             if (Connectivity.NetworkAccess == NetworkAccess.Internet)

@@ -29,7 +29,7 @@ namespace MaCamp.Services.DataAccess
 
             var cancellationToken = CancellationTokenSource.Token;
 
-            MainThread.BeginInvokeOnMainThread(async () =>
+            Workaround.TaskWork(async () =>
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {

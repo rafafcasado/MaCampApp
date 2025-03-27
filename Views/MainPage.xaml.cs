@@ -65,10 +65,6 @@ namespace MaCamp.Views
 
         protected override void OnAppearing()
         {
-            //var value = DeviceInfo.Platform != DevicePlatform.iOS ? 34 : 0;
-
-            //Padding = new Thickness(0, value, 0, value);
-
             App.ExibirNotificacaoPush();
         }
     }

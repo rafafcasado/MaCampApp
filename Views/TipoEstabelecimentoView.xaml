@@ -6,8 +6,8 @@
     <StackLayout>
         <ScrollView
             Padding="15,0,15,0"
-            Orientation="Horizontal"
-            HorizontalScrollBarVisibility="Never">
+            HorizontalScrollBarVisibility="Never"
+            Orientation="Horizontal">
 
             <StackLayout
                 x:Name="slTipos"

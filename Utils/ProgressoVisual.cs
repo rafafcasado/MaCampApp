@@ -15,7 +15,7 @@
             ProgressBar.Progress = 0;
         }
 
-        public static async Task AumentarAtualAsync(ProgressoVisual? progressoVisual, int? amout = null)
+        public static async void AumentarAtual(ProgressoVisual? progressoVisual, int? amout = null)
         {
             if (progressoVisual != null)
             {
@@ -27,7 +27,7 @@
 
                     progressoVisual.Atual = valor;
 
-                    await MainThread.InvokeOnMainThreadAsync(async () =>
+                    await Workaround.TaskUI(async () =>
                     {
                         await progressoVisual.ProgressBar.ProgressTo(proporcao, 500, Easing.CubicIn);
                     });
@@ -41,21 +41,6 @@
             {
                 progressoVisual.Total += valor;
             }
-        }
-
-        public static async Task CarregarDadosFakeAsync(ProgressBar progressBar, int quantidade)
-        {
-            var progressoVisual = new ProgressoVisual(progressBar);
-
-            AumentarTotal(progressoVisual, quantidade);
-
-            await Enumerable.Repeat(0, quantidade).ForEachAsync(async (x) =>
-            {
-                var delay = new Random().Next(750, 1500);
-
-                await Task.Delay(delay);
-                await AumentarAtualAsync(progressoVisual);
-            });
         }
     }
 }

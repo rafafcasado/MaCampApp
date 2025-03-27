@@ -26,9 +26,6 @@
             BackgroundColor="#CCFFFFFF"
             Clicked="OnToggleButtonClicked"
             CornerRadius="2"
-            ImageSource="{icon:SymbolImageSource Symbol=Map,
-                                                 Color={x:Static settings:AppColors.CorPrimaria},
-                                                 IconVariant=Regular}"
             IsVisible="False"
             Text="Terreno"
             TextColor="#666666">

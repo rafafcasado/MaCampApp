@@ -12,13 +12,15 @@ namespace MaCamp.Services
             {
                 ProgressoVisual.AumentarTotal(progressoVisual, 3);
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
 
                 var listaCidades = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
 
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
-                await DBContract.UpdateAsync(false, listaCidades, progressoVisual);
-                await ProgressoVisual.AumentarAtualAsync(progressoVisual);
+                ProgressoVisual.AumentarAtual(progressoVisual);
+
+                DBContract.Update(false, listaCidades, progressoVisual);
+
+                ProgressoVisual.AumentarAtual(progressoVisual);
             }
             catch (Exception ex)
             {
