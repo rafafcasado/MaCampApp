@@ -27,16 +27,13 @@ namespace MaCamp.Platforms.Android.Handlers
             Markers = new List<Marker>();
         }
 
-        public CustomMapHandler(IPropertyMapper? mapper = null, CommandMapper? commandMapper = null) : base(mapper ?? CustomMapper, commandMapper ?? CommandMapper)
-        {
-            Markers = new List<Marker>();
-        }
-
         protected override void ConnectHandler(MapView platformView)
         {
             base.ConnectHandler(platformView);
 
             var mapReady = new MapCallbackHandler(this);
+
+            platformView.Clickable = true;
 
             PlatformView.GetMapAsync(mapReady);
         }
@@ -45,60 +42,62 @@ namespace MaCamp.Platforms.Android.Handlers
         {
             if (handler is CustomMapHandler mapHandler)
             {
-                mapHandler.Markers.Clear();
+                foreach (var marker in mapHandler.Markers)
+                {
+                    marker.Remove();
+                }
+
                 mapHandler.AddPins(map.Pins);
             }
         }
 
         private void AddPins(IEnumerable<IMapPin> mapPins)
         {
-            if (Map is null || MauiContext is null)
+            if (Map != null && MauiContext != null)
             {
-                return;
-            }
-
-            foreach (var pin in mapPins)
-            {
-                var pinHandler = pin.ToHandler(MauiContext);
-
-                if (pinHandler is IMapPinHandler mapPinHandler)
+                foreach (var pin in mapPins)
                 {
-                    var markerOption = mapPinHandler.PlatformView;
+                    var pinHandler = pin.ToHandler(MauiContext);
 
-                    if (pin is StylishPin stylishPin)
+                    if (pinHandler is IMapPinHandler mapPinHandler)
                     {
-                        if (stylishPin.ImageSource == null || stylishPin.ImageSource.IsEmpty)
+                        var markerOption = mapPinHandler.PlatformView;
+
+                        if (pin is StylishPin stylishPin)
                         {
-                            var bitmapDescriptor = CreateBitmapDynamic(stylishPin.Label);
+                            if (stylishPin.ImageSource == null || stylishPin.ImageSource.IsEmpty)
+                            {
+                                var bitmapDescriptor = CreateBitmapDynamic(stylishPin.Label);
 
-                            markerOption.SetIcon(bitmapDescriptor);
+                                markerOption.SetIcon(bitmapDescriptor);
 
-                            AddMarker(Map, pin, Markers, markerOption);
-                        }
-                        else if (stylishPin.ImageSource is FileImageSource fileImageSource)
-                        {
-                            var bitmapDescriptor = BitmapDescriptorFactory.FromAsset(fileImageSource.File);
+                                AddMarker(Map, pin, Markers, markerOption);
+                            }
+                            else if (stylishPin.ImageSource is FileImageSource fileImageSource)
+                            {
+                                var bitmapDescriptor = BitmapDescriptorFactory.FromAsset(fileImageSource.File);
 
-                            markerOption.SetIcon(bitmapDescriptor);
+                                markerOption.SetIcon(bitmapDescriptor);
 
-                            AddMarker(Map, pin, Markers, markerOption);
+                                AddMarker(Map, pin, Markers, markerOption);
+                            }
+                            else
+                            {
+                                stylishPin.ImageSource.LoadImage(MauiContext, result =>
+                                {
+                                    if (result?.Value is BitmapDrawable bitmapDrawable)
+                                    {
+                                        markerOption.SetIcon(BitmapDescriptorFactory.FromBitmap(GetMaximumBitmap(bitmapDrawable.Bitmap, 100, 100)));
+                                    }
+
+                                    AddMarker(Map, pin, Markers, markerOption);
+                                });
+                            }
                         }
                         else
                         {
-                            stylishPin.ImageSource.LoadImage(MauiContext, result =>
-                            {
-                                if (result?.Value is BitmapDrawable bitmapDrawable)
-                                {
-                                    markerOption.SetIcon(BitmapDescriptorFactory.FromBitmap(GetMaximumBitmap(bitmapDrawable.Bitmap, 100, 100)));
-                                }
-
-                                AddMarker(Map, pin, Markers, markerOption);
-                            });
+                            AddMarker(Map, pin, Markers, markerOption);
                         }
-                    }
-                    else
-                    {
-                        AddMarker(Map, pin, Markers, markerOption);
                     }
                 }
             }

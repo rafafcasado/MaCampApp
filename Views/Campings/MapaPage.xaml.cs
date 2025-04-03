@@ -93,11 +93,14 @@ namespace MaCamp.Views.Campings
                     };
                     var listPins = CriarListaPins(Itens);
 
-                    map.PropertyChanged += (sender, e) =>
+                    map.PropertyChanged += async (sender, e) =>
                     {
                         if (e.PropertyName == nameof(map.VisibleRegion))
                         {
-                            AtualizarPins(listPins, map.VisibleRegion);
+                            await Workaround.DebounceAsync($"{nameof(MapaPage)}_{nameof(Map.PropertyChanged)}", 200, async x =>
+                            {
+                                await AtualizarPinsAsync(listPins, map.VisibleRegion, x);
+                            });
                         }
                     };
 
@@ -228,70 +231,61 @@ namespace MaCamp.Views.Campings
             return listPins;
         }
 
-        private void AtualizarPins(List<Pin> listPins, MapSpan? region)
+        private async Task AtualizarPinsAsync(List<Pin> listPins, MapSpan? region, CancellationToken cancellationToken = default)
         {
-            if (cvMapa.Content is Map map)
+            if (cvMapa.Content is Map map && region != null)
             {
-                map.Pins.Clear();
+                var maxClusters = Environment.ProcessorCount;
+                var visiblePins = listPins.Where(x => region.IsInside(x.Location)).ToList();
 
-                if (region != null)
+                await Workaround.TaskUI(() => map.Pins.Clear(), cancellationToken);
+
+                if (visiblePins.Count > maxClusters)
                 {
-                    var maxClusters = Convert.ToInt32(Environment.ProcessorCount * 1.5);
-                    var visiblePins = listPins.Where(x => region.IsInside(x.Location)).ToList();
+                    var clusters = ObterClusters(visiblePins, region, maxClusters);
 
-                    if (visiblePins.Count > maxClusters)
+                    foreach (var cluster in clusters)
                     {
-                        var clusters = ObterClusters(visiblePins, region, maxClusters);
-
-                        foreach (var cluster in clusters)
+                        if (cluster.Count == 1)
                         {
-                            if (cluster.Count == 1)
-                            {
-                                map.Pins.Add(cluster.First());
-                            }
-                            else
-                            {
-                                var avgLat = cluster.Average(x => x.Location.Latitude);
-                                var avgLon = cluster.Average(x => x.Location.Longitude);
-                                var clusterPin = new StylishPin
-                                {
-                                    Label = cluster.Count.ToString(),
-                                    Location = new Location(avgLat, avgLon),
-                                };
+                            await Workaround.TaskUI(() => map.Pins.Add(cluster.First()), cancellationToken);
+                        }
+                        else
+                        {
+                            var avgLat = cluster.Average(x => x.Location.Latitude);
+                            var avgLon = cluster.Average(x => x.Location.Longitude);
 
-                                map.Pins.Add(clusterPin);
-                            }
+                            await Workaround.TaskUI(() => map.Pins.Add(new StylishPin
+                            {
+                                Label = cluster.Count.ToString(),
+                                Location = new Location(avgLat, avgLon)
+                            }), cancellationToken);
                         }
                     }
-                    else
-                    {
-                        map.Pins.AddRange(visiblePins);
-                    }
+                }
+                else
+                {
+                    await Workaround.TaskUI(() => map.Pins.AddRange(visiblePins), cancellationToken);
                 }
             }
         }
 
         private List<List<Pin>> ObterClusters(List<Pin> pins, MapSpan region, int maxClusters)
         {
-            var cellCount = Convert.ToInt32(Math.Sqrt(maxClusters));
-            var latCellSize = region.LatitudeDegrees / cellCount;
-            var lonCellSize = region.LongitudeDegrees / cellCount;
-            var clusters = pins.GroupBy(x =>
+            var clusters = Enumerable.Range(0, maxClusters).Select(x => new List<Pin>()).ToList();
+            var latStep = region.LatitudeDegrees / Math.Sqrt(maxClusters);
+            var lonStep = region.LongitudeDegrees / Math.Sqrt(maxClusters);
+
+            foreach (var pin in pins)
             {
-                var row = Convert.ToInt32((x.Location.Latitude - (region.Center.Latitude - region.LatitudeDegrees / 2)) / latCellSize);
-                var col = Convert.ToInt32((x.Location.Longitude - (region.Center.Longitude - region.LongitudeDegrees / 2)) / lonCellSize);
+                var latIndex = (int)((pin.Location.Latitude - (region.Center.Latitude - region.LatitudeDegrees / 2)) / latStep);
+                var lonIndex = (int)((pin.Location.Longitude - (region.Center.Longitude - region.LongitudeDegrees / 2)) / lonStep);
+                var clusterIndex = (latIndex * (int)Math.Sqrt(maxClusters) + lonIndex) % maxClusters;
 
-                return (row, col);
-            }).Select(x => x.ToList()).ToList();
-
-            if (clusters.Count > maxClusters)
-            {
-                var newCellCount = Convert.ToInt32(Math.Sqrt(clusters.Count));
-
-                return ObterClusters(pins, region, newCellCount);
+                clusters[clusterIndex].Add(pin);
             }
 
-            return clusters;
+            return clusters.Where(c => c.Count > 0).ToList();
         }
     }
 }

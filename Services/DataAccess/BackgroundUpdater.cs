@@ -68,7 +68,7 @@ namespace MaCamp.Services.DataAccess
                             Valor = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                         });
 
-                        notification.Message = "Concluída com sucesso";
+                        notificationService.Complete(notificationId);
                     }
                     catch (TaskCanceledException)
                     {

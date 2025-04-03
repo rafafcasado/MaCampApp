@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Android.Runtime;
 using Android.Views;
 using AndroidX.Core.View;
 using MaCamp.Platforms.Android.Utils;
@@ -16,6 +17,11 @@ namespace MaCamp.Platforms.Android
         {
             base.OnCreate(savedInstanceState);
 
+            AndroidEnvironment.UnhandledExceptionRaiser += (sender, args) =>
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(MainActivity), nameof(AndroidEnvironment.UnhandledExceptionRaiser), args.Exception);
+            };
+
             if (Window != null)
             {
                 var color = Color.ParseColor(AppColors.CorPrimaria.ToHex());
@@ -29,5 +35,4 @@ namespace MaCamp.Platforms.Android
             }
         }
     }
-
 }

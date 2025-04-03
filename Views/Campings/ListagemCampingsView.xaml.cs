@@ -69,10 +69,11 @@ namespace MaCamp.Views.Campings
                 grBotoesFiltroMapa.IsVisible = false;
                 slBaixandoCampings.IsVisible = true;
                 slMensagemAviso.IsVisible = false;
+                DeviceDisplay.KeepScreenOn = true;
 
                 await Task.WhenAll(
                     CidadesServices.AtualizarListaCidades(progressoVisual),
-                    CampingServices.BaixarCampings(true, progressoVisual),
+                    CampingServices.BaixarCampings(false, progressoVisual),
                     CarregarConteudo(progressoVisual)
                 );
             });
@@ -88,10 +89,11 @@ namespace MaCamp.Views.Campings
             grBotoesFiltroMapa.IsVisible = false;
             slBaixandoCampings.IsVisible = true;
             slMensagemAviso.IsVisible = false;
+            DeviceDisplay.KeepScreenOn = true;
 
             await Task.WhenAll(
                 CidadesServices.AtualizarListaCidades(progressoVisual),
-                CampingServices.BaixarCampings(true, progressoVisual),
+                CampingServices.BaixarCampings(false, progressoVisual),
                 CarregarConteudo(progressoVisual)
             );
         }
@@ -221,6 +223,7 @@ namespace MaCamp.Views.Campings
                     slMensagemAviso.IsVisible = false;
                 }
 
+                DeviceDisplay.KeepScreenOn = slBaixandoCampings.IsVisible;
                 indicadorCarregamento.IsVisible = false;
                 indicadorCarregamento.IsRunning = false;
             }
@@ -267,6 +270,7 @@ namespace MaCamp.Views.Campings
             rvItens.IsRefreshing = false;
             indicadorCarregamento.IsVisible = false;
             indicadorCarregamento.IsRunning = false;
+            DeviceDisplay.KeepScreenOn = false;
 
             if (ViewModel.Itens.Count > 0)
             {

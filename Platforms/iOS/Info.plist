@@ -28,5 +28,15 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+
+	<key>NSUserNotificationUsageDescription</key>
+	<string>Este aplicativo usa notificações para alertá-lo sobre eventos importantes.</string>
+	
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Este aplicativo precisa acessar o armazenamento para salvar arquivos offline.</string>
+	
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Este aplicativo precisa salvar arquivos no armazenamento.</string>
+
 </dict>
 </plist>

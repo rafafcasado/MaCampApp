@@ -10,7 +10,6 @@ namespace MaCamp.Platforms.Android.Services
     public class NotificationService : INotification
     {
         private Context Context { get; }
-        private Random Randomizer { get; }
         private NotificationManager? NotificationManager { get; }
 
         public NotificationService()
@@ -18,7 +17,6 @@ namespace MaCamp.Platforms.Android.Services
             var context = Platform.AppContext;
 
             Context = context;
-            Randomizer = new Random();
 
             if (context.GetSystemService(Context.NotificationService) is NotificationManager notificationManager)
             {
@@ -48,7 +46,7 @@ namespace MaCamp.Platforms.Android.Services
 
         public int Show(NotificationData data)
         {
-            var id = Randomizer.Next();
+            var id = new Random().Next();
 
             Update(id, data);
 

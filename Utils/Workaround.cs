@@ -79,7 +79,7 @@ namespace MaCamp.Utils
             }
         });
 
-        public static Task TaskWork(Func<Task> task) => Task.Run(async () =>
+        public static Task TaskWork(Func<Task> task, CancellationToken cancellationToken = default) => Task.Run(async () =>
         {
             try
             {
@@ -89,19 +89,32 @@ namespace MaCamp.Utils
             {
                 Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWork), ex);
             }
-        });
+        }, cancellationToken);
 
-        public static async Task TaskUI(Action action) => await MainThread.InvokeOnMainThreadAsync(() =>
+        public static async Task TaskUI(Action action, CancellationToken cancellationToken = default)
         {
             try
             {
-                action();
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            action();
+                        }
+                        catch (Exception ex)
+                        {
+                            Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUI), ex);
+                        }
+                    }
+                });
             }
-            catch (Exception ex)
+            catch (OperationCanceledException)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUI), ex);
+                // Execução cancelada, ignorar erro
             }
-        });
+        }
 
         public static async Task<bool> CheckPermission<T>(string title, string message) where T : Permissions.BasePermission, new()
         {
@@ -177,6 +190,37 @@ namespace MaCamp.Utils
             }
 
             return results.All(x => x);
+        }
+
+        public static async Task DebounceAsync(string key, int delayMilliseconds, Func<CancellationToken, Task> action)
+        {
+            if (AppConstants.DictionaryDataDebounceTokens.TryRemove(key, out var existingToken))
+            {
+                existingToken.Cancel();
+                existingToken.Dispose();
+            }
+
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            AppConstants.DictionaryDataDebounceTokens[key] = cancellationTokenSource;
+
+            try
+            {
+                await Task.Delay(delayMilliseconds, cancellationTokenSource.Token);
+
+                if (!cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    await action(cancellationTokenSource.Token);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // Execução foi cancelada antes de completar o tempo do debounce, então ignoramos
+            }
+            finally
+            {
+                AppConstants.DictionaryDataDebounceTokens.TryRemove(key, out _);
+            }
         }
     }
 }
