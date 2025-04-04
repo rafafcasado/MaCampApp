@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="br.com.macamp.app">
-	<application android:icon="@mipmap/appicon" android:allowBackup="true" android:supportsRtl="true">
+	<application android:icon="@mipmap/appicon" android:allowBackup="true" android:supportsRtl="true" android:usesCleartextTraffic="false">
 		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDMgtg637cz-GG0cimn_EXg95idLbaDwOY" />
 		<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-8959365990645001~9967771040" />
 		

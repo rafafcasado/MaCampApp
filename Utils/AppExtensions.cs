@@ -308,7 +308,7 @@ namespace MaCamp.Utils
             return location.Latitude >= minLat && location.Latitude <= maxLat && location.Longitude >= minLon && location.Longitude <= maxLon;
         }
 
-        public static bool IsInsideRegion(this MapSpan region, double? latitude, double? longetitude)
+        public static bool IsInside(this MapSpan region, double? latitude, double? longetitude)
         {
             if (latitude != null && longetitude != null)
             {
@@ -356,7 +356,7 @@ namespace MaCamp.Utils
 
             var mounted = stringBuilder.ToString().Normalize(NormalizationForm.FormC);
             var cleared = Regex.Replace(mounted, @"\s+", "_");
-            var filtered = Regex.Replace(cleared, @"[^a-z0-9_]", "");
+            var filtered = Regex.Replace(cleared, @"[^a-z0-9_]", string.Empty);
 
             return filtered;
         }

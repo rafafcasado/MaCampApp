@@ -13,7 +13,7 @@ namespace MaCamp.Utils
             {
                 try
                 {
-                    var numero = Regex.Replace(texto, @"[.\-\(\)\s]", "");
+                    var numero = Regex.Replace(texto, @"[.\-\(\)\s]", string.Empty);
 
                     switch (tipoMedia)
                     {

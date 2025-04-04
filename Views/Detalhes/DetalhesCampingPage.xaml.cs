@@ -270,7 +270,7 @@ namespace MaCamp.Views.Detalhes
             await DisplayAlert("Coordenadas Copiadas", "Basta colar essa informação no seu aplicativo de mapas favorito.", "Ok");
         }
 
-        protected async void GoToSO(object sender, EventArgs e)
+        private async void GoToSO(object sender, EventArgs e)
         {
             await Launcher.OpenAsync(AppConstants.Url_TermoUso);
         }

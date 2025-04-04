@@ -35,7 +35,7 @@ namespace MaCamp.ViewModels
             }
 
             var countAdMob = 14;
-            var r = new Random();
+            var random = new Random();
 
             if (tipoListagem == TipoListagem.Camping)
             {
@@ -58,7 +58,7 @@ namespace MaCamp.ViewModels
                     {
                         if (countAnuncio == 1 && anuncios.Count > 0)
                         {
-                            var anuncioEscolhido = anuncios[r.Next(anuncios.Count)];
+                            var anuncioEscolhido = anuncios[random.Next(anuncios.Count)];
 
                             if (anuncioEscolhido.UrlExterna != null)
                             {
@@ -126,7 +126,7 @@ namespace MaCamp.ViewModels
 
                             if (anuncios.Count > 0)
                             {
-                                var anuncioEscolhido = anuncios[r.Next(anuncios.Count)];
+                                var anuncioEscolhido = anuncios[random.Next(anuncios.Count)];
 
                                 if (anuncioEscolhido.UrlExterna != null)
                                 {

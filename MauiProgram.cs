@@ -39,7 +39,6 @@ namespace MaCamp
             builder.ConfigureMauiHandlers(collection =>
             {
                 collection.AddPlatformHandler<AdMobBannerView>();
-                collection.AddPlatformHandler<AdMobBannerView>();
                 collection.AddPlatformHandler<AdmobRectangleBannerView>();
                 collection.AddPlatformHandler<CustomWebView>();
                 collection.AddPlatformHandler<IconView>();
