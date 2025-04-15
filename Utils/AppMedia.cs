@@ -14,14 +14,13 @@ namespace MaCamp.Utils
                 try
                 {
                     var numero = Regex.Replace(texto, @"[.\-\(\)\s]", string.Empty);
+                    var telefone = numero.Contains("+55") ? numero : $"+55{numero}";
 
                     switch (tipoMedia)
                     {
                         case TipoMedia.Telefone:
                             if (PhoneDialer.IsSupported)
                             {
-                                var telefone = numero.Contains("+55") ? numero : $"+55{numero}";
-
                                 PhoneDialer.Open(telefone);
 
                                 return true;
@@ -31,7 +30,7 @@ namespace MaCamp.Utils
 
                             return false;
                         case TipoMedia.WhatsApp:
-                            return await Launcher.OpenAsync("https://api.whatsapp.com/send?phone=" + numero + "&text=Ol%C3%A1%2C%20cheguei%20aqui%20pelo%20App%20MaCamp%21");
+                            return await Launcher.OpenAsync("https://api.whatsapp.com/send?phone=" + telefone + "&text=Ol%C3%A1%2C%20cheguei%20aqui%20pelo%20app%20MaCamp%21");
                         case TipoMedia.Email:
                             return await Launcher.OpenAsync("mailto:" + texto);
                         case TipoMedia.URL:

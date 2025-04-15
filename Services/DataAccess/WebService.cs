@@ -33,16 +33,16 @@ namespace MaCamp.Services.DataAccess
             NIGHTVIEW_V = string.Empty;
         }
 
-        public async Task<List<T>> GetListAsync<T>(string endPoint, int pagina, string? tag = null, string? parametrosBusca = null) where T : class
+        public async Task<List<T>> GetListAsync<T>(string endpoint, int page, string? tag = null, string? parametrosBusca = null) where T : class
         {
-            PAGE_V = pagina;
+            PAGE_V = page;
             //Só envia o parâmetro TAG se o usuário tiver selecionado alguma efetivamente
             TAG_V = string.IsNullOrWhiteSpace(tag) || tag == AppConstants.ParametroTodasTags ? string.Empty : tag;
             QUERY_V = parametrosBusca ?? string.Empty;
 
-            var builder = new StringBuilder(endPoint);
+            var builder = new StringBuilder(endpoint);
 
-            builder.Append(!endPoint.Contains("?") ? "?" : "&");
+            builder.Append(endpoint.Contains("?") ? "&" : "?");
             builder.Append(PAGE_K);
             builder.Append("=" + PAGE_V);
             builder.Append("&" + LIMIT_K);
@@ -53,9 +53,9 @@ namespace MaCamp.Services.DataAccess
             builder.Append("=" + QUERY_V);
 
             var url = builder.ToString();
-            var itens = await AppNet.GetListAsync<T>(url);
+            var data = await AppNet.GetListAsync<T>(url);
 
-            return itens;
+            return data;
         }
     }
 }

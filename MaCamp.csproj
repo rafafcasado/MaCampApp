@@ -9,6 +9,7 @@
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
 		<NoWarn>NU1608</NoWarn>
 
 		<!-- Display name -->
@@ -74,7 +75,6 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.100" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="8.0.100" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.3" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Plugin.MauiMTAdmob" Version="1.7.1" />
 		<PackageReference Include="ReactiveUI" Version="20.2.45" />
 		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />

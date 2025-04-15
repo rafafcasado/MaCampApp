@@ -51,33 +51,21 @@
         //    {
         //        Dictionary<string, object> additionalData = payload.additionalData;
 
-        //        DBContract.InserirOuSubstituirModelo(new ChaveValor
-        //        { 
-        //            Chave = AppConstants.CHAVE_TITULO_NOTIFICACAO,
-        //            Valor = payload.title
-        //        });
-        //        DBContract.InserirOuSubstituirModelo(new ChaveValor
-        //        {
-        //            Chave = AppConstants.CHAVE_MENSAGEM_NOTIFICACAO,
-        //            Valor = payload.body
-        //        });
+        //        DBContract.UpdateKeyValue(AppConstants.CHAVE_TITULO_NOTIFICACAO, payload.title);
+        //        DBContract.UpdateKeyValue(AppConstants.CHAVE_MENSAGEM_NOTIFICACAO, payload.body);
 
         //        if (additionalData != null && additionalData.Count > 0)
         //        {
         //            if (additionalData.ContainsKey("id"))
         //            {
-        //                string id = additionalData["id"].ToString();
-        //                DBContract.InserirOuSubstituirModelo(new ChaveValor { Chave = AppConstants.CHAVE_ID_ITEM_NOTIFICACAO, Valor = id });
+        //                var id = additionalData["id"].ToString();
+        //                DBContract.UpdateKeyValue(AppConstants.CHAVE_ID_ITEM_NOTIFICACAO, id);
         //            }
         //        }
 
         //        if (payload.launchURL != null)
         //        {
-        //            DBContract.InserirOuSubstituirModelo(new ChaveValor
-        //            {
-        //                Chave = AppConstants.CHAVE_URL_NOTIFICACAO,
-        //                Valor = payload.launchURL
-        //            });
+        //            DBContract.UpdateKeyValue(AppConstants.CHAVE_URL_NOTIFICACAO, payload.launchURL);
         //        }
 
         //        if (tentarAbrir)

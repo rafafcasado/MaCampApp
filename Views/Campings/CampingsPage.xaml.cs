@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using MaCamp.Models;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using static MaCamp.Utils.Enumeradores;
@@ -32,7 +31,7 @@ namespace MaCamp.Views.Campings
 
             WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, (recipient, message) =>
             {
-                DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno));
+                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView(string.Empty);
             });
@@ -41,7 +40,7 @@ namespace MaCamp.Views.Campings
 
             WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, (recipient, message) =>
             {
-                DBContract.InserirOuSubstituirModelo(new ChaveValor(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno));
+                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView();
             });
@@ -56,7 +55,7 @@ namespace MaCamp.Views.Campings
 
         private async Task CarregarConteudoAsync()
         {
-            var buscaInicialRealizada = DBContract.ObterValorChave(AppConstants.Busca_InicialRealizada);
+            var buscaInicialRealizada = DBContract.GetKeyValue(AppConstants.Busca_InicialRealizada);
 
             if (buscaInicialRealizada != null)
             {
@@ -66,11 +65,7 @@ namespace MaCamp.Views.Campings
             {
                 var valorEstabelecimentos = "Campings,PontodeApoioaRV`s,CampingSelvagem/WildCamping/Bushcfaft,SemFunçãoCamping/ApoioouFechado";
 
-                DBContract.InserirOuSubstituirModelo(new ChaveValor
-                {
-                    Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
-                    Valor = valorEstabelecimentos
-                });
+                DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
 
                 if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                 {

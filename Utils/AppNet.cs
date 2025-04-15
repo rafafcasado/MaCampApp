@@ -1,11 +1,12 @@
 ﻿using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace MaCamp.Utils
 {
     public static class AppNet
     {
         private static HttpClient Client { get; }
+        private static JsonSerializerOptions JsonSerializerOptionsDefault { get; }
 
         static AppNet()
         {
@@ -13,14 +14,18 @@ namespace MaCamp.Utils
             {
                 Timeout = TimeSpan.FromSeconds(120)
             };
+            JsonSerializerOptionsDefault = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
         }
 
         public static async Task<T?> GetAsync<T>(string url)
         {
             try
             {
-                var response = await Client.GetStringAsync(url);
-                var data = JsonConvert.DeserializeObject<T>(response);
+                var response = await Client.GetStreamAsync(url);
+                var data = await JsonSerializer.DeserializeAsync<T>(response, JsonSerializerOptionsDefault);
 
                 return data;
             }
@@ -36,8 +41,8 @@ namespace MaCamp.Utils
         {
             try
             {
-                var response = await Client.GetStringAsync(url);
-                var data = JsonConvert.DeserializeObject<List<T>>(response);
+                var response = await Client.GetStreamAsync(url);
+                var data = await JsonSerializer.DeserializeAsync<List<T>>(response, JsonSerializerOptionsDefault);
 
                 if (data != null)
                 {
@@ -89,7 +94,7 @@ namespace MaCamp.Utils
         {
             try
             {
-                var json = JsonConvert.SerializeObject(data);
+                var json = System.Text.Json.JsonSerializer.Serialize(data);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await Client.PostAsync(url, content);
 

@@ -77,6 +77,8 @@ namespace MaCamp.Utils
         public static string Chave_DownloadCampingsCompleto => "DownloadCampingsCompleto";
         public static string Chave_DataUltimaAtualizacaoConteudo => "DataUltimaAtualizacaoConteudo";
         public static string Chave_UltimaAtualizacao => "UltimaAtualizacao";
+        public static string Chave_Versao => "Versao";
+        public static string Chave_NotificacaoAberta => "NotificacaoAberta";
 
         // Filtros
         public static string Filtro_NomeCamping => "FILTROS_NOME_DO_CAMPING";

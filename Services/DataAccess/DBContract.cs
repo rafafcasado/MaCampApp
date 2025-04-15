@@ -9,18 +9,11 @@ namespace MaCamp.Services.DataAccess
 {
     public static class DBContract
     {
-        private static Mutex Mutex { get; }
         private static object Lock { get; }
-        private static SQLiteConnection? SqlConnection { get; set; }
-
-        public class RetornoIdItem
-        {
-            public int IdItem { get; set; }
-        }
+        public static SQLiteConnection? SqlConnection { get; set; }
 
         static DBContract()
         {
-            Mutex = new Mutex();
             Lock = new object();
             SqlConnection = GetConnection(AppConstants.SqliteFilename);
 
@@ -44,7 +37,7 @@ namespace MaCamp.Services.DataAccess
             try
             {
                 var path = Path.Combine(AppConstants.Path, filename);
-                var connection = new SQLiteConnection(path);
+                var connection = new SQLiteConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
 
                 connection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
 
@@ -58,37 +51,22 @@ namespace MaCamp.Services.DataAccess
             return null;
         }
 
-        public static bool Update<T>(bool clean, List<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
+        private static bool VerifyDatabaseIntegrity(string filename)
         {
-            var dataDictionary = new Dictionary<Type, List<object>>
+            try
             {
-                { typeof(T), listPrimaryData.OfType<object>().ToList() }
-            };
+                var path = Path.Combine(AppConstants.Path, filename);
+                using var connection = new SQLiteConnection(path);
+                var result = connection.ExecuteScalar<string>("PRAGMA integrity_check;");
 
-            return Update(clean, dataDictionary, progressoVisual);
-        }
-
-        public static bool Update<T, TK>(bool clean, List<T> listPrimaryData, List<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
-        {
-            var dataDictionary = new Dictionary<Type, List<object>>
+                return result == "ok";
+            }
+            catch (Exception ex)
             {
-                { typeof(T), listPrimaryData.OfType<object>().ToList() },
-                { typeof(TK), listaSecondaryData.OfType<object>().ToList() }
-            };
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(VerifyDatabaseIntegrity), ex);
 
-            return Update(clean, dataDictionary, progressoVisual);
-        }
-
-        public static bool Update<T, TK, TR>(bool clean, List<T> listPrimaryData, List<TK> listaSecondaryData, List<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
-        {
-            var dataDictionary = new Dictionary<Type, List<object>>
-            {
-                { typeof(T), listPrimaryData.OfType<object>().ToList() },
-                { typeof(TK), listaSecondaryData.OfType<object>().ToList() },
-                { typeof(TR), listaTertiaryData.OfType<object>().ToList() }
-            };
-
-            return Update(clean, dataDictionary, progressoVisual);
+                return false;
+            }
         }
 
         private static bool Update(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
@@ -97,7 +75,7 @@ namespace MaCamp.Services.DataAccess
             var currentDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteFilename);
             var temporaryDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteTemporaryFilename);
 
-            ProgressoVisual.AumentarTotal(progressoVisual, 7 + dataDictionary.Count);
+            ProgressoVisual.AumentarTotal(progressoVisual, 8 + dataDictionary.Count);
 
             try
             {
@@ -110,14 +88,14 @@ namespace MaCamp.Services.DataAccess
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
 
-                if (clean)
+                if (File.Exists(temporaryDatabasePath))
                 {
-                    if (File.Exists(temporaryDatabasePath))
-                    {
-                        File.Delete(temporaryDatabasePath);
-                    }
+                    File.Delete(temporaryDatabasePath);
                 }
-                else
+
+                ProgressoVisual.AumentarAtual(progressoVisual);
+
+                if (!clean)
                 {
                     File.Copy(currentDatabasePath, temporaryDatabasePath, true);
                 }
@@ -133,25 +111,30 @@ namespace MaCamp.Services.DataAccess
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
 
-                foreach (var (key, value) in dataDictionary)
+                foreach (var (key, values) in dataDictionary)
                 {
-                    var table = temporaryConnection.TableMappings.FirstOrDefault(x => x.MappedType == key);
-
-                    if (table != null)
+                    if (!clean)
                     {
-                        if (!clean)
+                        var table = temporaryConnection.TableMappings.FirstOrDefault(x => x.MappedType == key);
+
+                        if (table != null)
                         {
                             temporaryConnection.DeleteAll(table);
                         }
-
-                        temporaryConnection.InsertAll(value);
                     }
+
+                    temporaryConnection.RunInTransaction(() =>
+                    {
+                        foreach (var value in values)
+                        {
+                            temporaryConnection.InsertOrReplace(value);
+                        }
+                    });
 
                     ProgressoVisual.AumentarAtual(progressoVisual);
                 }
 
                 temporaryConnection.InsertOrReplace(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", TipoChave.ControleInterno));
-
                 temporaryConnection.InsertOrReplace(new ChaveValor
                 {
                     Chave = AppConstants.Chave_DataUltimaAtualizacaoConteudo,
@@ -218,291 +201,144 @@ namespace MaCamp.Services.DataAccess
             }
         }
 
-        /// <summary>
-        /// Verifica a integridade do banco de dados usando PRAGMA integrity_check.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <returns>Estado do banco de dados</returns>
-        private static bool VerifyDatabaseIntegrity(string filename)
+        public static bool Update<T>(bool clean, IEnumerable<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
+        {
+            var dataDictionary = new Dictionary<Type, List<object>>
+            {
+                { typeof(T), listPrimaryData.OfType<object>().ToList() }
+            };
+
+            return Update(clean, dataDictionary, progressoVisual);
+        }
+
+        public static bool Update<T, TK>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
+        {
+            var dataDictionary = new Dictionary<Type, List<object>>
+            {
+                { typeof(T), listPrimaryData.OfType<object>().ToList() },
+                { typeof(TK), listaSecondaryData.OfType<object>().ToList() }
+            };
+
+            return Update(clean, dataDictionary, progressoVisual);
+        }
+
+        public static bool Update<T, TK, TR>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, IEnumerable<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
+        {
+            var dataDictionary = new Dictionary<Type, List<object>>
+            {
+                { typeof(T), listPrimaryData.OfType<object>().ToList() },
+                { typeof(TK), listaSecondaryData.OfType<object>().ToList() },
+                { typeof(TR), listaTertiaryData.OfType<object>().ToList() }
+            };
+
+            return Update(clean, dataDictionary, progressoVisual);
+        }
+
+        public static bool Update<T>(T value)
         {
             try
             {
-                var path = Path.Combine(AppConstants.Path, filename);
-                using var connection = new SQLiteConnection(path);
-                var result = connection.ExecuteScalar<string>("PRAGMA integrity_check;");
+                if (SqlConnection != null)
+                {
+                    SqlConnection.InsertOrReplace(value);
 
-                return result == "ok";
+                    return true;
+                }
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(VerifyDatabaseIntegrity), ex);
-
-                return false;
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex);
             }
+
+            return false;
         }
 
-        /// <summary>
-        /// Insere um objeto no BD.
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns>Objeto inserido, com a Primary Key atualizada</returns>
-        public static object? InserirModelo(object? model)
+        public static bool UpdateKeyValue(string key, string? value, TipoChave type = default)
         {
-            lock (Lock)
+            var keyValue = new ChaveValor
             {
-                try
-                {
-                    //Mutex.WaitOne();
+                Chave = key,
+                Valor = value,
+                Tipo = type
+            };
 
-                    if (SqlConnection == null)
+            return Update(keyValue);
+        }
+
+        public static T? Get<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
+        {
+            try
+            {
+                if (SqlConnection != null)
+                {
+                    if (predicate != null)
                     {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
+                        return SqlConnection.Table<T>().FirstOrDefault(predicate);
                     }
 
-                    var qtdInserida = SqlConnection.Insert(model);
-
-                    return qtdInserida == 1 ? model : null;
+                    return SqlConnection.Table<T>().FirstOrDefault();
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(InserirModelo), ex);
-
-                    return 0;
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
             }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Get), ex);
+            }
+
+            return default;
         }
 
-        public static int InserirListaDeModelo<T>(IEnumerable<T> model)
+        public static string? GetKeyValue(string key)
         {
-            lock (Lock)
-            {
-                try
-                {
-                    //Mutex.WaitOne();
+            return Get<ChaveValor>(x => x.Chave == key)?.Valor;
+        }
 
-                    if (SqlConnection == null)
+        public static List<T> Query<T>(string query, params object[] args) where T : new()
+        {
+            try
+            {
+                if (SqlConnection != null)
+                {
+                    var list = SqlConnection.Query<T>(query, args);
+
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Query), ex);
+            }
+
+            return new List<T>();
+        }
+
+        public static List<T> List<T>(Func<T, bool>? predicate = null) where T : new()
+        {
+            try
+            {
+                if (SqlConnection != null)
+                {
+                    if (predicate != null)
                     {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
+                        return SqlConnection.Table<T>().Where(predicate).ToList();
                     }
 
-                    SqlConnection.BeginTransaction();
-
-                    var qtdInserida = SqlConnection.InsertAll(model);
-
-                    SqlConnection.Commit();
-
-                    return qtdInserida;
+                    return SqlConnection.Table<T>().ToList();
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(InserirListaDeModelo), ex);
-
-                    return 0;
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
             }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(List), ex);
+            }
+
+            return new List<T>();
         }
 
-        public static int InserirOuSubstituirModelo(object model)
+        public static List<Item> ListCampings(string nomeDoCamping, string? cidade, string? estado)
         {
-            lock (Lock)
+            try
             {
-                try
+                if (SqlConnection != null)
                 {
-                    //Mutex.WaitOne();
-
-                    if (SqlConnection == null)
-                    {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
-                    }
-
-                    var result = SqlConnection.InsertOrReplace(model);
-
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(InserirOuSubstituirModelo), ex);
-
-                    return 0;
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
-            }
-        }
-
-        public static Item? ObterItem(Expression<Func<Item, bool>> where)
-        {
-            lock (Lock)
-            {
-                try
-                {
-                    //Mutex.WaitOne();
-
-                    if (SqlConnection == null)
-                    {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
-                    }
-
-                    var item = SqlConnection.Table<Item>().FirstOrDefault(where);
-
-                    return item;
-                }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ObterItem), ex);
-
-                    return null;
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
-            }
-        }
-
-        public static string? ObterValorChave(string chave)
-        {
-            lock (Lock)
-            {
-                try
-                {
-                    //Mutex.WaitOne();
-
-                    if (SqlConnection == null)
-                    {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
-                    }
-
-                    var valor = SqlConnection.Table<ChaveValor>().FirstOrDefault(x => x.Chave == chave)?.Valor;
-
-                    return valor;
-                }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ObterValorChave), ex);
-
-                    return default;
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
-            }
-        }
-
-        public static List<int> ListarIdsCampingsComComodidades(bool possuiFiltroComodidades, string comodidades)
-        {
-            if (!possuiFiltroComodidades)
-            {
-                return new List<int>();
-            }
-
-            var qtdFiltrosComodidades = comodidades.Split(',').Length;
-            var sbQueryComodidades = new StringBuilder();
-
-            sbQueryComodidades.Append($"SELECT II.{nameof(ItemIdentificador.IdItem)} ");
-            sbQueryComodidades.Append($" FROM {nameof(ItemIdentificador)} II ");
-            sbQueryComodidades.Append($" WHERE ");
-
-            if (comodidades == "'PossuiPraiaProxima'")
-            {
-                sbQueryComodidades.Append($" II.{nameof(ItemIdentificador.Identificador)} IN ({comodidades}) AND {nameof(ItemIdentificador.Opcao)} = 2 ");
-            }
-            else
-            {
-                sbQueryComodidades.Append($" II.{nameof(ItemIdentificador.Identificador)} IN ({comodidades}) AND {nameof(ItemIdentificador.Opcao)} = 1 ");
-            }
-
-            sbQueryComodidades.Append($" GROUP BY II.{nameof(ItemIdentificador.IdItem)} ");
-
-            if (qtdFiltrosComodidades > 0)
-            {
-                sbQueryComodidades.Append($" Having Count(II.{nameof(ItemIdentificador.IdItem)}) >= {qtdFiltrosComodidades}");
-            }
-
-            var query = sbQueryComodidades.ToString();
-
-            return QueryIdsIdentificadorCampings(query).Select(x => x.IdItem).ToList();
-        }
-
-        public static List<int> ListarIdsCampingsComCategorias(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
-        {
-            var queryIdsInCampingsComComodidade = string.Empty;
-
-            if (possuiFiltroComodidades && idsCampingsComComodidades.Count > 0)
-            {
-                queryIdsInCampingsComComodidade = $" (II.{nameof(ItemIdentificador.IdItem)} IN ({string.Join(",", idsCampingsComComodidades)}) ) AND ";
-            }
-
-            var sbQueryCategorias = new StringBuilder();
-            sbQueryCategorias.Append($"SELECT II.{nameof(ItemIdentificador.IdItem)} ");
-            sbQueryCategorias.Append($" FROM {nameof(ItemIdentificador)} II ");
-            sbQueryCategorias.Append($" WHERE ");
-            var complementoDaQuery = string.Empty;
-
-            if (categorias.Length == 104)
-            {
-                var identificadoresQueNaoEstaoNosFiltros = "'CampingEmFuncionamento'" + ",'CampingEmReformas'" + ",'CampingemSituaçãoIncerta'" + ",'CampingInformal'" + ",'CampingParaGruposouEventos'" + ",'Destaque'" + ",'Empresa'" + ",'EstacionamentoUrbanoouPraça'" + ",'Hotel/Pousada/Hostel'" + ",'PostodeCombustível'" + ",'Quiosque/Restaurante/PontoTurístico'" + ",'RVPark(ExclusivoRV`s)'" + ",'RVPark(SóMensalistas)'";
-                complementoDaQuery = $" OR II.{nameof(ItemIdentificador.Identificador)} IN ({identificadoresQueNaoEstaoNosFiltros})  ";
-            }
-            else
-            {
-                if (categorias.Contains("Campings"))
-                {
-                    var identificadoresCampings = "'CampingEmFuncionamento'" + ",'CampingEmReformas'" + ",'CampingemSituaçãoIncerta'" + ",'CampingInformal'" + ",'CampingParaGruposouEventos'" + ",'Destaque'";
-                    complementoDaQuery += $" OR II.{nameof(ItemIdentificador.Identificador)} IN ({identificadoresCampings})  ";
-                }
-
-                if (categorias.Contains("PontodeApoioaRV`s"))
-                {
-                    var identificadoresRVs = "'RVPark(ExclusivoRV`s)'" + ",'RVPark(SóMensalistas)'";
-                    complementoDaQuery += $" OR II.{nameof(ItemIdentificador.Identificador)} IN ({identificadoresRVs})  ";
-                }
-            }
-
-            sbQueryCategorias.Append($" {queryIdsInCampingsComComodidade} (II.{nameof(ItemIdentificador.Identificador)} IN ({categorias}){complementoDaQuery})");
-            sbQueryCategorias.Append($" GROUP BY {nameof(ItemIdentificador.IdItem)} ");
-
-            var query = sbQueryCategorias.ToString();
-
-            return QueryIdsIdentificadorCampings(query).Select(x => x.IdItem).ToList();
-        }
-
-        public static List<Item> ListarCampings()
-        {
-            if (SqlConnection == null)
-            {
-                throw new NullReferenceException("Conexão SQL não foi criada");
-            }
-
-            var campings = SqlConnection.Table<Item>().ToList();
-
-            return campings;
-        }
-
-        public static List<Item> BuscarCampings(string nomeDoCamping, string? cidade, string? estado)
-        {
-            lock (Lock)
-            {
-                try
-                {
-                    //Mutex.WaitOne();
-
-                    if (SqlConnection == null)
-                    {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
-                    }
-
                     var nomeNormalizado = nomeDoCamping.RemoveDiacritics().ToLower();
                     var estadoNormalizado = estado?.RemoveDiacritics().ToLower();
                     var cidadeNormalizada = cidade?.RemoveDiacritics().ToLower();
@@ -519,247 +355,107 @@ namespace MaCamp.Services.DataAccess
 
                     return query.ToList();
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(BuscarCampings), ex);
-
-                    return new List<Item>();
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
             }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
+            }
+
+            return new List<Item>();
         }
 
-        public static List<RetornoIdItem> QueryIdsIdentificadorCampings(string query)
+        public static List<int> ListIdCampingsComComodidades(bool possuiFiltroComodidades, string comodidades)
         {
-            lock (Lock)
+            try
             {
-                try
+                if (possuiFiltroComodidades)
                 {
-                    //Mutex.WaitOne();
+                    var qtdFiltrosComodidades = comodidades.Split(',').Length;
+                    var sbQueryComodidades = new StringBuilder();
 
-                    if (SqlConnection == null)
+                    sbQueryComodidades.Append($"SELECT II.{nameof(ItemIdentificador.IdItem)} ");
+                    sbQueryComodidades.Append($" FROM {nameof(ItemIdentificador)} II ");
+                    sbQueryComodidades.Append($" WHERE ");
+
+                    if (comodidades == "'PossuiPraiaProxima'")
                     {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
+                        sbQueryComodidades.Append($" II.{nameof(ItemIdentificador.Identificador)} IN ({comodidades}) AND {nameof(ItemIdentificador.Opcao)} = 2 ");
+                    }
+                    else
+                    {
+                        sbQueryComodidades.Append($" II.{nameof(ItemIdentificador.Identificador)} IN ({comodidades}) AND {nameof(ItemIdentificador.Opcao)} = 1 ");
                     }
 
-                    var itens = SqlConnection.Query<RetornoIdItem>(query);
+                    sbQueryComodidades.Append($" GROUP BY II.{nameof(ItemIdentificador.IdItem)} ");
 
-                    return itens;
-                }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(QueryIdsIdentificadorCampings), ex);
-
-                    return new List<RetornoIdItem>();
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
-            }
-        }
-
-        public static List<Item> QueryItens(string query, params object[] args)
-        {
-            lock (Lock)
-            {
-                try
-                {
-                    //Mutex.WaitOne();
-
-                    if (SqlConnection == null)
+                    if (qtdFiltrosComodidades > 0)
                     {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
+                        sbQueryComodidades.Append($" Having Count(II.{nameof(ItemIdentificador.IdItem)}) >= {qtdFiltrosComodidades}");
                     }
 
-                    var itens = SqlConnection.Query<Item>(query, args);
+                    var query = sbQueryComodidades.ToString();
 
-                    return itens;
+                    return Query<RetornoIdItem>(query).Select(x => x.IdItem).ToList();
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(QueryItens), ex);
-
-                    return new List<Item>();
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
             }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
+            }
+
+            return new List<int>();
         }
 
-        public static List<Item> FiltrarApenasCampingsDestaque(List<int> idsCampings)
+        public static List<int> ListIdCampingsComCategorias(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
         {
-            lock (Lock)
+            try
             {
-                var indiceAtual = 0;
-                var tamanhoBloco = 100;
-                var ids = new List<int>();
-                var itensDestaque = new List<Item>();
+                var queryIdsInCampingsComComodidade = string.Empty;
 
-                try
+                if (possuiFiltroComodidades && idsCampingsComComodidades.Count > 0)
                 {
-                    //Mutex.WaitOne();
+                    queryIdsInCampingsComComodidade = $" (II.{nameof(ItemIdentificador.IdItem)} IN ({string.Join(",", idsCampingsComComodidades)}) ) AND ";
+                }
 
-                    if (SqlConnection == null)
+                var sbQueryCategorias = new StringBuilder();
+                sbQueryCategorias.Append($"SELECT II.{nameof(ItemIdentificador.IdItem)} ");
+                sbQueryCategorias.Append($" FROM {nameof(ItemIdentificador)} II ");
+                sbQueryCategorias.Append($" WHERE ");
+                var complementoDaQuery = string.Empty;
+
+                if (categorias.Length == 104)
+                {
+                    var identificadoresQueNaoEstaoNosFiltros = "'CampingEmFuncionamento'" + ",'CampingEmReformas'" + ",'CampingemSituaçãoIncerta'" + ",'CampingInformal'" + ",'CampingParaGruposouEventos'" + ",'Destaque'" + ",'Empresa'" + ",'EstacionamentoUrbanoouPraça'" + ",'Hotel/Pousada/Hostel'" + ",'PostodeCombustível'" + ",'Quiosque/Restaurante/PontoTurístico'" + ",'RVPark(ExclusivoRV`s)'" + ",'RVPark(SóMensalistas)'";
+                    complementoDaQuery = $" OR II.{nameof(ItemIdentificador.Identificador)} IN ({identificadoresQueNaoEstaoNosFiltros})  ";
+                }
+                else
+                {
+                    if (categorias.Contains("Campings"))
                     {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
+                        var identificadoresCampings = "'CampingEmFuncionamento'" + ",'CampingEmReformas'" + ",'CampingemSituaçãoIncerta'" + ",'CampingInformal'" + ",'CampingParaGruposouEventos'" + ",'Destaque'";
+                        complementoDaQuery += $" OR II.{nameof(ItemIdentificador.Identificador)} IN ({identificadoresCampings})  ";
                     }
 
-                    var qtdIdsRestantes = idsCampings.Count;
-
-                    while (qtdIdsRestantes > 0)
+                    if (categorias.Contains("PontodeApoioaRV`s"))
                     {
-                        var idsBlocoAtual = idsCampings.Skip(indiceAtual * tamanhoBloco).Take(tamanhoBloco).ToList();
-                        ids.AddRange(SqlConnection.Table<ItemIdentificador>().Where(x => x.Identificador == "Destaque" && idsBlocoAtual.Contains(x.IdItem)).Select(x => x.IdItem));
-                        indiceAtual++;
-                        qtdIdsRestantes -= tamanhoBloco;
+                        var identificadoresRVs = "'RVPark(ExclusivoRV`s)'" + ",'RVPark(SóMensalistas)'";
+                        complementoDaQuery += $" OR II.{nameof(ItemIdentificador.Identificador)} IN ({identificadoresRVs})  ";
                     }
-
-                    itensDestaque = SqlConnection.Table<Item>().Where(x => ids.Contains(x.IdCamping)).OrderBy(x => x.Nome).ToList();
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(FiltrarApenasCampingsDestaque), ex);
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
 
-                return itensDestaque;
+                sbQueryCategorias.Append($" {queryIdsInCampingsComComodidade} (II.{nameof(ItemIdentificador.Identificador)} IN ({categorias}){complementoDaQuery})");
+                sbQueryCategorias.Append($" GROUP BY {nameof(ItemIdentificador.IdItem)} ");
+
+                var query = sbQueryCategorias.ToString();
+
+                return Query<RetornoIdItem>(query).Select(x => x.IdItem).ToList();
             }
-        }
-
-        public static List<Item> ListarItens(Expression<Func<Item, bool>>? where = null)
-        {
-            lock (Lock)
+            catch (Exception ex)
             {
-                try
-                {
-                    //Mutex.WaitOne();
-
-                    if (SqlConnection == null)
-                    {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
-                    }
-
-                    var itens = where != null ? SqlConnection.Table<Item>().Where(where).ToList() : SqlConnection.Table<Item>().ToList();
-
-                    itens.Where(x => x.type == "camping").ForEach(x => x.Identificadores = SqlConnection.Table<ItemIdentificador>().Where(y => y.IdItem == x.IdCamping).ToList());
-
-                    return itens;
-                }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListarItens), ex);
-
-                    return new List<Item>();
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
-            }
-        }
-
-        public static List<ItemIdentificador> ListarItensIdentificadores(Expression<Func<ItemIdentificador, bool>> where)
-        {
-            lock (Lock)
-            {
-                try
-                {
-                    //Mutex.WaitOne();
-
-                    if (SqlConnection == null)
-                    {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
-                    }
-
-                    var listItemIdentificadores = SqlConnection.Table<ItemIdentificador>().Where(where).ToList();
-
-                    return listItemIdentificadores;
-                }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListarItensIdentificadores), ex);
-
-                    return new List<ItemIdentificador>();
-                }
-                //finally
-                //{
-                //    Mutex.ReleaseMutex();
-                //}
-            }
-        }
-
-        public static List<Cidade> ListarCidades()
-        {
-            if (SqlConnection == null)
-            {
-                throw new NullReferenceException("Conexão SQL não foi criada");
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
             }
 
-            return SqlConnection.Table<Cidade>().ToList();
-        }
-
-        public static void ApagarItens()
-        {
-            lock (Lock)
-            {
-                if (SqlConnection == null)
-                {
-                    throw new NullReferenceException("Conexão SQL não foi criada");
-                }
-
-                //Mutex.WaitOne();
-                SqlConnection.DeleteAll<Item>();
-                //Mutex.ReleaseMutex();
-            }
-        }
-
-        public static void ApagarItensIdentificadores()
-        {
-            lock (Lock)
-            {
-                if (SqlConnection == null)
-                {
-                    throw new NullReferenceException("Conexão SQL não foi criada");
-                }
-
-                //Mutex.WaitOne();
-                SqlConnection.DeleteAll<ItemIdentificador>();
-                //Mutex.ReleaseMutex();
-            }
-        }
-
-        public static void ApagarCidades()
-        {
-            lock (Lock)
-            {
-                if (SqlConnection == null)
-                {
-                    throw new NullReferenceException("Conexão SQL não foi criada");
-                }
-
-                //Mutex.WaitOne();
-                SqlConnection.DeleteAll<Cidade>();
-                //Mutex.ReleaseMutex();
-            }
-        }
-
-        public static Colaboracao Consultar()
-        {
-            if (SqlConnection == null)
-            {
-                throw new NullReferenceException("Conexão SQL não foi criada");
-            }
-
-            return SqlConnection.Table<Colaboracao>().FirstOrDefault();
+            return new List<int>();
         }
     }
 }

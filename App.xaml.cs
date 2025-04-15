@@ -1,6 +1,5 @@
 using System.Globalization;
 using MaCamp.Dependencias;
-using MaCamp.Models;
 using MaCamp.Resources.Locale;
 using MaCamp.Services;
 using MaCamp.Services.DataAccess;
@@ -125,27 +124,13 @@ namespace MaCamp
 
         public static async void ExibirNotificacaoPush()
         {
-            var tituloPush = DBContract.ObterValorChave(AppConstants.Chave_TituloNotificacao);
-            var mensagemPush = DBContract.ObterValorChave(AppConstants.Chave_MensagemNotificacao);
-            var itemPush = DBContract.ObterValorChave(AppConstants.Chave_IdItemNotificacao);
+            var tituloPush = DBContract.GetKeyValue(AppConstants.Chave_TituloNotificacao);
+            var mensagemPush = DBContract.GetKeyValue(AppConstants.Chave_MensagemNotificacao);
+            var itemPush = DBContract.GetKeyValue(AppConstants.Chave_IdItemNotificacao);
 
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Chave_TituloNotificacao,
-                Valor = null
-            });
-
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Chave_MensagemNotificacao,
-                Valor = null
-            });
-
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Chave_IdItemNotificacao,
-                Valor = null
-            });
+            DBContract.UpdateKeyValue(AppConstants.Chave_TituloNotificacao, null);
+            DBContract.UpdateKeyValue(AppConstants.Chave_MensagemNotificacao, null);
+            DBContract.UpdateKeyValue(AppConstants.Chave_IdItemNotificacao, null);
 
             if (mensagemPush != null)
             {
@@ -175,7 +160,7 @@ namespace MaCamp
 
         public static bool BaixarUltimaVersaoConteudo()
         {
-            var dataUltimaAtualizacao = DBContract.ObterValorChave(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
+            var dataUltimaAtualizacao = DBContract.GetKeyValue(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
             var formato = "yyyy/MM/dd";
 
             if (DateTime.TryParseExact(dataUltimaAtualizacao, formato, CultureInfo.InvariantCulture, DateTimeStyles.None, out var data))

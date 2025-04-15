@@ -22,17 +22,8 @@ namespace MaCamp.Views.Campings
             ParametroTODOS = " - TODOS - ";
             CampingsTodos = " ";
 
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_EstabelecimentoSelecionados,
-                Valor = string.Empty
-            });
-
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_ServicoSelecionados,
-                Valor = string.Empty
-            });
+            DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, string.Empty);
+            DBContract.UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, string.Empty);
 
             CarregarCidadesEstados();
             CarregarLocalizacaoUsuario();
@@ -54,16 +45,19 @@ namespace MaCamp.Views.Campings
 
         private async void CarregarCidadesEstados()
         {
-            var EstadoBD = DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
-            var CIDADE_BD = DBContract.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
-            var NomeCampingBD = DBContract.ObterValorChave(AppConstants.Filtro_NomeCamping);
-            var cidadesWS = DBContract.ListarCidades();
+            var EstadoBD = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
+            var CIDADE_BD = DBContract.GetKeyValue(AppConstants.Filtro_CidadeSelecionada);
+            var NomeCampingBD = DBContract.GetKeyValue(AppConstants.Filtro_NomeCamping);
+            var cidadesWS = DBContract.List<Cidade>();
 
             if (cidadesWS.Count == 0)
             {
-                cidadesWS = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
+                await Workaround.TaskWork(async () =>
+                {
+                    cidadesWS = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
+                });
 
-                DBContract.InserirListaDeModelo(cidadesWS);
+                DBContract.Update(false, cidadesWS);
             }
 
             var gruposCidadePorUF = cidadesWS.GroupBy(x => x.Estado).ToList();
@@ -143,26 +137,10 @@ namespace MaCamp.Views.Campings
 
             //AlterarBuscaLocalizacao(false);
 
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_LocalizacaoSelecionada,
-                Valor = "true"
-            });
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_EstadoSelecionado,
-                Valor = null
-            });
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_CidadeSelecionada,
-                Valor = null
-            });
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_NomeCamping,
-                Valor = string.Empty
-            });
+            DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "true");
+            DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
+            DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
+            DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, string.Empty);
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Usar minha localização", "Buscando campings próximos");
 
@@ -171,31 +149,13 @@ namespace MaCamp.Views.Campings
 
         private void btBuscar_Clicked(object sender, EventArgs e)
         {
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_EstadoSelecionado,
-                Valor = EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado
-            });
-
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_CidadeSelecionada,
-                Valor = CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada
-            });
-
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_LocalizacaoSelecionada,
-                Valor = "false"
-            });
+            DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado);
+            DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada);
+            DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "false");
 
             NomeDoCamping = etNomeDoCamping.Text.RemoveDiacritics();
 
-            DBContract.InserirOuSubstituirModelo(new ChaveValor
-            {
-                Chave = AppConstants.Filtro_NomeCamping,
-                Valor = NomeDoCamping == string.Empty ? null : NomeDoCamping
-            });
+            DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, NomeDoCamping == string.Empty ? null : NomeDoCamping);
 
             pkUF.SelectedItem = null;
 

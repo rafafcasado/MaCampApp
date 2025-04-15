@@ -1,8 +1,5 @@
 ﻿using MaCamp.Dependencias;
-using MaCamp.Models;
 using MaCamp.Utils;
-using MaCamp.ViewModels;
-using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Services.DataAccess
 {
@@ -10,7 +7,7 @@ namespace MaCamp.Services.DataAccess
     {
         private static CancellationTokenSource? CancellationTokenSource { get; set; }
 
-        public static void CheckAndStart()
+        public static async void CheckAndStart()
         {
             // Já está em execução
             if (CancellationTokenSource != null)
@@ -18,9 +15,11 @@ namespace MaCamp.Services.DataAccess
                 return;
             }
 
-            var valor = DBContract.ObterValorChave(AppConstants.Chave_UltimaAtualizacao);
+            var versaoAtual = 1.35;
+            var chaveData = DBContract.GetKeyValue(AppConstants.Chave_UltimaAtualizacao);
+            var chaveVersao = DBContract.GetKeyValue(AppConstants.Chave_Versao);
 
-            if (DateTime.TryParse(valor, out var data) && data > DateTime.Now.Subtract(TimeSpan.FromDays(30)))
+            if (DateTime.TryParse(chaveData, out var data) && data > DateTime.Now.Subtract(TimeSpan.FromDays(30)) && double.TryParse(chaveVersao, out var versao) && versao >= versaoAtual)
             {
                 return;
             }
@@ -29,7 +28,7 @@ namespace MaCamp.Services.DataAccess
 
             var cancellationToken = CancellationTokenSource.Token;
 
-            Workaround.TaskWork(async () =>
+            await Workaround.TaskWork(async () =>
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
@@ -37,36 +36,30 @@ namespace MaCamp.Services.DataAccess
                     var notification = new NotificationData
                     {
                         Title = "Atualização do banco de dados",
-                        Message = "Estamos atualizando as informações de Campings",
+                        Message = "Estamos buscando informações de Campings",
                         ProgressValue = -1
                     };
                     var notificationId = notificationService.Show(notification);
+                    var openNotification = DBContract.GetKeyValue(AppConstants.Chave_NotificacaoAberta);
+
+                    if (openNotification != null)
+                    {
+                        notificationService.Complete(Convert.ToInt32(openNotification));
+                    }
+
+                    DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
 
                     try
                     {
-                        var vm = new ListagemInfinitaVM();
+                        await CampingServices.BaixarCampings(true);
 
-                        await Task.WhenAll(
-                            Task.Run(async () =>
-                            {
-                                await CampingServices.CarregarCampings();
+                        notification.Message = "Estamos salvando informações de Campings";
 
-                                notification.ProgressValue += 50;
-                            }),
-                            Task.Run(async () =>
-                            {
-                                await vm.Carregar(string.Empty, -1, string.Empty, string.Empty, TipoListagem.Camping, false);
+                        notificationService.Update(notificationId, notification);
 
-                                notification.ProgressValue += 50;
-                            })
-                        );
-
-                        DBContract.InserirListaDeModelo(vm.Itens.ToList());
-                        DBContract.InserirOuSubstituirModelo(new ChaveValor
-                        {
-                            Chave = AppConstants.Chave_UltimaAtualizacao,
-                            Valor = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
-                        });
+                        DBContract.UpdateKeyValue(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                        DBContract.UpdateKeyValue(AppConstants.Chave_Versao, versaoAtual.ToString());
+                        DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, null);
 
                         notificationService.Complete(notificationId);
                     }

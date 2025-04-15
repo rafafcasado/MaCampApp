@@ -13,7 +13,7 @@ namespace MaCamp.Views.Listagens
 {
     public partial class ListagemItensOnlineView : ContentView
     {
-        private ListagemInfinitaVM _viewModel { get; }
+        private ListagemInfinitaVM ViewModel { get; }
         private int PaginaAtual;
         private List<int> IdsQueJaChamaramPaginacao { get; set; }
         private string EndpointListagem { get; }
@@ -26,14 +26,13 @@ namespace MaCamp.Views.Listagens
 
             NavigationPage.SetBackButtonTitle(this, string.Empty);
 
-            _viewModel = new ListagemInfinitaVM();
+            ViewModel = new ListagemInfinitaVM();
             IdsQueJaChamaramPaginacao = new List<int>();
             EndpointListagem = endpointListagem;
             Tag = tag;
             ParametrosBusca = parametrosBusca;
 
             cvItens.ItemTemplate = new ItemDataTemplateSelector();
-
 
             Loaded += ListagemItensOnlineView_Loaded;
         }
@@ -69,10 +68,10 @@ namespace MaCamp.Views.Listagens
 
                 if (item != null)
                 {
-                    var temMaisItens = _viewModel.Itens.Count >= AppConstants.QuantidadeNoticiasPorLote;
+                    var temMaisItens = ViewModel.Itens.Count >= AppConstants.QuantidadeNoticiasPorLote;
                     var contemItemLocal = !IdsQueJaChamaramPaginacao.Contains(item.IdLocal);
 
-                    if (temMaisItens && _viewModel.Itens.Count - 5 > 0 && item == _viewModel.Itens[^5] && contemItemLocal)
+                    if (temMaisItens && ViewModel.Itens.Count - 5 > 0 && item == ViewModel.Itens[^5] && contemItemLocal)
                     {
                         IdsQueJaChamaramPaginacao.Add(item.IdLocal);
 
@@ -84,13 +83,12 @@ namespace MaCamp.Views.Listagens
 
         private async void Handle_Refreshing(object? sender, EventArgs? e)
         {
-            _viewModel.Itens = new ObservableCollection<Item>();
+            ViewModel.Itens = new ObservableCollection<Item>();
             lbMensagemAviso.IsVisible = false;
 
             if (sender != null)
             {
                 loaderConteudoInicial.IsVisible = true;
-                loaderConteudoInicial.IsRunning = true;
             }
 
             cvItens.ItemsSource = null;
@@ -107,7 +105,6 @@ namespace MaCamp.Views.Listagens
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
                 loaderConteudoInicial.IsVisible = false;
-                loaderConteudoInicial.IsRunning = false;
                 loaderConteudoAdicional.IsVisible = false;
 
                 //Verifica se existem Campings baixados
@@ -173,21 +170,22 @@ namespace MaCamp.Views.Listagens
             else
             {
                 loaderConteudoInicial.IsVisible = true;
-                loaderConteudoInicial.IsRunning = true;
                 loaderConteudoInicial.IsVisible = true;
             }
 
-            await _viewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca);
+            await Workaround.TaskWork(async () =>
+            {
+                await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca);
+            });
 
             loaderConteudoInicial.IsVisible = false;
-            loaderConteudoInicial.IsRunning = false;
             loaderConteudoAdicional.IsVisible = false;
             rvItens.IsRefreshing = false;
 
-            if (_viewModel.Itens.Count > 0)
+            if (ViewModel.Itens.Count > 0)
             {
                 lbMensagemAviso.IsVisible = false;
-                cvItens.ItemsSource = _viewModel.Itens;
+                cvItens.ItemsSource = ViewModel.Itens;
                 cvItens.IsVisible = true;
             }
             else

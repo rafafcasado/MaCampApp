@@ -206,7 +206,7 @@ namespace MaCamp.Views.Detalhes
                     item.Favoritado = false;
 
                     StorageHelper.AddOrUpdateItem(item);
-                    DBContract.InserirOuSubstituirModelo(item);
+                    DBContract.Update(item);
                     ConfigurarToolbar(item);
 
                     WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
@@ -221,7 +221,7 @@ namespace MaCamp.Views.Detalhes
                     item.Favoritado = true;
 
                     StorageHelper.AddOrUpdateItem(item);
-                    DBContract.InserirOuSubstituirModelo(item);
+                    DBContract.Update(item);
                     ConfigurarToolbar(item);
 
                     WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);

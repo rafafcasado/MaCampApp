@@ -157,19 +157,12 @@ namespace MaCamp.Views.Campings
 
         private async void RecarregarConteudo(object? sender, EventArgs e)
         {
-            ViewModel.Itens = new ObservableCollection<Item>();
-            slMensagemAviso.IsVisible = false;
-
-            if (sender != null)
-            {
-                indicadorCarregamento.IsVisible = true;
-                indicadorCarregamento.IsRunning = true;
-            }
-
-            cvItens.ItemsSource = new ObservableCollection<Item>();
-
             PaginaAtual = 0;
+            slMensagemAviso.IsVisible = false;
+            ViewModel.Itens = new ObservableCollection<Item>();
+            cvItens.ItemsSource = new ObservableCollection<Item>();
             //IdsQueJaChamaramPaginacao = new List<int>();
+
             await CarregarConteudo();
         }
 
@@ -188,7 +181,6 @@ namespace MaCamp.Views.Campings
                     var fs = new FormattedString();
 
                     indicadorCarregamento.IsVisible = false;
-                    indicadorCarregamento.IsRunning = false;
 
                     fs.Spans.Add(new Span
                     {
@@ -210,30 +202,24 @@ namespace MaCamp.Views.Campings
 
             ViewModel.Itens.Clear();
 
-            if (PaginaAtual > 0)
-            {
-                indicadorCarregamento.IsVisible = true;
-            }
-            else
-            {
-                slBaixandoCampings.IsVisible = !existemCampingsBD;
+            slBaixandoCampings.IsVisible = !existemCampingsBD;
+            DeviceDisplay.KeepScreenOn = slBaixandoCampings.IsVisible;
+            indicadorCarregamento.IsVisible = PaginaAtual >= 0;
 
-                if (slBaixandoCampings.IsVisible)
-                {
-                    slMensagemAviso.IsVisible = false;
-                }
-
-                DeviceDisplay.KeepScreenOn = slBaixandoCampings.IsVisible;
-                indicadorCarregamento.IsVisible = false;
-                indicadorCarregamento.IsRunning = false;
+            if (slBaixandoCampings.IsVisible)
+            {
+                slMensagemAviso.IsVisible = false;
             }
 
-            await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, TipoListagem.Camping);
+            await Workaround.TaskWork(async () =>
+            {
+                await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, TipoListagem.Camping);
+            });
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
-            var valorChaveUsarLocalizacaoUsuario = DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
-            var valorChaveBuscaCamping = DBContract.ObterValorChave(AppConstants.Filtro_NomeCamping);
+            var valorChaveUsarLocalizacaoUsuario = DBContract.GetKeyValue(AppConstants.Filtro_LocalizacaoSelecionada);
+            var valorChaveBuscaCamping = DBContract.GetKeyValue(AppConstants.Filtro_NomeCamping);
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
@@ -243,8 +229,8 @@ namespace MaCamp.Views.Campings
             }
             else
             {
-                var EstadoBD = DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
-                var CIDADE_BD = DBContract.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
+                var EstadoBD = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
+                var CIDADE_BD = DBContract.GetKeyValue(AppConstants.Filtro_CidadeSelecionada);
                 var quantidadeAnuncios = ViewModel.Itens.Count(x => !x.EhAnuncio && !x.EhAdMobRetangulo);
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
@@ -269,7 +255,6 @@ namespace MaCamp.Views.Campings
             slBaixandoCampings.IsVisible = false;
             rvItens.IsRefreshing = false;
             indicadorCarregamento.IsVisible = false;
-            indicadorCarregamento.IsRunning = false;
             DeviceDisplay.KeepScreenOn = false;
 
             if (ViewModel.Itens.Count > 0)

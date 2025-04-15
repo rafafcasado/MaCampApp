@@ -37,9 +37,11 @@ namespace MaCamp.Views.Detalhes
 
         private void DadosColaborador()
         {
-            etEmail.Text = DBContract.Consultar().Email ?? string.Empty;
-            etNome.Text = DBContract.Consultar().Nome ?? string.Empty;
-            Equipamento.Text = DBContract.Consultar().Equipamento ?? string.Empty;
+            var colaboracao = DBContract.Get<Colaboracao>();
+
+            etEmail.Text = colaboracao?.Email ?? string.Empty;
+            etNome.Text = colaboracao?.Nome ?? string.Empty;
+            Equipamento.Text = colaboracao?.Equipamento ?? string.Empty;
         }
 
         private async void EnviarColaboracao(object sender, EventArgs e)
@@ -76,7 +78,7 @@ namespace MaCamp.Views.Detalhes
                     Equipamento = Equipamento.Text
                 };
 
-                DBContract.InserirOuSubstituirModelo(colaboracao);
+                DBContract.Update(colaboracao);
 
                 await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
 

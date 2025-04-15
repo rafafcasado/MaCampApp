@@ -91,7 +91,7 @@ namespace MaCamp.Views.Campings
                     {
                         IsShowingUser = true
                     };
-                    var listPins = CriarListaPins(Itens);
+                    var listPins = CriarListaPins(Itens.Where(x => x.Longitude != 0 && x.Latitude != 0).ToList());
 
                     map.PropertyChanged += async (sender, e) =>
                     {
@@ -112,7 +112,7 @@ namespace MaCamp.Views.Campings
 
                     try
                     {
-                        var valorChaveEstadoSelecionado = DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
+                        var valorChaveEstadoSelecionado = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
 
                         if (valorChaveEstadoSelecionado != null)
                         {
@@ -146,20 +146,20 @@ namespace MaCamp.Views.Campings
 
         private async Task<ObservableCollection<Item>> CarregarItensAsync(bool usarFiltros)
         {
-            var vm = new ListagemInfinitaVM();
+            var viewModel = new ListagemInfinitaVM();
 
             if (!System.Diagnostics.Debugger.IsAttached && Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
-                await vm.Carregar(string.Empty, -1, string.Empty, string.Empty, TipoListagem.Camping, usarFiltros);
+                await viewModel.Carregar(string.Empty, -1, string.Empty, string.Empty, TipoListagem.Camping, usarFiltros);
             }
             else
             {
-                var itensSalvos = DBContract.ListarItens();
+                var itensSalvos = DBContract.List<Item>();
 
-                vm.Itens = new ObservableCollection<Item>(itensSalvos);
+                viewModel.Itens = new ObservableCollection<Item>(itensSalvos);
             }
 
-            return vm.Itens;
+            return viewModel.Itens;
         }
 
         private void OnToggleButtonClicked(object sender, EventArgs e)
@@ -189,7 +189,7 @@ namespace MaCamp.Views.Campings
             }
         }
 
-        private List<Pin> CriarListaPins(ObservableCollection<Item> itens)
+        private List<Pin> CriarListaPins(IEnumerable<Item> itens)
         {
             var listPins = new List<Pin>();
             var identificadoresPermitidos = new List<string>
@@ -216,7 +216,7 @@ namespace MaCamp.Views.Campings
                     var pin = new StylishPin
                     {
                         Label = item.Nome,
-                        ImageSource = imagem,
+                        //ImageSource = imagem,
                         Address = item.EnderecoCompleto,
                         Location = item.GetLocation(),
                         Data = item

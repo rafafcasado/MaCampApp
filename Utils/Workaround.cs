@@ -79,17 +79,29 @@ namespace MaCamp.Utils
             }
         });
 
-        public static Task TaskWork(Func<Task> task, CancellationToken cancellationToken = default) => Task.Run(async () =>
+        public static Task TaskWork(Func<Task> task, CancellationToken cancellationToken = default)
         {
             try
             {
-                await task();
+                return Task.Run(async () =>
+                {
+                    try
+                    {
+                        await task();
+                    }
+                    catch (Exception ex)
+                    {
+                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWork), ex);
+                    }
+                }, cancellationToken);
             }
-            catch (Exception ex)
+            catch (OperationCanceledException)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWork), ex);
+                // Execução cancelada, ignorar erro
             }
-        }, cancellationToken);
+
+            return Task.CompletedTask;
+        }
 
         public static async Task TaskUI(Action action, CancellationToken cancellationToken = default)
         {

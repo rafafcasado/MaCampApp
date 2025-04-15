@@ -47,8 +47,12 @@ namespace MaCamp.Platforms.Android.Services
         public int Show(NotificationData data)
         {
             var id = new Random().Next();
+            var notification = BuildNotification(data);
 
-            Update(id, data);
+            if (NotificationManager != null)
+            {
+                NotificationManager.Notify(id, notification);
+            }
 
             return id;
         }
@@ -59,7 +63,12 @@ namespace MaCamp.Platforms.Android.Services
 
             if (NotificationManager != null)
             {
-                NotificationManager.Notify(id, notification);
+                var listNotifications = NotificationManager.GetActiveNotifications();
+
+                if (listNotifications != null && listNotifications.Any(x => x.Id == id))
+                {
+                    NotificationManager.Notify(id, notification);
+                }
             }
         }
 

@@ -39,7 +39,7 @@ namespace MaCamp.ViewModels
 
             if (tipoListagem == TipoListagem.Camping)
             {
-                var listaItensCampings = await ObterListaDeCampings(endpoint, pagina, tag, query, utilizarFiltros);
+                var listaItensCampings = await CampingServices.CarregarCampings(utilizarFiltros);
                 var idLocal = Itens.Count;
                 var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
                 var anuncios = listaAnuncios.Where(x => x.Tipo == TipoAnuncio.Nativo).ToList();
@@ -167,13 +167,6 @@ namespace MaCamp.ViewModels
                     }
                 });
             }
-        }
-
-        private async Task<List<Item>> ObterListaDeCampings(string endpoint, int pagina, string? tag = null, string? query = null, bool filtrar = true)
-        {
-            var campings = await CampingServices.CarregarCampings(filtrar);
-
-            return campings;
         }
 
         private double CalcularDistancia(double latitudeItem, double longitudeItem)
