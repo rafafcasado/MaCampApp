@@ -1,4 +1,5 @@
 ﻿using SQLite;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Models
 {
@@ -18,5 +19,6 @@ namespace MaCamp.Models
         public string? Secao { get; set; }
         public string? NomeExibicaoOpcao { get; set; }
         public int Opcao { get; set; }
+        public TipoIdentificador? TipoIdentificador { get; set; }
     }
 }

@@ -59,11 +59,19 @@ namespace MaCamp.Services
                         Task.Run(async () =>
                         {
                             identificadores = await new WebService().GetListAsync<ItemIdentificador>(AppConstants.Url_ListaIdentificadores, 1);
+
+                            Parallel.ForEach(identificadores, x =>
+                            {
+                                x.TipoIdentificador = Enum.TryParse<TipoIdentificador>(x.Identificador, out var tipoIdentificador) ? tipoIdentificador : null;
+                            });
+
                             ProgressoVisual.AumentarAtual(progressoVisual);
                         })
                     };
 
                     await Task.WhenAll(chamadasWS);
+
+                    Parallel.ForEach(campings, x => x.Identificadores = identificadores.Where(y => y.IdItem == x.IdCamping).ToList());
 
                     DBContract.Update(true, campings, identificadores, progressoVisual);
 

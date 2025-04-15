@@ -7,7 +7,6 @@ using MaCamp.Dependencias;
 using MaCamp.Models;
 using Microsoft.Maui.Maps;
 using SkiaSharp;
-using static MaCamp.Utils.Enumeradores;
 using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace MaCamp.Utils
@@ -273,29 +272,6 @@ namespace MaCamp.Utils
             }
 
             actions.End?.Invoke();
-        }
-
-        public static TK GetEnumValue<T, TK>(this List<T>? source, Func<T, string?> predicate, TK defaultValue) where TK : struct, Enum
-        {
-            if (source != null && source.Count > 0)
-            {
-                return source.Select(x => Enum.TryParse<TK>(predicate(x), true, out var value) ? value : defaultValue).Min();
-            }
-
-            return defaultValue;
-        }
-
-        public static TK GetEnumValue<T, TK>(this List<T>? source, Func<T, string?> predicate, TipoEnumValue tipo) where TK : struct, Enum
-        {
-            var listValues = Enum.GetValues<TK>();
-            var defaultValue = tipo == TipoEnumValue.Smallest ? listValues.Last() : listValues.First();
-
-            if (source != null && source.Count > 0)
-            {
-                return source.Select(x => Enum.TryParse<TK>(predicate(x), true, out var value) ? value : defaultValue).Min();
-            }
-
-            return defaultValue;
         }
 
         public static bool IsInside(this MapSpan region, Location location)

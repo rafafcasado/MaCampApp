@@ -43,10 +43,7 @@ namespace MaCamp.ViewModels
                 var idLocal = Itens.Count;
                 var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
                 var anuncios = listaAnuncios.Where(x => x.Tipo == TipoAnuncio.Nativo).ToList();
-                var listaItensCampingsOrdenados = listaItensCampings
-                    .OrderBy(x => x.Identificadores.GetEnumValue<ItemIdentificador, TipoIdentificador>(y => y.Identificador, TipoEnumValue.Smallest))
-                    .ThenBy(x => x.Nome)
-                    .ToList();
+                var listaItensCampingsOrdenados = listaItensCampings.OrderBy(x => x.Identificadores.Min(y => y.TipoIdentificador)).ThenBy(x => x.Nome).ToList();
 
                 listaItensCampingsOrdenados.ForEach(x =>
                 {

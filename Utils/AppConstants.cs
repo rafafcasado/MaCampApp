@@ -6,9 +6,10 @@ namespace MaCamp.Utils
     public static class AppConstants
     {
         public static string Path => Workaround.GetPath();
-        public static Dictionary<string, object?> DictionaryData => new Dictionary<string, object?>();
-        public static ConcurrentDictionary<string, CancellationTokenSource> DictionaryDataDebounceTokens = new ConcurrentDictionary<string, CancellationTokenSource>();
         public static Page CurrentPage => Application.Current?.MainPage ?? throw new NullReferenceException();
+
+        public static Dictionary<string, object?> DictionaryData => new Dictionary<string, object?>();
+        public static ConcurrentDictionary<string, CancellationTokenSource> DictionaryDataDebounceTokens => new ConcurrentDictionary<string, CancellationTokenSource>();
 
         public static string CharsAcentuados => "αßÁáÀàÂâÃãĀāÅåÄäÆæÇçÉéÈèÊêÍíÌìÎîÑñÓóÒòÔôÖöŌōØøÚúÙùÜüŽž";
         public static string CharsRegulares => "abAaAaAaAaAaAaAaAaCcEeEeEeIiIiIiNnOoOoOoOoOoOoUuUuUuZz";

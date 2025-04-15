@@ -15,7 +15,7 @@ namespace MaCamp.Services.DataAccess
                 return;
             }
 
-            var versaoAtual = 1.35;
+            var versaoAtual = 1.39;
             var chaveData = DBContract.GetKeyValue(AppConstants.Chave_UltimaAtualizacao);
             var chaveVersao = DBContract.GetKeyValue(AppConstants.Chave_Versao);
 

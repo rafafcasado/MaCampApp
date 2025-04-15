@@ -81,11 +81,5 @@
             Masonary,
             Carousel
         }
-
-        public enum TipoEnumValue
-        {
-            Biggest,
-            Smallest
-        }
     }
 }

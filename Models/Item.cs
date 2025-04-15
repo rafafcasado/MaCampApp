@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using MaCamp.Models.Anuncios;
-using MaCamp.Services.DataAccess;
+using MaCamp.Utils;
 using SQLite;
 
 namespace MaCamp.Models
@@ -303,22 +305,31 @@ namespace MaCamp.Models
         public int Ordem { get; set; }
         public string? LinksFotos { get; set; }
         public string? LinkUltimaFoto => LinksFotos?.Split('|').LastOrDefault();
-        private List<ItemIdentificador> _identificadores = new List<ItemIdentificador>();
 
         [Ignore]
         public List<ItemIdentificador> Identificadores
         {
             get
             {
-                if (_identificadores.Count == 0)
+                try
                 {
-                    _identificadores = DBContract.List<ItemIdentificador>(x => x.IdItem == IdCamping);
+                    if (!string.IsNullOrEmpty(IdentificadoresSerializado))
+                    {
+                        return JsonSerializer.Deserialize<List<ItemIdentificador>>(IdentificadoresSerializado) ?? new List<ItemIdentificador>();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Item), nameof(Identificadores), ex);
                 }
 
-                return _identificadores;
+                return new List<ItemIdentificador>();
             }
-            set => _identificadores = value;
+            set => IdentificadoresSerializado = JsonSerializer.Serialize(value);
         }
+
+        [JsonIgnore]
+        public string? IdentificadoresSerializado { get; set; }
 
         #endregion
 
