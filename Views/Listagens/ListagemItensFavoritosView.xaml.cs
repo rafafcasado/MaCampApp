@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.CustomControls;
 using MaCamp.Dependencias;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
@@ -9,7 +10,7 @@ using MaCamp.Views.Detalhes;
 
 namespace MaCamp.Views.Listagens
 {
-    public partial class ListagemItensFavoritosView : ContentView
+    public partial class ListagemItensFavoritosView : SmartContentView
     {
         public ListagemItensFavoritosView()
         {
@@ -17,16 +18,16 @@ namespace MaCamp.Views.Listagens
 
             NavigationPage.SetBackButtonTitle(this, string.Empty);
 
-            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Campings Favoritos");
-
             cvItens.ItemTemplate = new ItemDataTemplateSelector();
 
-            Loaded += ListagemItensFavoritosView_Loaded;
+            FirstAppeared += ListagemItensFavoritosView_FirstAppeared;
 
             WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos, (recipient, message) =>
             {
                 Handle_Refreshing(null, null);
             });
+
+            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Campings Favoritos");
         }
 
         private async void Handle_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -47,7 +48,7 @@ namespace MaCamp.Views.Listagens
                     }
                     else if (item.IdPost != 0)
                     {
-                        await ControladorDeAnuncios.VerificarEExibirAnuncioPopup();
+                        await ControladorDeAnuncios.VerificarEExibirAnuncioPopupAsync();
                         await Navigation.PushAsync(new DetalhesPage(item));
                     }
                     else
@@ -76,7 +77,7 @@ namespace MaCamp.Views.Listagens
         private async Task CarregarConteudoAsync()
         {
             var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
-            var storagePermissionResult = await storagePermissionService.Request();
+            var storagePermissionResult = await storagePermissionService.RequestAsync();
 
             if (storagePermissionResult)
             {
@@ -104,7 +105,7 @@ namespace MaCamp.Views.Listagens
             }
         }
 
-        private async void ListagemItensFavoritosView_Loaded(object? sender, EventArgs e)
+        private async void ListagemItensFavoritosView_FirstAppeared(object? sender, EventArgs e)
         {
             if (cvItens.ItemsSource is not List<Item> listaFavoritos || listaFavoritos.Count == 0)
             {

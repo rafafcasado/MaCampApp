@@ -19,7 +19,7 @@ namespace MaCamp.ViewModels
             WebService = new WebService();
         }
 
-        public async Task Carregar(string endpoint, int pagina, string? tag = null, string? query = null, TipoListagem tipoListagem = TipoListagem.Noticias, bool utilizarFiltros = true)
+        public async Task CarregarAsync(string endpoint, int pagina, string? tag = null, string? query = null, TipoListagem tipoListagem = TipoListagem.Noticias, bool utilizarFiltros = true)
         {
             var configs = default(ConfiguracoesAnuncios?);
             var countAnuncio = 0;
@@ -39,7 +39,7 @@ namespace MaCamp.ViewModels
 
             if (tipoListagem == TipoListagem.Camping)
             {
-                var listaItensCampings = await CampingServices.CarregarCampings(utilizarFiltros);
+                var listaItensCampings = await CampingServices.CarregarCampingsAsync(utilizarFiltros);
                 var idLocal = Itens.Count;
                 var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
                 var anuncios = listaAnuncios.Where(x => x.Tipo == TipoAnuncio.Nativo).ToList();

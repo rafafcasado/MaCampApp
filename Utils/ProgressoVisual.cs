@@ -27,7 +27,7 @@
 
                     progressoVisual.Atual = valor;
 
-                    await Workaround.TaskUI(async () =>
+                    await Workaround.TaskUIAsync(async () =>
                     {
                         await progressoVisual.ProgressBar.ProgressTo(proporcao, 500, Easing.CubicIn);
                     });

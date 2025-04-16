@@ -79,7 +79,7 @@ namespace MaCamp.Utils
             }
         });
 
-        public static Task TaskWork(Func<Task> task, CancellationToken cancellationToken = default)
+        public static Task TaskWorkAsync(Func<Task> task, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace MaCamp.Utils
                     }
                     catch (Exception ex)
                     {
-                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWork), ex);
+                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWorkAsync), ex);
                     }
                 }, cancellationToken);
             }
@@ -103,7 +103,7 @@ namespace MaCamp.Utils
             return Task.CompletedTask;
         }
 
-        public static async Task TaskUI(Action action, CancellationToken cancellationToken = default)
+        public static async Task TaskUIAsync(Action action, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -117,7 +117,7 @@ namespace MaCamp.Utils
                         }
                         catch (Exception ex)
                         {
-                            Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUI), ex);
+                            Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
                         }
                     }
                 });
@@ -128,7 +128,7 @@ namespace MaCamp.Utils
             }
         }
 
-        public static async Task<bool> CheckPermission<T>(string title, string message) where T : Permissions.BasePermission, new()
+        public static async Task<bool> CheckPermissionAsync<T>(string title, string message) where T : Permissions.BasePermission, new()
         {
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {
@@ -165,7 +165,7 @@ namespace MaCamp.Utils
                 }
                 catch (Exception ex)
                 {
-                    ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(CheckPermission), ex);
+                    ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(CheckPermissionAsync), ex);
 
                     return false;
                 }
@@ -174,14 +174,14 @@ namespace MaCamp.Utils
             return true;
         }
 
-        public static async Task<bool> CheckPermission(params Permissions.BasePermission[] permissions)
+        public static async Task<bool> CheckPermissionAsync(params Permissions.BasePermission[] permissions)
         {
             var results = new List<bool>();
 
             foreach (var permission in permissions)
             {
                 var type = permission.GetType();
-                var method = typeof(Workaround).GetMethod(nameof(CheckPermission))?.MakeGenericMethod(type);
+                var method = typeof(Workaround).GetMethod(nameof(CheckPermissionAsync))?.MakeGenericMethod(type);
 
                 if (method != null)
                 {

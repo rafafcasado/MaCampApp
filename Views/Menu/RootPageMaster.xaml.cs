@@ -19,11 +19,6 @@ namespace MaCamp.Views.Menu
             CollectionView = MenuItemsListView;
         }
 
-        private async void ExibirAlerta(string titulo, string mensagem, string botaoOk = "OK")
-        {
-            await DisplayAlert(titulo, mensagem, botaoOk);
-        }
-
         private void AbrirPatrocinador(object sender, EventArgs e)
         {
             Launcher.OpenAsync(AppConstants.Url_EasyTransports);

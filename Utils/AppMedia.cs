@@ -95,9 +95,9 @@ namespace MaCamp.Utils
         /// Método utilizado para requisitar ao usuário uma imagem. 
         /// </summary>
         /// <returns>bool = sucesso ao obter a imagem. FileResult = caso sucesso, o arquivo que foi obtido. NULL caso contrário.</returns>
-        public static async Task<Tuple<bool, FileResult?>> RequisitarMidiaSistema(Page paginaParaAlertas, bool incluirVideo = false)
+        public static async Task<Tuple<bool, FileResult?>> RequisitarMidiaSistemaAsync(Page paginaParaAlertas, bool incluirVideo = false)
         {
-            var permissionGranted = await Workaround.CheckPermission(new Permissions.Camera(), new Permissions.Photos(), new Permissions.StorageRead(), new Permissions.StorageWrite());
+            var permissionGranted = await Workaround.CheckPermissionAsync(new Permissions.Camera(), new Permissions.Photos(), new Permissions.StorageRead(), new Permissions.StorageWrite());
 
             if (permissionGranted)
             {

@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using MaCamp.Dependencias;
 using MaCamp.Models;
 using Microsoft.Maui.Maps;
 using SkiaSharp;
@@ -246,32 +245,6 @@ namespace MaCamp.Utils
             {
                 collection.Add(newItem);
             }
-        }
-
-        public class RunActions
-        {
-            public Action? Start { get; set; }
-            public Action? End { get; set; }
-            public Action? Granted { get; set; }
-            public Action? Denied { get; set; }
-        }
-
-        public static async Task Run(this IStoragePermission service, RunActions actions)
-        {
-            actions.Start?.Invoke();
-
-            var response = await service.Request();
-
-            if (response)
-            {
-                actions.Granted?.Invoke();
-            }
-            else
-            {
-                actions.Denied?.Invoke();
-            }
-
-            actions.End?.Invoke();
         }
 
         public static bool IsInside(this MapSpan region, Location location)

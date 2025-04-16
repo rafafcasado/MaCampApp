@@ -15,7 +15,7 @@ using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace MaCamp.Views.Campings
 {
-    public partial class MapaPage : ContentPage
+    public partial class MapaPage : SmartContentPage
     {
         private bool UsarFiltros { get; set; }
         private ObservableCollection<Item>? Itens { get; set; }
@@ -26,6 +26,8 @@ namespace MaCamp.Views.Campings
 
             NavigationPage.SetBackButtonTitle(this, string.Empty);
             BackgroundColor = Colors.White;
+
+            FirstAppeared += MapaPage_FirstAppeared;
 
             cvMapa.Content = new ActivityIndicator
             {
@@ -42,8 +44,6 @@ namespace MaCamp.Views.Campings
                 IconVariant = IconVariant.Regular,
                 Color = AppColors.CorPrimaria
             };
-
-            Loaded += MapaPage_Loaded;
         }
 
         public MapaPage(bool usarFiltros) : this()
@@ -72,18 +72,18 @@ namespace MaCamp.Views.Campings
             DeviceDisplay.KeepScreenOn = false;
         }
 
-        private async void MapaPage_Loaded(object? sender, EventArgs e)
+        private async void MapaPage_FirstAppeared(object? sender, EventArgs e)
         {
-            await Workaround.TaskWork(async () =>
+            await Workaround.TaskWorkAsync(async () =>
             {
                 if (Itens == null)
                 {
                     Itens = await CarregarItensAsync(UsarFiltros);
                 }
             });
-            await Workaround.TaskUI(async () =>
+            await Workaround.TaskUIAsync(async () =>
             {
-                var permissionGranted = await Workaround.CheckPermission<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
+                var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
 
                 if (permissionGranted && Itens != null)
                 {
@@ -112,7 +112,7 @@ namespace MaCamp.Views.Campings
 
                     try
                     {
-                        var valorChaveEstadoSelecionado = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
+                        var valorChaveEstadoSelecionado = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstadoSelecionado);
 
                         if (valorChaveEstadoSelecionado != null)
                         {
@@ -138,7 +138,7 @@ namespace MaCamp.Views.Campings
                     }
                     catch (Exception ex)
                     {
-                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(MapaPage), nameof(MapaPage_Loaded), ex);
+                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(MapaPage), nameof(MapaPage_FirstAppeared), ex);
                     }
                 }
             });
@@ -150,11 +150,11 @@ namespace MaCamp.Views.Campings
 
             if (!System.Diagnostics.Debugger.IsAttached && Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
-                await viewModel.Carregar(string.Empty, -1, string.Empty, string.Empty, TipoListagem.Camping, usarFiltros);
+                await viewModel.CarregarAsync(string.Empty, -1, string.Empty, string.Empty, TipoListagem.Camping, usarFiltros);
             }
             else
             {
-                var itensSalvos = DBContract.List<Item>();
+                var itensSalvos = await DBContract.ListAsync<Item>();
 
                 viewModel.Itens = new ObservableCollection<Item>(itensSalvos);
             }
@@ -238,7 +238,7 @@ namespace MaCamp.Views.Campings
                 var maxClusters = Environment.ProcessorCount;
                 var visiblePins = listPins.Where(x => region.IsInside(x.Location)).ToList();
 
-                await Workaround.TaskUI(() => map.Pins.Clear(), cancellationToken);
+                await Workaround.TaskUIAsync(() => map.Pins.Clear(), cancellationToken);
 
                 if (visiblePins.Count > maxClusters)
                 {
@@ -248,14 +248,14 @@ namespace MaCamp.Views.Campings
                     {
                         if (cluster.Count == 1)
                         {
-                            await Workaround.TaskUI(() => map.Pins.Add(cluster.First()), cancellationToken);
+                            await Workaround.TaskUIAsync(() => map.Pins.Add(cluster.First()), cancellationToken);
                         }
                         else
                         {
                             var avgLat = cluster.Average(x => x.Location.Latitude);
                             var avgLon = cluster.Average(x => x.Location.Longitude);
 
-                            await Workaround.TaskUI(() => map.Pins.Add(new StylishPin
+                            await Workaround.TaskUIAsync(() => map.Pins.Add(new StylishPin
                             {
                                 Label = cluster.Count.ToString(),
                                 Location = new Location(avgLat, avgLon)
@@ -265,7 +265,7 @@ namespace MaCamp.Views.Campings
                 }
                 else
                 {
-                    await Workaround.TaskUI(() => map.Pins.AddRange(visiblePins), cancellationToken);
+                    await Workaround.TaskUIAsync(() => map.Pins.AddRange(visiblePins), cancellationToken);
                 }
             }
         }

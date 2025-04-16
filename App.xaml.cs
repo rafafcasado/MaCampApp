@@ -27,11 +27,22 @@ namespace MaCamp
             CarregarTamanhoTela();
 
             UserAppTheme = AppTheme.Light;
+            MainPage = new SplashScreen(async () =>
+            {
+                var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
+                var storagePermissionResult = await storagePermissionService.RequestAsync();
 
-            //OneSignalServices.RegisterIOS();
-            //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
+                if (storagePermissionResult && Current != null)
+                {
+                    return new RootPage();
+                }
 
-            //VerificarDownloadCampings();
+                Environment.Exit(0);
+
+                return new ContentPage();
+            });
+
+            PageAppearing += App_PageAppearing;
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
@@ -46,39 +57,31 @@ namespace MaCamp
             };
         }
 
-        private async void VerificarDownloadCampings()
+        private void App_PageAppearing(object? sender, Page e)
         {
-            if (BaixarUltimaVersaoConteudo())
+            //OneSignalServices.RegisterIOS();
+            //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
+
+            //VerificarDownloadCampingsAsync();
+        }
+
+        private async Task VerificarDownloadCampingsAsync()
+        {
+            var permitidoBaixar = await BaixarUltimaVersaoConteudoAsync();
+
+            if (permitidoBaixar)
             {
                 var baixar = await AppConstants.CurrentPage.DisplayAlert("Dados atualizados disponiveis", "Deseja baixar agora?", "Baixar", "Cancelar");
 
                 if (baixar)
                 {
-                    await CampingServices.BaixarCampings(true);
+                    await CampingServices.BaixarCampingsAsync(true);
                 }
             }
             else
             {
-                await CampingServices.BaixarCampings(false);
+                await CampingServices.BaixarCampingsAsync(false);
             }
-        }
-
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            return new Window(new SplashScreen(async () =>
-            {
-                var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
-                var storagePermissionResult = await storagePermissionService.Request();
-
-                if (storagePermissionResult && Current != null)
-                {
-                    return new RootPage();
-                }
-
-                Environment.Exit(0);
-
-                return new ContentPage();
-            }));
         }
 
         protected override async void OnStart()
@@ -88,7 +91,8 @@ namespace MaCamp
             var localizeService = await Workaround.GetServiceAsync<ILocalize>();
             var cultureInfo = localizeService.PegarCultureInfoUsuario();
 
-            await Workaround.CheckPermission<Permissions.PostNotifications>("Notificação", "Forneça a permissão para exibir os status das atualizações de dados");
+            await DBContract.InitializeAsync();
+            await Workaround.CheckPermissionAsync<Permissions.PostNotifications>("Notificação", "Forneça a permissão para exibir os status das atualizações de dados");
 
             AppLanguage.Culture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
@@ -122,15 +126,15 @@ namespace MaCamp
             SCREEN_WIDTH = Convert.ToInt32(displayInfo.Width / displayInfo.Density);
         }
 
-        public static async void ExibirNotificacaoPush()
+        public static async Task ExibirNotificacaoPushAsync()
         {
-            var tituloPush = DBContract.GetKeyValue(AppConstants.Chave_TituloNotificacao);
-            var mensagemPush = DBContract.GetKeyValue(AppConstants.Chave_MensagemNotificacao);
-            var itemPush = DBContract.GetKeyValue(AppConstants.Chave_IdItemNotificacao);
+            var tituloPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_TituloNotificacao);
+            var mensagemPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_MensagemNotificacao);
+            var itemPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_IdItemNotificacao);
 
-            DBContract.UpdateKeyValue(AppConstants.Chave_TituloNotificacao, null);
-            DBContract.UpdateKeyValue(AppConstants.Chave_MensagemNotificacao, null);
-            DBContract.UpdateKeyValue(AppConstants.Chave_IdItemNotificacao, null);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Chave_TituloNotificacao, null);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Chave_MensagemNotificacao, null);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Chave_IdItemNotificacao, null);
 
             if (mensagemPush != null)
             {
@@ -158,9 +162,9 @@ namespace MaCamp
             }
         }
 
-        public static bool BaixarUltimaVersaoConteudo()
+        public static async Task<bool> BaixarUltimaVersaoConteudoAsync()
         {
-            var dataUltimaAtualizacao = DBContract.GetKeyValue(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
+            var dataUltimaAtualizacao = await DBContract.GetKeyValueAsync(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
             var formato = "yyyy/MM/dd";
 
             if (DateTime.TryParseExact(dataUltimaAtualizacao, formato, CultureInfo.InvariantCulture, DateTimeStyles.None, out var data))

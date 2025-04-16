@@ -1,4 +1,5 @@
-﻿using MaCamp.Models;
+﻿using MaCamp.CustomControls;
+using MaCamp.Models;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using MaCamp.Views.Popups;
@@ -6,7 +7,7 @@ using RGPopup.Maui.Extensions;
 
 namespace MaCamp.Views.Detalhes
 {
-    public partial class FormularioColaboracaoCampingPage : ContentPage
+    public partial class FormularioColaboracaoCampingPage : SmartContentPage
     {
         private string NomeDoCamping { get; }
         private int IdDoCamping { get; }
@@ -18,9 +19,17 @@ namespace MaCamp.Views.Detalhes
             NomeDoCamping = nomeDoCamping;
             IdDoCamping = idDoCamping;
 
+            FirstAppeared += FormularioColaboracaoCampingPage_FirstAppeared;
+
+            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Formulário de colaboração: " + nomeDoCamping);
+        }
+
+        private async void FormularioColaboracaoCampingPage_FirstAppeared(object? sender, EventArgs e)
+        {
+
             try
             {
-                DadosColaborador();
+                await DadosColaboradorAsync();
             }
             catch
             {
@@ -31,13 +40,11 @@ namespace MaCamp.Views.Detalhes
                 Informacao.Text = string.Empty;
                 etValorPagoPorDiaria.Text = string.Empty;
             }
-
-            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Formulário de colaboração: " + nomeDoCamping);
         }
 
-        private void DadosColaborador()
+        private async Task DadosColaboradorAsync()
         {
-            var colaboracao = DBContract.Get<Colaboracao>();
+            var colaboracao = await DBContract.GetAsync<Colaboracao>();
 
             etEmail.Text = colaboracao?.Email ?? string.Empty;
             etNome.Text = colaboracao?.Nome ?? string.Empty;
@@ -78,7 +85,7 @@ namespace MaCamp.Views.Detalhes
                     Equipamento = Equipamento.Text
                 };
 
-                DBContract.Update(colaboracao);
+                await DBContract.UpdateAsync(colaboracao);
 
                 await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
 

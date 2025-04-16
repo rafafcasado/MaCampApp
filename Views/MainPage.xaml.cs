@@ -63,9 +63,9 @@ namespace MaCamp.Views
             //}));
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
-            App.ExibirNotificacaoPush();
+            await App.ExibirNotificacaoPushAsync();
         }
     }
 }

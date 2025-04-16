@@ -2,7 +2,7 @@
 {
     public interface IStoragePermission
     {
-        Task<bool> Check();
-        Task<bool> Request();
+        Task<bool> CheckAsync();
+        Task<bool> RequestAsync();
     }
 }

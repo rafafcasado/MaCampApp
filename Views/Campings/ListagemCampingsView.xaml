@@ -1,7 +1,8 @@
-<ContentView
+<custom:SmartContentView
     x:Class="MaCamp.Views.Campings.ListagemCampingsView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:custom="clr-namespace:MaCamp.CustomControls"
     BackgroundColor="{DynamicResource BgListagemNoticias}">
 
     <StackLayout>
@@ -256,4 +257,4 @@
         </Grid>
     </StackLayout>
 
-</ContentView>
+</custom:SmartContentView>

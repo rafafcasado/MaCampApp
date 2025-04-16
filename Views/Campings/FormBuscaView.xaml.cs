@@ -1,11 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 
 namespace MaCamp.Views.Campings
 {
-    public partial class FormBuscaView : ContentView
+    public partial class FormBuscaView : SmartContentView
     {
         private string ParametroTODAS { get; }
         private string ParametroTODOS { get; }
@@ -22,13 +23,10 @@ namespace MaCamp.Views.Campings
             ParametroTODOS = " - TODOS - ";
             CampingsTodos = " ";
 
-            DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, string.Empty);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, string.Empty);
+            FirstAppeared += FormBuscaView_FirstAppeared;
 
-            CarregarCidadesEstados();
-            CarregarLocalizacaoUsuario();
+            //var buscarCidadeEstado = new TapGestureRecognizer();
 
-            //TapGestureRecognizer buscarCidadeEstado = new TapGestureRecognizer();
             //buscarCidadeEstado.Tapped += (s, e) =>
             //{
             //    AlterarBuscaLocalizacao(true);
@@ -38,26 +36,35 @@ namespace MaCamp.Views.Campings
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Busca de Campings (Estado/Cidade)");
         }
 
-        private void CarregarLocalizacaoUsuario()
+        private async void FormBuscaView_FirstAppeared(object? sender, EventArgs e)
         {
-            //var valorChaveUsarLocalizacaoUsuario = DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_EstabelecimentoSelecionados, string.Empty);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_ServicoSelecionados, string.Empty);
+
+            await CarregarCidadesEstadosAsync();
+            CarregarLocalizacaoUsuarioAsync();
         }
 
-        private async void CarregarCidadesEstados()
+        private void CarregarLocalizacaoUsuarioAsync()
         {
-            var EstadoBD = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
-            var CIDADE_BD = DBContract.GetKeyValue(AppConstants.Filtro_CidadeSelecionada);
-            var NomeCampingBD = DBContract.GetKeyValue(AppConstants.Filtro_NomeCamping);
-            var cidadesWS = DBContract.List<Cidade>();
+            //var valorChaveUsarLocalizacaoUsuario = await DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
+        }
+
+        private async Task CarregarCidadesEstadosAsync()
+        {
+            var EstadoBD = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstadoSelecionado);
+            var CIDADE_BD = await DBContract.GetKeyValueAsync(AppConstants.Filtro_CidadeSelecionada);
+            var NomeCampingBD = await DBContract.GetKeyValueAsync(AppConstants.Filtro_NomeCamping);
+            var cidadesWS = await DBContract.ListAsync<Cidade>();
 
             if (cidadesWS.Count == 0)
             {
-                await Workaround.TaskWork(async () =>
+                await Workaround.TaskWorkAsync(async () =>
                 {
                     cidadesWS = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
                 });
 
-                DBContract.Update(false, cidadesWS);
+                await DBContract.UpdateAsync(false, cidadesWS);
             }
 
             var gruposCidadePorUF = cidadesWS.GroupBy(x => x.Estado).ToList();
@@ -137,25 +144,25 @@ namespace MaCamp.Views.Campings
 
             //AlterarBuscaLocalizacao(false);
 
-            DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "true");
-            DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, string.Empty);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_LocalizacaoSelecionada, "true");
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_EstadoSelecionado, null);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_CidadeSelecionada, null);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_NomeCamping, string.Empty);
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Usar minha localização", "Buscando campings próximos");
 
             WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscaRealizada);
         }
 
-        private void btBuscar_Clicked(object sender, EventArgs e)
+        private async void btBuscar_Clicked(object sender, EventArgs e)
         {
-            DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "false");
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_EstadoSelecionado, EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_CidadeSelecionada, CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_LocalizacaoSelecionada, "false");
 
             NomeDoCamping = etNomeDoCamping.Text.RemoveDiacritics();
 
-            DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, NomeDoCamping == string.Empty ? null : NomeDoCamping);
+            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_NomeCamping, NomeDoCamping == string.Empty ? null : NomeDoCamping);
 
             pkUF.SelectedItem = null;
 

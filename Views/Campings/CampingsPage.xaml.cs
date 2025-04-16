@@ -1,11 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.CustomControls;
 using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Campings
 {
-    public partial class CampingsPage : ContentPage
+    public partial class CampingsPage : SmartContentPage
     {
         public CampingsPage()
         {
@@ -18,7 +19,7 @@ namespace MaCamp.Views.Campings
             //    await Navigation.PushPopupAsync(new FormBuscaPopupPage());
             //}));
 
-            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Página do Camping: ");
+            FirstAppeared += CampingsPage_FirstAppeared;
 
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings);
 
@@ -29,33 +30,33 @@ namespace MaCamp.Views.Campings
 
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada);
 
-            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, (recipient, message) =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, async (recipient, message) =>
             {
-                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
+                await DBContract.UpdateKeyValueAsync(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView(string.Empty);
             });
 
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados);
 
-            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, (recipient, message) =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, async (recipient, message) =>
             {
-                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
+                await DBContract.UpdateKeyValueAsync(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView();
             });
 
-            Loaded += CampingsPage_Loaded;
+            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Página do Camping: ");
         }
 
-        private async void CampingsPage_Loaded(object? sender, EventArgs e)
+        private async void CampingsPage_FirstAppeared(object? sender, EventArgs e)
         {
             await CarregarConteudoAsync();
         }
 
         private async Task CarregarConteudoAsync()
         {
-            var buscaInicialRealizada = DBContract.GetKeyValue(AppConstants.Busca_InicialRealizada);
+            var buscaInicialRealizada = await DBContract.GetKeyValueAsync(AppConstants.Busca_InicialRealizada);
 
             if (buscaInicialRealizada != null)
             {
@@ -65,7 +66,7 @@ namespace MaCamp.Views.Campings
             {
                 var valorEstabelecimentos = "Campings,PontodeApoioaRV`s,CampingSelvagem/WildCamping/Bushcfaft,SemFunçãoCamping/ApoioouFechado";
 
-                DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
+                await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
 
                 if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                 {
@@ -110,7 +111,7 @@ namespace MaCamp.Views.Campings
                 cvContent.Content = new FormBuscaView();
             }
 
-            var permissionGranted = await Workaround.CheckPermission<Permissions.LocationWhenInUse>("Localização", "Forneça a permissão de localização para poder visualizar a distância entre você e os campings");
+            var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "Forneça a permissão de localização para poder visualizar a distância entre você e os campings");
 
             if (permissionGranted)
             {

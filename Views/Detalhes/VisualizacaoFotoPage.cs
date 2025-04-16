@@ -1,16 +1,28 @@
-﻿using MaCamp.Utils;
+﻿using MaCamp.CustomControls;
+using MaCamp.Utils;
 using MaCamp.Views.CustomViews;
 
 namespace MaCamp.Views.Detalhes
 {
-    public class VisualizacaoFotoPage : ContentPage
+    public class VisualizacaoFotoPage : SmartContentPage
     {
+        private string ImageSource { get; }
+        private string? Titulo { get; }
+
         public VisualizacaoFotoPage(string imageSource, string? titulo = null)
         {
-            NewVersion(imageSource, false, titulo);
+            ImageSource = imageSource;
+            Titulo = titulo;
+
+            FirstAppeared += VisualizacaoFotoPage_FirstAppeared;
         }
 
-        public async void NewVersion(string url, bool nativo, string? titulo = null)
+        private async void VisualizacaoFotoPage_FirstAppeared(object? sender, EventArgs e)
+        {
+            await NewVersion(ImageSource, false, Titulo);
+        }
+
+        public async Task NewVersion(string url, bool nativo, string? titulo = null)
         {
             try
             {

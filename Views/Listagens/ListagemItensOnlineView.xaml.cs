@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Services;
@@ -11,7 +12,7 @@ using MaCamp.Views.Menu;
 
 namespace MaCamp.Views.Listagens
 {
-    public partial class ListagemItensOnlineView : ContentView
+    public partial class ListagemItensOnlineView : SmartContentView
     {
         private ListagemInfinitaVM ViewModel { get; }
         private int PaginaAtual;
@@ -32,14 +33,14 @@ namespace MaCamp.Views.Listagens
             Tag = tag;
             ParametrosBusca = parametrosBusca;
 
-            cvItens.ItemTemplate = new ItemDataTemplateSelector();
+            FirstAppeared += ListagemItensOnlineView_FirstAppeared;
 
-            Loaded += ListagemItensOnlineView_Loaded;
+            cvItens.ItemTemplate = new ItemDataTemplateSelector();
         }
 
-        private async void ListagemItensOnlineView_Loaded(object? sender, EventArgs e)
+        private async void ListagemItensOnlineView_FirstAppeared(object? sender, EventArgs e)
         {
-            await CarregarConteudo();
+            await CarregarConteudoAsync();
         }
 
         private async void Handle_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -54,7 +55,7 @@ namespace MaCamp.Views.Listagens
                 }
                 else
                 {
-                    await ControladorDeAnuncios.VerificarEExibirAnuncioPopup();
+                    await ControladorDeAnuncios.VerificarEExibirAnuncioPopupAsync();
                     await Navigation.PushAsync(new DetalhesPage(item));
                 }
             }
@@ -75,7 +76,7 @@ namespace MaCamp.Views.Listagens
                     {
                         IdsQueJaChamaramPaginacao.Add(item.IdLocal);
 
-                        await CarregarConteudo();
+                        await CarregarConteudoAsync();
                     }
                 }
             }
@@ -97,20 +98,20 @@ namespace MaCamp.Views.Listagens
             PaginaAtual = 0;
             IdsQueJaChamaramPaginacao = new List<int>();
 
-            await CarregarConteudo();
+            await CarregarConteudoAsync();
         }
 
-        private async Task CarregarConteudo()
+        private async Task CarregarConteudoAsync()
         {
             if (Connectivity.NetworkAccess != NetworkAccess.Internet)
             {
                 loaderConteudoInicial.IsVisible = false;
                 loaderConteudoAdicional.IsVisible = false;
 
-                //Verifica se existem Campings baixados
-                var existemCampingsBD = CampingServices.ExistemCampingsBD();
                 var fs = new FormattedString();
                 var tap = new TapGestureRecognizer();
+                //Verifica se existem Campings baixados
+                var existemCampingsBD = await CampingServices.ExistemCampingsAsync();
 
                 fs.Spans.Add(new Span
                 {
@@ -173,9 +174,9 @@ namespace MaCamp.Views.Listagens
                 loaderConteudoInicial.IsVisible = true;
             }
 
-            await Workaround.TaskWork(async () =>
+            await Workaround.TaskWorkAsync(async () =>
             {
-                await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca);
+                await ViewModel.CarregarAsync(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca);
             });
 
             loaderConteudoInicial.IsVisible = false;

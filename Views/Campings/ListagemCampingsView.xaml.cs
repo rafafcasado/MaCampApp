@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Services;
@@ -14,7 +15,7 @@ using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Campings
 {
-    public partial class ListagemCampingsView : ContentView
+    public partial class ListagemCampingsView : SmartContentView
     {
         private ListagemInfinitaVM ViewModel { get; }
         private int PaginaAtual { get; set; }
@@ -41,7 +42,7 @@ namespace MaCamp.Views.Campings
             ParametrosBusca = null;
             cvItens.ItemTemplate = new ItemDataTemplateSelector();
 
-            Loaded += ListagemCampingsView_Loaded;
+            FirstAppeared += ListagemCampingsView_FirstAppeared;
         }
 
         public ListagemCampingsView(string endpointListagem, string? tag = null, string? parametrosBusca = null)
@@ -49,7 +50,6 @@ namespace MaCamp.Views.Campings
             InitializeComponent();
 
             NavigationPage.SetBackButtonTitle(this, string.Empty);
-            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Listagem de Campings");
 
             ViewModel = new ListagemInfinitaVM();
             IdsQueJaChamaramPaginacao = new List<int>();
@@ -58,6 +58,8 @@ namespace MaCamp.Views.Campings
             Tag = tag;
             ParametrosBusca = parametrosBusca;
             cvItens.ItemTemplate = new ItemDataTemplateSelector();
+
+            FirstAppeared += ListagemCampingsView_FirstAppeared;
 
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados);
 
@@ -72,16 +74,16 @@ namespace MaCamp.Views.Campings
                 DeviceDisplay.KeepScreenOn = true;
 
                 await Task.WhenAll(
-                    CidadesServices.AtualizarListaCidades(progressoVisual),
-                    CampingServices.BaixarCampings(false, progressoVisual),
-                    CarregarConteudo(progressoVisual)
+                    CidadesServices.AtualizarListaCidadesAsync(progressoVisual),
+                    CampingServices.BaixarCampingsAsync(false, progressoVisual),
+                    CarregarConteudoAsync(progressoVisual)
                 );
             });
 
-            Loaded += ListagemCampingsView_Loaded;
+            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Listagem de Campings");
         }
 
-        private async void ListagemCampingsView_Loaded(object? sender, EventArgs e)
+        private async void ListagemCampingsView_FirstAppeared(object? sender, EventArgs e)
         {
             var progressoVisual = new ProgressoVisual(progressBar);
 
@@ -92,9 +94,9 @@ namespace MaCamp.Views.Campings
             DeviceDisplay.KeepScreenOn = true;
 
             await Task.WhenAll(
-                CidadesServices.AtualizarListaCidades(progressoVisual),
-                CampingServices.BaixarCampings(false, progressoVisual),
-                CarregarConteudo(progressoVisual)
+                CidadesServices.AtualizarListaCidadesAsync(progressoVisual),
+                CampingServices.BaixarCampingsAsync(false, progressoVisual),
+                CarregarConteudoAsync(progressoVisual)
             );
         }
 
@@ -145,7 +147,7 @@ namespace MaCamp.Views.Campings
                 {
                     if (Connectivity.NetworkAccess == NetworkAccess.Internet)
                     {
-                        await ControladorDeAnuncios.VerificarEExibirAnuncioPopup();
+                        await ControladorDeAnuncios.VerificarEExibirAnuncioPopupAsync();
                     }
 
                     await Navigation.PushAsync(new DetalhesCampingPage(item));
@@ -163,14 +165,14 @@ namespace MaCamp.Views.Campings
             cvItens.ItemsSource = new ObservableCollection<Item>();
             //IdsQueJaChamaramPaginacao = new List<int>();
 
-            await CarregarConteudo();
+            await CarregarConteudoAsync();
         }
 
-        private async Task CarregarConteudo(ProgressoVisual? progressoVisual = null)
+        private async Task CarregarConteudoAsync(ProgressoVisual? progressoVisual = null)
         {
             ProgressoVisual.AumentarTotal(progressoVisual, 5);
 
-            var existemCampingsBD = CampingServices.ExistemCampingsBD();
+            var existemCampingsBD = await CampingServices.ExistemCampingsAsync();
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
@@ -203,23 +205,23 @@ namespace MaCamp.Views.Campings
             ViewModel.Itens.Clear();
 
             slBaixandoCampings.IsVisible = !existemCampingsBD;
-            DeviceDisplay.KeepScreenOn = slBaixandoCampings.IsVisible;
+            DeviceDisplay.KeepScreenOn = !existemCampingsBD;
             indicadorCarregamento.IsVisible = PaginaAtual >= 0;
 
-            if (slBaixandoCampings.IsVisible)
+            if (!existemCampingsBD)
             {
                 slMensagemAviso.IsVisible = false;
             }
 
-            await Workaround.TaskWork(async () =>
+            await Workaround.TaskWorkAsync(async () =>
             {
-                await ViewModel.Carregar(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, TipoListagem.Camping);
+                await ViewModel.CarregarAsync(EndpointListagem, ++PaginaAtual, Tag, ParametrosBusca, TipoListagem.Camping);
             });
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
-            var valorChaveUsarLocalizacaoUsuario = DBContract.GetKeyValue(AppConstants.Filtro_LocalizacaoSelecionada);
-            var valorChaveBuscaCamping = DBContract.GetKeyValue(AppConstants.Filtro_NomeCamping);
+            var valorChaveUsarLocalizacaoUsuario = await DBContract.GetKeyValueAsync(AppConstants.Filtro_LocalizacaoSelecionada);
+            var valorChaveBuscaCamping = await DBContract.GetKeyValueAsync(AppConstants.Filtro_NomeCamping);
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
@@ -229,8 +231,8 @@ namespace MaCamp.Views.Campings
             }
             else
             {
-                var EstadoBD = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
-                var CIDADE_BD = DBContract.GetKeyValue(AppConstants.Filtro_CidadeSelecionada);
+                var EstadoBD = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstadoSelecionado);
+                var CIDADE_BD = await DBContract.GetKeyValueAsync(AppConstants.Filtro_CidadeSelecionada);
                 var quantidadeAnuncios = ViewModel.Itens.Count(x => !x.EhAnuncio && !x.EhAdMobRetangulo);
 
                 ProgressoVisual.AumentarAtual(progressoVisual);

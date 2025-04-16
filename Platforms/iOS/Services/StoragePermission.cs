@@ -4,12 +4,12 @@ namespace MaCamp.Platforms.iOS.Services
 {
     public class StoragePermission : IStoragePermission
     {
-        public Task<bool> Check()
+        public Task<bool> CheckAsync()
         {
             return Task.FromResult(true);
         }
 
-        public Task<bool> Request()
+        public Task<bool> RequestAsync()
         {
             return Task.FromResult(true);
         }

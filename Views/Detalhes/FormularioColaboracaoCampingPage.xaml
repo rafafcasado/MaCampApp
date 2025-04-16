@@ -1,7 +1,8 @@
-<ContentPage
+<custom:SmartContentPage
     x:Class="MaCamp.Views.Detalhes.FormularioColaboracaoCampingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:custom="clr-namespace:MaCamp.CustomControls"
     xmlns:local="clr-namespace:MaCamp.Views.Detalhes"
     Title="Colabore com o MaCamp"
     BackgroundColor="White">
@@ -75,4 +76,4 @@
         </StackLayout>
     </ScrollView>
 
-</ContentPage>
+</custom:SmartContentPage>

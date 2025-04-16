@@ -1,33 +1,50 @@
-﻿using MaCamp.Models.Anuncios;
+﻿using MaCamp.CustomControls;
+using MaCamp.Models.Anuncios;
 using MaCamp.Services.DataAccess;
 using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views
 {
-    public partial class AnuncioView : ContentView
+    public partial class AnuncioView : SmartContentView
     {
+        private TipoAnuncio TipoAnuncio { get; set; }
+        private Anuncio? Anuncio { get; set; }
+        private int AnuncioWidth { get; }
+        private int AnuncioHeight { get; }
+
         public AnuncioView()
         {
             InitializeComponent();
 
-            ExibirAnuncio();
+            FirstAppeared += AnuncioView_FirstAppeared;
         }
 
         public AnuncioView(TipoAnuncio tipoAnuncio = TipoAnuncio.Banner)
         {
             InitializeComponent();
 
-            ExibirAnuncio(tipoAnuncio);
+            TipoAnuncio = tipoAnuncio;
+
+            FirstAppeared += AnuncioView_FirstAppeared;
         }
 
         public AnuncioView(Anuncio? anuncio, int w, int h)
         {
             InitializeComponent();
 
-            ExibirAnuncio(anuncioEscolhido: anuncio, width: w, height: h);
+            Anuncio = anuncio;
+            AnuncioWidth = w;
+            AnuncioHeight = h;
+
+            FirstAppeared += AnuncioView_FirstAppeared;
         }
 
-        private async void ExibirAnuncio(TipoAnuncio tipoAnuncio = TipoAnuncio.Banner, Anuncio? anuncioEscolhido = null, int width = 0, int height = 0)
+        private async void AnuncioView_FirstAppeared(object? sender, EventArgs e)
+        {
+            await ExibirAnuncioAsync(TipoAnuncio, Anuncio, AnuncioWidth, AnuncioHeight);
+        }
+
+        private async Task ExibirAnuncioAsync(TipoAnuncio tipoAnuncio = TipoAnuncio.Banner, Anuncio? anuncioEscolhido = null, int width = 0, int height = 0)
         {
             if (anuncioEscolhido == null)
             {

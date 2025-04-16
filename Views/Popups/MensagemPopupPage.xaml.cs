@@ -26,10 +26,10 @@ namespace MaCamp.Views.Popups
         {
             base.OnAppearing();
 
-            await HidePopup();
+            await HidePopupAsync();
         }
 
-        private async Task HidePopup()
+        private async Task HidePopupAsync()
         {
             await Task.Delay(4000);
 

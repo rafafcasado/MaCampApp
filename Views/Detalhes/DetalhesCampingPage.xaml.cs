@@ -201,12 +201,12 @@ namespace MaCamp.Views.Detalhes
             {
                 var imagem = "icone_favoritos_on.png";
 
-                ToolbarItems.Add(new ToolbarItem("Remover Favorito", imagem, () =>
+                ToolbarItems.Add(new ToolbarItem("Remover Favorito", imagem, async () =>
                 {
                     item.Favoritado = false;
 
                     StorageHelper.AddOrUpdateItem(item);
-                    DBContract.Update(item);
+                    await DBContract.UpdateAsync(item);
                     ConfigurarToolbar(item);
 
                     WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
@@ -216,12 +216,12 @@ namespace MaCamp.Views.Detalhes
             {
                 var imagem = "icone_favoritos_off.png";
 
-                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, () =>
+                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, async () =>
                 {
                     item.Favoritado = true;
 
                     StorageHelper.AddOrUpdateItem(item);
-                    DBContract.Update(item);
+                    await DBContract.UpdateAsync(item);
                     ConfigurarToolbar(item);
 
                     WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
@@ -246,9 +246,9 @@ namespace MaCamp.Views.Detalhes
             }
         }
 
-        public static async Task AbrirMapa(string uriArquivoKml)
+        public static async Task AbrirMapaAsync(string uriArquivoKml)
         {
-            var permissionGranted = await Workaround.CheckPermission<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
+            var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
 
             if (permissionGranted)
             {

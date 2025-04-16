@@ -35,47 +35,47 @@
         //    OneSignal.PromptForPushNotificationsWithUserResponse();
         //}
 
-        //private void HandlerNotificacaoRecebida(OSNotification notification)
+        //private async void HandlerNotificacaoRecebida(OSNotification notification)
         //{
-        //    ExtrairETrabalharInformacoesRecebidas(notification.payload, false);
+        //    await ExtrairETrabalharInformacoesRecebidasAsync(notification.payload, false);
         //}
 
         //private void HandlerNotificacaoAberta(OSNotificationOpenedResult result)
         //{
-        //    ExtrairETrabalharInformacoesRecebidas(result.notification.payload);
+        //    await ExtrairETrabalharInformacoesRecebidasAsync(result.notification.payload);
         //}
 
-        //private void ExtrairETrabalharInformacoesRecebidas(OSNotificationPayload payload, bool tentarAbrir = true)
+        //private async Task ExtrairETrabalharInformacoesRecebidasAsync(OSNotificationPayload payload, bool tentarAbrir = true)
         //{
         //    try
         //    {
         //        Dictionary<string, object> additionalData = payload.additionalData;
 
-        //        DBContract.UpdateKeyValue(AppConstants.CHAVE_TITULO_NOTIFICACAO, payload.title);
-        //        DBContract.UpdateKeyValue(AppConstants.CHAVE_MENSAGEM_NOTIFICACAO, payload.body);
+        //        await DBContract.UpdateKeyValue(AppConstants.CHAVE_TITULO_NOTIFICACAO, payload.title);
+        //        await DBContract.UpdateKeyValue(AppConstants.CHAVE_MENSAGEM_NOTIFICACAO, payload.body);
 
         //        if (additionalData != null && additionalData.Count > 0)
         //        {
         //            if (additionalData.ContainsKey("id"))
         //            {
         //                var id = additionalData["id"].ToString();
-        //                DBContract.UpdateKeyValue(AppConstants.CHAVE_ID_ITEM_NOTIFICACAO, id);
+        //                await DBContract.UpdateKeyValue(AppConstants.CHAVE_ID_ITEM_NOTIFICACAO, id);
         //            }
         //        }
 
         //        if (payload.launchURL != null)
         //        {
-        //            DBContract.UpdateKeyValue(AppConstants.CHAVE_URL_NOTIFICACAO, payload.launchURL);
+        //            await DBContract.UpdateKeyValue(AppConstants.CHAVE_URL_NOTIFICACAO, payload.launchURL);
         //        }
 
         //        if (tentarAbrir)
         //        {
-        //            App.ExibirNotificacaoPush();
+        //            await App.ExibirNotificacaoPushAsync();
         //        }
         //    }
         //    catch (System.Exception ex)
         //    {
-        //        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(OneSignalService), nameof(ExtrairETrabalharInformacoesRecebidas), ex);
+        //        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(OneSignalService), nameof(ExtrairETrabalharInformacoesRecebidasAsync), ex);
         //    }
         //}
     }

@@ -17,7 +17,7 @@ namespace MaCamp.Platforms.Android.Services
             TaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
-        public async Task<bool> Check()
+        public async Task<bool> CheckAsync()
         {
             // Somente necessário no Android 11+
             if (Build.VERSION.SdkInt < BuildVersionCodes.R)
@@ -28,7 +28,7 @@ namespace MaCamp.Platforms.Android.Services
             return await Task.FromResult(Environment.IsExternalStorageManager);
         }
 
-        public async Task<bool> Request()
+        public async Task<bool> RequestAsync()
         {
             // Somente necessário no Android 11+
             if (Build.VERSION.SdkInt < BuildVersionCodes.R)
@@ -56,7 +56,7 @@ namespace MaCamp.Platforms.Android.Services
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(StoragePermission), nameof(Request), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(StoragePermission), nameof(RequestAsync), ex);
 
                 App.Resumed -= OnResumed;
 

@@ -7,7 +7,7 @@ namespace MaCamp.Services.DataAccess
     {
         private static CancellationTokenSource? CancellationTokenSource { get; set; }
 
-        public static async void CheckAndStart()
+        public static async Task StartAsync()
         {
             // Já está em execução
             if (CancellationTokenSource != null)
@@ -16,8 +16,8 @@ namespace MaCamp.Services.DataAccess
             }
 
             var versaoAtual = 1.39;
-            var chaveData = DBContract.GetKeyValue(AppConstants.Chave_UltimaAtualizacao);
-            var chaveVersao = DBContract.GetKeyValue(AppConstants.Chave_Versao);
+            var chaveData = await DBContract.GetKeyValueAsync(AppConstants.Chave_UltimaAtualizacao);
+            var chaveVersao = await DBContract.GetKeyValueAsync(AppConstants.Chave_Versao);
 
             if (DateTime.TryParse(chaveData, out var data) && data > DateTime.Now.Subtract(TimeSpan.FromDays(30)) && double.TryParse(chaveVersao, out var versao) && versao >= versaoAtual)
             {
@@ -28,7 +28,7 @@ namespace MaCamp.Services.DataAccess
 
             var cancellationToken = CancellationTokenSource.Token;
 
-            await Workaround.TaskWork(async () =>
+            await Workaround.TaskWorkAsync(async () =>
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
@@ -40,26 +40,26 @@ namespace MaCamp.Services.DataAccess
                         ProgressValue = -1
                     };
                     var notificationId = notificationService.Show(notification);
-                    var openNotification = DBContract.GetKeyValue(AppConstants.Chave_NotificacaoAberta);
+                    var openNotification = await DBContract.GetKeyValueAsync(AppConstants.Chave_NotificacaoAberta);
 
                     if (openNotification != null)
                     {
                         notificationService.Complete(Convert.ToInt32(openNotification));
                     }
 
-                    DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
+                    await DBContract.UpdateKeyValueAsync(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
 
                     try
                     {
-                        await CampingServices.BaixarCampings(true);
+                        await CampingServices.BaixarCampingsAsync(true);
 
                         notification.Message = "Estamos salvando informações de Campings";
 
                         notificationService.Update(notificationId, notification);
 
-                        DBContract.UpdateKeyValue(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                        DBContract.UpdateKeyValue(AppConstants.Chave_Versao, versaoAtual.ToString());
-                        DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, null);
+                        await DBContract.UpdateKeyValueAsync(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                        await DBContract.UpdateKeyValueAsync(AppConstants.Chave_Versao, versaoAtual.ToString());
+                        await DBContract.UpdateKeyValueAsync(AppConstants.Chave_NotificacaoAberta, null);
 
                         notificationService.Complete(notificationId);
                     }
@@ -73,7 +73,7 @@ namespace MaCamp.Services.DataAccess
                     {
                         notification.Title = "Ocorreu um erro, tentaremos novamente mais tarde";
 
-                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(BackgroundUpdater), nameof(CheckAndStart), ex);
+                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(BackgroundUpdater), nameof(StartAsync), ex);
                     }
 
                     notification.ProgressValue = null;

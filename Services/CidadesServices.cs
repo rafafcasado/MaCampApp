@@ -6,7 +6,7 @@ namespace MaCamp.Services
 {
     public static class CidadesServices
     {
-        public static async Task AtualizarListaCidades(ProgressoVisual? progressoVisual = null)
+        public static async Task AtualizarListaCidadesAsync(ProgressoVisual? progressoVisual = null)
         {
             try
             {
@@ -18,7 +18,7 @@ namespace MaCamp.Services
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
 
-                DBContract.Update(false, listaCidades, progressoVisual);
+                await DBContract.UpdateAsync(false, listaCidades, progressoVisual);
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
             }

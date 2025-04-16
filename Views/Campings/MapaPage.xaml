@@ -1,7 +1,8 @@
-<ContentPage
+<custom:SmartContentPage
     x:Class="MaCamp.Views.Campings.MapaPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:custom="clr-namespace:MaCamp.CustomControls"
     xmlns:icon="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
     xmlns:local="clr-namespace:MaCamp.CustomControls"
     xmlns:settings="clr-namespace:MaCamp.Utils">
@@ -39,4 +40,4 @@
             </Button.Shadow>
         </Button>
     </AbsoluteLayout>
-</ContentPage>
+</custom:SmartContentPage>
