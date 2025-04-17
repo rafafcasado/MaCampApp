@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.Models;
-using MaCamp.Services.DataAccess;
+using MaCamp.Services;
 using MaCamp.Utils;
 using MaCamp.Views.Campings;
 using MaCamp.Views.Detalhes;

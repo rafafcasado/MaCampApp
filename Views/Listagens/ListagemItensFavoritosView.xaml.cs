@@ -3,7 +3,7 @@ using MaCamp.CustomControls;
 using MaCamp.Dependencias;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
-using MaCamp.Services.DataAccess;
+using MaCamp.Services;
 using MaCamp.Utils;
 using MaCamp.Views.CustomViews;
 using MaCamp.Views.Detalhes;

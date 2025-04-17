@@ -1,7 +1,7 @@
 ﻿using MaCamp.Dependencias;
 using MaCamp.Utils;
 
-namespace MaCamp.Services.DataAccess
+namespace MaCamp.Services
 {
     public static class BackgroundUpdater
     {

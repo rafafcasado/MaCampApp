@@ -85,6 +85,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Views\Campings\ListagemCampingsView.xaml.cs">
+	    <DependentUpon>ListagemCampingsView.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\Campings\MapaPage.xaml.cs">
+	    <DependentUpon>MapaPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\CustomViews\AdMobRectangleContentView.xaml.cs">
 	    <DependentUpon>AdMobRectangleContentView.xaml</DependentUpon>
 	  </Compile>

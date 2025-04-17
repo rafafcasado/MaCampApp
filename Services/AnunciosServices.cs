@@ -1,13 +1,13 @@
 ﻿using MaCamp.Models.Anuncios;
 using MaCamp.Utils;
 
-namespace MaCamp.Services.DataAccess
+namespace MaCamp.Services
 {
     public static class AnunciosServices
     {
         public static async Task<List<Anuncio>> GetListAsync(bool force)
         {
-            var key = typeof(Anuncio).Name;
+            var key = nameof(Anuncio);
 
             if (!force && AppConstants.DictionaryData.TryGetValue(key, out var value) && value is List<Anuncio> listaAnunciosSalvos)
             {

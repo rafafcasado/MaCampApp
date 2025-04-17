@@ -14,7 +14,7 @@ namespace MaCamp.Views.Listagens
 {
     public partial class ListagemItensOnlineView : SmartContentView
     {
-        private ListagemInfinitaVM ViewModel { get; }
+        private ListagemInfinitaViewModel ViewModel { get; }
         private int PaginaAtual;
         private List<int> IdsQueJaChamaramPaginacao { get; set; }
         private string EndpointListagem { get; }
@@ -27,7 +27,7 @@ namespace MaCamp.Views.Listagens
 
             NavigationPage.SetBackButtonTitle(this, string.Empty);
 
-            ViewModel = new ListagemInfinitaVM();
+            ViewModel = new ListagemInfinitaViewModel();
             IdsQueJaChamaramPaginacao = new List<int>();
             EndpointListagem = endpointListagem;
             Tag = tag;
@@ -92,10 +92,8 @@ namespace MaCamp.Views.Listagens
                 loaderConteudoInicial.IsVisible = true;
             }
 
-            cvItens.ItemsSource = null;
-
-            //lvItens.ItemTemplate = new DataTemplate(typeof(ItemContentView));
             PaginaAtual = 0;
+            cvItens.ItemsSource = null;
             IdsQueJaChamaramPaginacao = new List<int>();
 
             await CarregarConteudoAsync();
@@ -108,32 +106,32 @@ namespace MaCamp.Views.Listagens
                 loaderConteudoInicial.IsVisible = false;
                 loaderConteudoAdicional.IsVisible = false;
 
-                var fs = new FormattedString();
-                var tap = new TapGestureRecognizer();
+                var formattedString = new FormattedString();
+                var gestureRecognizer = new TapGestureRecognizer();
                 //Verifica se existem Campings baixados
-                var existemCampingsBD = await CampingServices.ExistemCampingsAsync();
+                var existemCampings = await CampingServices.ExistemCampingsAsync();
 
-                fs.Spans.Add(new Span
+                formattedString.Spans.Add(new Span
                 {
                     Text = $"{AppConstants.Titulo_SemInternet}.\n\n",
                     FontAttributes = FontAttributes.Bold,
                     FontSize = 20
                 });
 
-                if (existemCampingsBD)
+                if (existemCampings)
                 {
-                    fs.Spans.Add(new Span
+                    formattedString.Spans.Add(new Span
                     {
                         Text = "Se preferir acesse o guia de campings, disponível off-line!"
                     });
-                    fs.Spans.Add(new Span
+                    formattedString.Spans.Add(new Span
                     {
                         Text = "\nToque aqui para acessar",
                         TextColor = AppColors.CorDestaque,
                         FontAttributes = FontAttributes.Bold
                     });
 
-                    tap.Tapped += delegate
+                    gestureRecognizer.Tapped += delegate
                     {
                         WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings);
 
@@ -144,22 +142,22 @@ namespace MaCamp.Views.Listagens
                         }
                     };
 
-                    lbMensagemAviso.GestureRecognizers.Add(tap);
+                    lbMensagemAviso.GestureRecognizers.Add(gestureRecognizer);
                 }
                 else
                 {
-                    fs.Spans.Add(new Span
+                    formattedString.Spans.Add(new Span
                     {
                         Text = AppConstants.Descricao_SemInternet
                     });
 
-                    tap.Tapped += Handle_Refreshing;
+                    gestureRecognizer.Tapped += Handle_Refreshing;
                 }
 
-                lbMensagemAviso.FormattedText = fs;
+                lbMensagemAviso.FormattedText = formattedString;
                 lbMensagemAviso.IsVisible = true;
 
-                lbMensagemAviso.GestureRecognizers.Add(tap);
+                lbMensagemAviso.GestureRecognizers.Add(gestureRecognizer);
 
                 return;
             }
@@ -170,7 +168,6 @@ namespace MaCamp.Views.Listagens
             }
             else
             {
-                loaderConteudoInicial.IsVisible = true;
                 loaderConteudoInicial.IsVisible = true;
             }
 
@@ -208,11 +205,11 @@ namespace MaCamp.Views.Listagens
                 lbMensagemAviso.FormattedText = formattedString;
                 lbMensagemAviso.IsVisible = true;
 
-                var tap = new TapGestureRecognizer();
+                var gestureRecognizer = new TapGestureRecognizer();
 
-                tap.Tapped += Handle_Refreshing;
+                gestureRecognizer.Tapped += Handle_Refreshing;
 
-                lbMensagemAviso.GestureRecognizers.Add(tap);
+                lbMensagemAviso.GestureRecognizers.Add(gestureRecognizer);
             }
         }
     }

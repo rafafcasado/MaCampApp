@@ -1,14 +1,14 @@
 ﻿using System.Text;
 using CommunityToolkit.Mvvm.Messaging;
+using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.Services;
-using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Detalhes
 {
-    public partial class DetalhesCampingPage : ContentPage
+    public partial class DetalhesCampingPage : SmartContentPage
     {
         private Item ItemAtual { get; }
 
@@ -41,14 +41,15 @@ namespace MaCamp.Views.Detalhes
                     //imIconeGaleria.Source = ImageSource.FromResource("Keer.Resources.icone_galeria.jpg");
                     imIconeGaleria.Source = "icone_galeria.png";
                     slMaisFotos.IsVisible = true;
-                    var tapGesture = new TapGestureRecognizer();
 
-                    tapGesture.Tapped += async delegate
+                    var gestureRecognizer = new TapGestureRecognizer();
+
+                    gestureRecognizer.Tapped += async delegate
                     {
                         await Navigation.PushAsync(new ListagemFotosPage(TipoListagemFotos.Carousel, item.LinksFotos.Split('|').ToList()));
                     };
 
-                    grdFotoPrincipal.GestureRecognizers.Add(tapGesture);
+                    grdFotoPrincipal.GestureRecognizers.Add(gestureRecognizer);
                 }
             }
             else
@@ -57,19 +58,6 @@ namespace MaCamp.Views.Detalhes
             }
 
             lbTitulo.Text = item.Nome?.ToUpper() ?? string.Empty;
-
-            Task.Delay(500).ContinueWith(x =>
-            {
-                if (item.Descricao != null)
-                {
-                    var descricao = Encoding.UTF8.GetString(Convert.FromBase64String(item.Descricao));
-
-                    //lbDescricao.Text = descricao;
-                    lbDescricao.Text = descricao.Replace("\r\n", "<br/>");
-                    cvTipo.Content = new TipoEstabelecimentoView(item.Identificadores);
-                    cvComodidades.Content = new ComodidadesView(item.Identificadores);
-                }
-            });
 
             ConfigurarToolbar(item);
 
@@ -170,6 +158,23 @@ namespace MaCamp.Views.Detalhes
 
                 layoutTelefones.Add(grid);
             });
+
+            FirstAppeared += DetalhesCampingPage_FirstAppeared;
+        }
+
+        private async void DetalhesCampingPage_FirstAppeared(object? sender, EventArgs e)
+        {
+            await Task.Delay(500);
+
+            if (ItemAtual.Descricao != null)
+            {
+                var descricao = Encoding.UTF8.GetString(Convert.FromBase64String(ItemAtual.Descricao));
+
+                //lbDescricao.Text = descricao;
+                lbDescricao.Text = descricao.Replace("\r\n", "<br/>");
+                cvTipo.Content = new TipoEstabelecimentoView(ItemAtual.Identificadores);
+                cvComodidades.Content = new ComodidadesView(ItemAtual.Identificadores);
+            }
         }
 
         private async void ImageButton_Clicked(object? sender, EventArgs e)

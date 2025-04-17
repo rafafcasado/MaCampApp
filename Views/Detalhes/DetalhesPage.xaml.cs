@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.Models;
 using MaCamp.Services;
-using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 
 namespace MaCamp.Views.Detalhes

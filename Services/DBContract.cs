@@ -5,7 +5,7 @@ using MaCamp.Utils;
 using SQLite;
 using static MaCamp.Utils.Enumeradores;
 
-namespace MaCamp.Services.DataAccess
+namespace MaCamp.Services
 {
     public static class DBContract
     {
@@ -294,7 +294,7 @@ namespace MaCamp.Services.DataAccess
 
             if (keyValue != null)
             {
-                return keyValue?.Valor;
+                return keyValue.Valor;
             }
 
             return null;

@@ -1,27 +1,22 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.CustomControls;
-using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
+using MaCamp.ViewModels;
 
 namespace MaCamp.Views.Campings
 {
     public partial class FiltrosPage : SmartContentPage
     {
-        // public string EstadoSelecionado { get; set; }
-        // public string CidadeSelecionada { get; set; }
-
-        private string ParametroTODAS { get; }
-        private string ParametroTODOS { get; }
-        private List<string> EstabelecimentosSelecionados { get; }
-        private List<string> ComodidadesSelecionadas { get; }
-        private bool UsarLocalizacaoUsuario { get; set; }
+        private List<string> ListaEstabelecimentosSelecionados { get; set; }
+        private List<string> ListaComodidadesSelecionadas { get; set; }
 
         public FiltrosPage(bool busca = false)
         {
             InitializeComponent();
 
-            EstabelecimentosSelecionados = new List<string>();
-            ComodidadesSelecionadas = new List<string>();
+            ListaComodidadesSelecionadas = new List<string>();
+            ListaEstabelecimentosSelecionados = new List<string>();
+            BindingContext = new FiltrosViewModel();
 
             if (busca)
             {
@@ -33,274 +28,128 @@ namespace MaCamp.Views.Campings
                 Title = "Filtros";
             }
 
-            ParametroTODAS = " - TODAS - ";
-            ParametroTODOS = " - TODOS - ";
-
             FirstAppeared += FiltrosPage_FirstAppeared;
-
-            //btBuscarPorCidadeEstado.Clicked += (s, e) =>
-            //{
-            //    AlterarBuscaLocalizacao(true);
-            //};
-
-            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Filtro Estabelecimentos e Serviços");
         }
 
         private async void FiltrosPage_FirstAppeared(object? sender, EventArgs e)
         {
-            //await CarregarCidadesEstadosAsync();
-            //await CarregarLocalizacaoUsuarioAsync();
-            await CarregarFiltrosEstabelecimentoSelecionadosAsync();
-            await CarregarFiltrosServicosSelecionadosAsync();
+            if (BindingContext is FiltrosViewModel viewModel)
+            {
+                var listaEstabelecimentos = await viewModel.ObterFiltrosEstabelecimentoAsync();
+                var listaComodidades = await viewModel.ObterFiltrosServicosAsync();
+
+                ListaEstabelecimentosSelecionados = listaEstabelecimentos;
+                ListaComodidadesSelecionadas = listaComodidades;
+
+                CarregarEstabelecimentos(listaEstabelecimentos);
+                CarregarServicos(listaComodidades);
+            }
         }
 
-        //private void AlterarBuscaLocalizacao(bool usarCidadeEstado)
-        //{
-        //    if (usarCidadeEstado)
-        //    {
-        //        slBuscaUFCidade.IsVisible = true;
-        //        UsarLocalizacaoUsuario = false;
-        //        lbUsandoLocalizacao.IsVisible = false;
-        //        slUsarMinhaLocalizacao.IsVisible = true;
-        //        btBuscarPorCidadeEstado.IsVisible = false;
-        //    }
-        //    else
-        //    {
-        //        slBuscaUFCidade.IsVisible = false;
-        //        UsarLocalizacaoUsuario = true;
-        //        lbUsandoLocalizacao.IsVisible = true;
-        //        slUsarMinhaLocalizacao.IsVisible = false;
-        //        btBuscarPorCidadeEstado.IsVisible = true;
-        //    }
-        //}
-
-        //private async Task CarregarLocalizacaoUsuarioAsync()
-        //{
-        //    var valorChaveUsarLocalizacaoUsuario = await DBContract.ObterValorChave(AppConstants.Filtro_LocalizacaoSelecionada);
-        //    if (valorChaveUsarLocalizacaoUsuario != null && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
-        //    {
-        //        UsarLocalizacaoUsuario = true;
-        //        AlterarBuscaLocalizacao(false);
-        //    }
-        //}
-
-        //private async Task CarregarCidadesEstadosAsync()
-        //{
-        //    var EstadoBD = await DBContract.ObterValorChave(AppConstants.Filtro_EstadoSelecionado);
-        //    var CIDADE_BD = await DBContract.ObterValorChave(AppConstants.Filtro_CidadeSelecionada);
-        //    var cidadesWS = await DBContract.List<Cidade>();
-
-        //    if (cidadesWS.Count == 0)
-        //    {
-        //        cidadesWS = await NetUtils.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
-
-        //        await DBContract.Update(false, cidadesWS);
-        //    }
-
-        //    var gruposCidadePorUF = cidadesWS.GroupBy(x => x.Estado);
-        //    var estados = new List<string>();
-
-        //    estados.Add(ParametroTODOS);
-
-        //    foreach (var grupoEstado in gruposCidadePorUF)
-        //    {
-        //        estados.Add(grupoEstado.Key);
-        //    }
-
-        //    pkUF.Title = "Selecione o Estado";
-        //    pkUF.ItemsSource = estados;
-        //    pkUF.SelectedIndexChanged += (s, e) =>
-        //    {
-        //        EstadoSelecionado = s is Picker picker && picker.SelectedItem != null;
-
-        //        if (EstadoSelecionado == ParametroTODOS)
-        //        {
-        //            pkCidade.ItemsSource = null;
-        //            pkCidade.Title = " - ";
-        //            pkCidade.IsEnabled = false;
-        //            CidadeSelecionada = string.Empty;
-        //        }
-        //        else
-        //        {
-        //            var cidadesDisponiveis = cidadesWS.Where(x => x.Estado == EstadoSelecionado).ToList();
-
-        //            cidadesDisponiveis.Insert(0, new Cidade
-        //            {
-        //                Nome = ParametroTODAS,
-        //                Estado = EstadoSelecionado
-        //            });
-        //            pkCidade.ItemsSource = cidadesDisponiveis;
-        //            pkCidade.ItemDisplayBinding = new Binding(nameof(Cidade.Nome));
-        //            pkCidade.Title = "Selecione a cidade";
-        //            pkCidade.IsEnabled = true;
-
-        //            pkCidade.SelectedIndexChanged += (senderCidade, eventCidade) =>
-        //            {
-        //                if (senderCidade is Picker pickerCidade && pickerCidade.SelectedItem is Cidade cidadeSelecionada)
-        //                {
-        //                    CidadeSelecionada = cidadeSelecionada.Nome;
-        //                }
-        //                else
-        //                {
-        //                    CidadeSelecionada = string.Empty;
-        //                }
-        //            };
-        //            if (CIDADE_BD != null && CIDADE_BD != null)
-        //            {
-        //                pkCidade.SelectedItem = cidadesDisponiveis.Where(x => x.Nome == CIDADE_BD).FirstOrDefault();
-        //            }
-        //        }
-
-        //        pkUF.SelectedItem = EstadoBD;
-        //    });
-        //}
-
-        private async Task CarregarFiltrosEstabelecimentoSelecionadosAsync()
+        private void CarregarEstabelecimentos(List<string> listaFiltros)
         {
-            var valoresFiltrosSelecionados = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstabelecimentoSelecionados);
-
-            if (valoresFiltrosSelecionados == null)
+            foreach (var filtro in listaFiltros)
             {
-                EstabelecimentosSelecionados.Add("Campings");
-                EstabelecimentosSelecionados.Add("PontodeApoioaRV`s");
-                EstabelecimentosSelecionados.Add("CampingSelvagem/WildCamping/Bushcfaft");
-                EstabelecimentosSelecionados.Add("SemFunçãoCamping/ApoioouFechado");
-
-                SelecionarView(slFiltroCamping);
-                SelecionarView(slFiltroApoioRVs);
-                SelecionarView(slFiltroWild);
-                SelecionarView(slFiltroSemFuncao);
-            }
-            else
-            {
-                foreach (var filtro in valoresFiltrosSelecionados.Split(','))
+                switch (filtro)
                 {
-                    EstabelecimentosSelecionados.Add(filtro);
-
-                    switch (filtro)
-                    {
-                        case "Campings":
-                            DeselecionarView(slFiltroCamping);
-                            break;
-                        case "PontodeApoioaRV`s":
-                            DeselecionarView(slFiltroApoioRVs);
-                            break;
-                        case "CampingSelvagem/WildCamping/Bushcfaft":
-                            DeselecionarView(slFiltroWild);
-                            break;
-                        case "SemFunçãoCamping/ApoioouFechado":
-                            DeselecionarView(slFiltroSemFuncao);
-                            break;
-                    }
+                    case "Campings":
+                        DeselecionarView(slFiltroCamping);
+                        break;
+                    case "PontodeApoioaRV`s":
+                        DeselecionarView(slFiltroApoioRVs);
+                        break;
+                    case "CampingSelvagem/WildCamping/Bushcfaft":
+                        DeselecionarView(slFiltroWild);
+                        break;
+                    case "SemFunçãoCamping/ApoioouFechado":
+                        DeselecionarView(slFiltroSemFuncao);
+                        break;
                 }
             }
         }
 
-        private async Task CarregarFiltrosServicosSelecionadosAsync()
+        private void CarregarServicos(List<string> listaFiltros)
         {
-            var valoresFiltrosSelecionados = await DBContract.GetKeyValueAsync(AppConstants.Filtro_ServicoSelecionados);
-
-            if (valoresFiltrosSelecionados == null)
+            foreach (var filtro in listaFiltros)
             {
-                //ComodidadesSelecionadas.Add("AceitaBarracas");
-                //ComodidadesSelecionadas.Add("AceitaRVs");
-                //ComodidadesSelecionadas.Add("PossuiChalesCabanasOuSuites");
-                //ComodidadesSelecionadas.Add("AceitaAnimais");
-
-                //SelecionarView(slAceitaBarracas);
-                //SelecionarView(slAceitaRVs);
-                //SelecionarView(slPossuiChales);
-                //SelecionarView(slAceitaAnimais);
-            }
-            else
-            {
-                foreach (var filtro in valoresFiltrosSelecionados.Split(','))
+                switch (filtro)
                 {
-                    ComodidadesSelecionadas.Add(filtro);
-
-                    switch (filtro)
-                    {
-                        case "AceitaBarracas":
-                            DeselecionarView(slAceitaBarracas);
-                            break;
-                        case "AceitaRVs":
-                            DeselecionarView(slAceitaRVs);
-                            break;
-                        case "PossuiChalesCabanasOuSuites":
-                            DeselecionarView(slPossuiChales);
-                            break;
-                        case "AceitaAnimais":
-                            DeselecionarView(slAceitaAnimais);
-                            break;
-                        case "Restaurante":
-                            DeselecionarView(slRestaurante);
-                            break;
-                        case "ChurrasqueiraCozinha":
-                            DeselecionarView(slChurrasqueiraCozinha);
-                            break;
-                        case "TelefoneInternet":
-                            DeselecionarView(slTelefoneInternet);
-                            break;
-                        case "Piscina":
-                            DeselecionarView(slPiscina);
-                            break;
-                        case "Acessibilidade":
-                            DeselecionarView(slAcessibilidade);
-                            break;
-                        case "Transporte":
-                            DeselecionarView(slAcessoTransporteColetivo);
-                            break;
-                        case "Esgoto":
-                            DeselecionarView(slLocalDetritos);
-                            break;
-                        case "PossuiEnergiaEletrica":
-                            DeselecionarView(slEnergiaEletrica);
-                            break;
-                        case "PossuiPraiaProxima":
-                            DeselecionarView(slPossuiPraiaProxima);
-                            break;
-                        case "Sanitarios":
-                            // SelecionarView(slBanheiros);
-                            break;
-                    }
+                    case "AceitaBarracas":
+                        DeselecionarView(slAceitaBarracas);
+                        break;
+                    case "AceitaRVs":
+                        DeselecionarView(slAceitaRVs);
+                        break;
+                    case "PossuiChalesCabanasOuSuites":
+                        DeselecionarView(slPossuiChales); break;
+                    case "AceitaAnimais":
+                        DeselecionarView(slAceitaAnimais);
+                        break;
+                    case "Restaurante":
+                        DeselecionarView(slRestaurante);
+                        break;
+                    case "ChurrasqueiraCozinha":
+                        DeselecionarView(slChurrasqueiraCozinha);
+                        break;
+                    case "TelefoneInternet":
+                        DeselecionarView(slTelefoneInternet);
+                        break;
+                    case "Piscina":
+                        DeselecionarView(slPiscina);
+                        break;
+                    case "Acessibilidade":
+                        DeselecionarView(slAcessibilidade);
+                        break;
+                    case "Transporte":
+                        DeselecionarView(slAcessoTransporteColetivo);
+                        break;
+                    case "Esgoto":
+                        DeselecionarView(slLocalDetritos);
+                        break;
+                    case "PossuiEnergiaEletrica":
+                        DeselecionarView(slEnergiaEletrica);
+                        break;
+                    case "PossuiPraiaProxima":
+                        DeselecionarView(slPossuiPraiaProxima);
+                        break;
                 }
             }
         }
 
-        public void FiltroEstabelecimentoTapped(object sender, EventArgs e)
+        private void FiltroEstabelecimentoTapped(object sender, EventArgs e)
         {
-            if (sender is View viewFiltro)
+            if (sender is View view && BindingContext is FiltrosViewModel viewModel)
             {
-                var filtroClicado = viewFiltro.ClassId;
+                var filtro = view.ClassId;
 
-                if (EstabelecimentosSelecionados.Contains(filtroClicado))
+                viewModel.AlternarEstabelecimento(ListaEstabelecimentosSelecionados, filtro);
+
+                if (ListaEstabelecimentosSelecionados.Contains(filtro))
                 {
-                    EstabelecimentosSelecionados.Remove(filtroClicado);
-                    DeselecionarView(viewFiltro);
+                    SelecionarView(view);
                 }
                 else
                 {
-                    EstabelecimentosSelecionados.Add(filtroClicado);
-                    SelecionarView(viewFiltro);
+                    DeselecionarView(view);
                 }
             }
         }
 
-        public void ServicoTapped(object sender, EventArgs e)
+        private void ServicoTapped(object sender, EventArgs e)
         {
-            if (sender is View viewServico)
+            if (sender is View view && BindingContext is FiltrosViewModel viewModel)
             {
-                var servicoClicado = viewServico.ClassId;
+                var servico = view.ClassId;
 
-                if (ComodidadesSelecionadas.Contains(servicoClicado))
+                viewModel.AlternarServico(ListaComodidadesSelecionadas, servico);
+
+                if (ListaComodidadesSelecionadas.Contains(servico))
                 {
-                    DeselecionarView(viewServico);
-                    ComodidadesSelecionadas.Remove(servicoClicado);
+                    SelecionarView(view);
                 }
                 else
                 {
-                    SelecionarView(viewServico);
-                    ComodidadesSelecionadas.Add(servicoClicado);
+                    DeselecionarView(view);
                 }
             }
         }
@@ -309,14 +158,13 @@ namespace MaCamp.Views.Campings
         {
             view.BackgroundColor = AppColors.CorDestaque;
 
-            if (view is StackLayout sl)
+            if (view is StackLayout layout)
             {
-                foreach (var child in sl.Children)
+                var listChildrens = layout.Children.OfType<Label>().ToList();
+
+                foreach (var child in listChildrens)
                 {
-                    if (child is Label lb)
-                    {
-                        lb.TextColor = Colors.White;
-                    }
+                    child.TextColor = Colors.White;
                 }
             }
         }
@@ -325,66 +173,28 @@ namespace MaCamp.Views.Campings
         {
             view.BackgroundColor = Color.FromArgb("F5F5F5");
 
-            if (view is StackLayout sl)
+            if (view is StackLayout layout)
             {
-                foreach (var child in sl.Children)
+                var listChildrens = layout.Children.OfType<Label>().ToList();
+
+                foreach (var child in listChildrens)
                 {
-                    if (child is Label lb)
-                    {
-                        lb.TextColor = Colors.Gray;
-                    }
+                    child.TextColor = Colors.Gray;
                 }
             }
         }
 
-        //private async void UsarMinhaLocalizacao(object sender, EventArgs e)
-        //{
-        //    loader.IsVisible = true;
-        //    loader.IsRunning = true;
-        //    slUsarMinhaLocalizacao.IsVisible = false;
-        //    UsarLocalizacaoUsuario = true;
-
-        //    try
-        //    {
-        //        App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
-        //    }
-        //    catch (Exception ex) { Workaround.ShowExceptionOnlyDevolpmentMode(nameof(FiltrosPage), nameof(UsarMinhaLocalizacao), ex); }
-
-        //    loader.IsVisible = false;
-        //    loader.IsRunning = false;
-
-        //    AlterarBuscaLocalizacao(false);
-        //}
-
         private async void Filtrar(object sender, EventArgs e)
         {
-            //if (UsarLocalizacaoUsuario)
-            //{
-            //    await DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "true");
-            //    await DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
-            //    await DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
+            if (BindingContext is FiltrosViewModel viewModel)
+            {
+                await viewModel.SalvarFiltrosAsync(ListaEstabelecimentosSelecionados, ListaComodidadesSelecionadas);
 
-            //}
-            //else
-            //{
-            //    await DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, EstadoSelecionado == ParametroTODOS || EstadoSelecionado == string.Empty ? null : EstadoSelecionado);
-            //    await DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, CidadeSelecionada == ParametroTODAS || CidadeSelecionada == string.Empty ? null : CidadeSelecionada);
-            //    await DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "false");
-            //}
-            EstabelecimentosSelecionados.Remove(string.Empty);
-            var valorEstabelecimentos = string.Join(",", EstabelecimentosSelecionados);
+                //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Filtro Estabelecimentos e Serviços", "Filtrar", valorEstabelecimentos + " - " + valorComodidades);
+                WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscaRealizada);
 
-            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
-
-            ComodidadesSelecionadas.Remove(string.Empty);
-            var valorComodidades = string.Join(",", ComodidadesSelecionadas);
-
-            await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_ServicoSelecionados, valorComodidades);
-
-            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Filtro Estabelecimentos e Serviços", "Filtrar", valorEstabelecimentos + " - " + valorComodidades);
-            WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscaRealizada);
-
-            await Navigation.PopAsync();
+                await Navigation.PopAsync();
+            }
         }
     }
 }

@@ -2,27 +2,24 @@
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Services;
-using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.ViewModels
 {
-    public class ListagemInfinitaVM
+    public class ListagemInfinitaViewModel
     {
         public ObservableCollection<Item> Itens { get; set; }
-        private WebService WebService { get; set; }
 
-        public ListagemInfinitaVM()
+        public ListagemInfinitaViewModel()
         {
             Itens = new ObservableCollection<Item>();
-            WebService = new WebService();
         }
 
         public async Task CarregarAsync(string endpoint, int pagina, string? tag = null, string? query = null, TipoListagem tipoListagem = TipoListagem.Noticias, bool utilizarFiltros = true)
         {
-            var configs = default(ConfiguracoesAnuncios?);
             var countAnuncio = 0;
+            var configs = default(ConfiguracoesAnuncios?);
 
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
@@ -97,7 +94,7 @@ namespace MaCamp.ViewModels
             }
             else
             {
-                var listItens = await WebService.GetListAsync<Item>(endpoint, pagina, tag, query);
+                var listItens = await new WebService().GetListAsync<Item>(endpoint, pagina, tag, query);
                 var idLocal = Itens.Count;
 
                 await listItens.ForEachAsync(async x =>
@@ -119,7 +116,7 @@ namespace MaCamp.ViewModels
                         if (countAnuncio == 1)
                         {
                             var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
-                            var anuncios = listaAnuncios.Where(x => x.Tipo == TipoAnuncio.Nativo).ToList();
+                            var anuncios = listaAnuncios.Where(y => y.Tipo == TipoAnuncio.Nativo).ToList();
 
                             if (anuncios.Count > 0)
                             {
@@ -164,27 +161,6 @@ namespace MaCamp.ViewModels
                     }
                 });
             }
-        }
-
-        private double CalcularDistancia(double latitudeItem, double longitudeItem)
-        {
-            if (App.LOCALIZACAO_USUARIO != null)
-            {
-                var constant = 0.0174532925199433;
-                var latitude = App.LOCALIZACAO_USUARIO.Latitude * constant;
-                var longitude = App.LOCALIZACAO_USUARIO.Longitude * constant;
-                var num = latitudeItem * constant;
-                var longitude1 = longitudeItem * constant;
-                var num1 = longitude1 - longitude;
-                var num2 = num - latitude;
-                var num3 = Math.Pow(Math.Sin(num2 / 2), 2) + Math.Cos(latitude) * Math.Cos(num) * Math.Pow(Math.Sin(num1 / 2), 2);
-                var num4 = 2 * Math.Atan2(Math.Sqrt(num3), Math.Sqrt(1 - num3));
-                var num5 = 6376500 * num4;
-
-                return num5;
-            }
-
-            return 0;
         }
     }
 }

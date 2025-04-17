@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.CustomControls;
-using MaCamp.Services.DataAccess;
+using MaCamp.Services;
 using MaCamp.Utils;
 using static MaCamp.Utils.Enumeradores;
 
@@ -77,29 +77,29 @@ namespace MaCamp.Views.Campings
                         VerticalOptions = LayoutOptions.Center,
                         Margin = 20
                     };
-                    var fs = new FormattedString();
+                    var formattedString = new FormattedString();
 
-                    fs.Spans.Add(new Span
+                    formattedString.Spans.Add(new Span
                     {
                         Text = "O primeiro acesso requer conexão com a internet.\n\n",
                         FontAttributes = FontAttributes.Bold,
                         FontSize = 20
                     });
-                    fs.Spans.Add(new Span
+                    formattedString.Spans.Add(new Span
                     {
                         Text = AppConstants.Descricao_SemInternet
                     });
 
-                    lbMensagemAviso.FormattedText = fs;
+                    lbMensagemAviso.FormattedText = formattedString;
 
-                    var carregarNovamente = new TapGestureRecognizer();
+                    var gestureRecognizer = new TapGestureRecognizer();
 
-                    carregarNovamente.Tapped += async delegate
+                    gestureRecognizer.Tapped += async delegate
                     {
                         await CarregarConteudoAsync();
                     };
 
-                    lbMensagemAviso.GestureRecognizers.Add(carregarNovamente);
+                    lbMensagemAviso.GestureRecognizers.Add(gestureRecognizer);
 
                     BackgroundColor = Color.FromArgb("#E4E4E4");
                     cvContent.Content = lbMensagemAviso;

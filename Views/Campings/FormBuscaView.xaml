@@ -48,7 +48,9 @@
                             TextColor="Gray" />
                         <Picker
                             x:Name="pkUF"
-                            Title="Carregando..." />
+                            Title="Carregando..."
+                            SelectedIndexChanged="PkUF_OnSelectedIndexChanged"
+                            />
                     </StackLayout>
                     <StackLayout
                         Spacing="2">
@@ -59,7 +61,9 @@
                             TextColor="Gray" />
                         <Picker
                             x:Name="pkCidade"
-                            Title="Selecione primeiramente o Estado" />
+                            Title="Selecione primeiramente o Estado"
+                            SelectedIndexChanged="PkCidade_OnSelectedIndexChanged"
+                            />
                     </StackLayout>
                 </StackLayout>
 
@@ -120,7 +124,7 @@
                         VerticalOptions="Center" />
                     <StackLayout.GestureRecognizers>
                         <TapGestureRecognizer
-                            Tapped="UsarMinhaLocalizacao" />
+                            Tapped="TapGestureRecognizer_OnTapped" />
                     </StackLayout.GestureRecognizers>
                 </StackLayout>
 

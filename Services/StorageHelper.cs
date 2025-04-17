@@ -4,7 +4,7 @@ using System.Text.Json;
 using MaCamp.Models;
 using MaCamp.Utils;
 
-namespace MaCamp.Services.DataAccess
+namespace MaCamp.Services
 {
     public static class StorageHelper
     {

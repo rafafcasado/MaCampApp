@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using MaCamp.Utils;
 
-namespace MaCamp.Services.DataAccess
+namespace MaCamp.Services
 {
     public class WebService
     {

@@ -2,7 +2,6 @@ using System.Globalization;
 using MaCamp.Dependencias;
 using MaCamp.Resources.Locale;
 using MaCamp.Services;
-using MaCamp.Services.DataAccess;
 using MaCamp.Utils;
 using MaCamp.Views;
 using MaCamp.Views.Menu;
@@ -46,7 +45,7 @@ namespace MaCamp
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
-                var excecao = args?.ExceptionObject is Exception exception ? exception : new Exception($"não foi possível converter o valor de {nameof(args)}_{nameof(args.ExceptionObject)} para {nameof(Exception)}");
+                var excecao = args.ExceptionObject is Exception exception ? exception : new Exception($"não foi possível converter o valor de {nameof(args)}_{nameof(args.ExceptionObject)} para {nameof(Exception)}");
 
                 Workaround.ShowExceptionOnlyDevolpmentMode(nameof(App), nameof(AppDomain.CurrentDomain.UnhandledException), excecao);
             };
