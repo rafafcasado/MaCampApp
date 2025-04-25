@@ -263,6 +263,7 @@ namespace MaCamp.Views.Campings
             else
             {
                 var mensagem = "Realize a busca novamente com outros critérios.";
+                var existemCampingsDisponiveis = await CampingServices.ExistemCampingsAsync();
 
                 cvItens.IsVisible = true;
                 grBotoesFiltroMapa.IsVisible = true;
@@ -270,7 +271,7 @@ namespace MaCamp.Views.Campings
                 grBuscaAtual.IsVisible = false;
                 slAlterarFiltros.IsVisible = false;
 
-                if (!App.EXISTEM_CAMPINGS_DISPONIVEIS)
+                if (!existemCampingsDisponiveis)
                 {
                     mensagem = "Conecte-se à uma internet mais rápida e estável para baixar a lista de campings.";
                     cvItens.IsVisible = false;

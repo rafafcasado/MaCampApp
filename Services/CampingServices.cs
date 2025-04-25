@@ -89,8 +89,6 @@ namespace MaCamp.Services
         {
             await BaixarCampingsAsync(false);
 
-            App.EXISTEM_CAMPINGS_DISPONIVEIS = await ExistemCampingsAsync();
-
             if (utilizarFiltros)
             {
                 var campingsFiltrados = await CarregarCampingsFiltradosAsync();
@@ -158,8 +156,9 @@ namespace MaCamp.Services
 
             var query = sbQuery.ToString();
             var campings = await DBContract.QueryAsync<Item>(query);
+            var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
 
-            if (usarLocalizacaoDoUsuario)
+            if (usarLocalizacaoDoUsuario && permissionGranted)
             {
                 App.LOCALIZACAO_USUARIO = await Geolocation.GetLastKnownLocationAsync();
 
@@ -168,7 +167,7 @@ namespace MaCamp.Services
                     App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
                 }
 
-                campings = campings.Where(x => x.Latitude != 0 && x.Longitude != 0).OrderBy(x => x.DistanciaDoUsuario).Take(20).ToList();
+                campings = campings.OrderBy(x => x.DistanciaDoUsuario).Take(20).ToList();
             }
 
             return campings;

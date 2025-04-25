@@ -4,9 +4,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using MaCamp.Models;
-using Microsoft.Maui.Maps;
-using SkiaSharp;
-using Map = Microsoft.Maui.Controls.Maps.Map;
+using Maui.GoogleMaps;
+using Map = Maui.GoogleMaps.Map;
 
 namespace MaCamp.Utils
 {
@@ -24,20 +23,6 @@ namespace MaCamp.Utils
             }
 
             return new Dictionary<string, string>();
-        }
-
-        public static string? ToConstantName(this string value)
-        {
-            if (!string.IsNullOrEmpty(value))
-            {
-                var listCharacters = value.Select(x => x).ToList();
-                var listCustomCharacters = listCharacters.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + char.ToUpper(x) : char.ToUpper(x).ToString()).ToList();
-                var constantName = string.Join(string.Empty, listCustomCharacters);
-
-                return constantName;
-            }
-
-            return default;
         }
 
         public static void ForEach<T>(this IEnumerable<T>? source, Action<T>? action)
@@ -103,49 +88,18 @@ namespace MaCamp.Utils
             return value;
         }
 
-        public static string RemoveSpecialCharacteres(this string value, bool removeSpaces = false)
+        public static void MoveMapToRegion(this Map map, List<Position>? listPositions)
         {
-            var textoAlterado = string.Empty;
-            var regexPattern = "\\p{P}+";
-
-            if (removeSpaces)
-            {
-                regexPattern = "[\\W]";
-            }
-
-            var textoSemCaracteresEspeciais = Regex.Replace(value, regexPattern, string.Empty);
-
-            foreach (var charactere in textoSemCaracteresEspeciais)
-            {
-                if (AppConstants.CharsAcentuados.Contains(charactere.ToString()))
-                {
-                    var specialPosition = AppConstants.CharsAcentuados.IndexOf(charactere);
-
-                    // utiliza o caracter correspondente sem acentuação
-                    textoAlterado += AppConstants.CharsRegulares[specialPosition].ToString();
-                }
-                else
-                {
-                    // Se não encontrar nenhum acento, utiliza o caracter que já está no texto
-                    textoAlterado += charactere.ToString();
-                }
-            }
-
-            return textoAlterado;
-        }
-
-        public static void MoveMapToRegion(this Map map, List<Location>? locations)
-        {
-            if (locations == null || locations.Count == 0)
+            if (listPositions == null || listPositions.Count == 0)
             {
                 return;
             }
 
             // Encontra os limites da lista de localizações
-            var minLatitude = locations.Min(x => x.Latitude);
-            var maxLatitude = locations.Max(x => x.Latitude);
-            var minLongitude = locations.Min(x => x.Longitude);
-            var maxLongitude = locations.Max(x => x.Longitude);
+            var minLatitude = listPositions.Min(x => x.Latitude);
+            var maxLatitude = listPositions.Max(x => x.Latitude);
+            var minLongitude = listPositions.Min(x => x.Longitude);
+            var maxLongitude = listPositions.Max(x => x.Longitude);
 
             // Calcula o centro do mapa
             var centerLatitude = (minLatitude + maxLatitude) / 2;
@@ -159,7 +113,7 @@ namespace MaCamp.Utils
             var distance = Distance.FromKilometers(Math.Max(latitudeDegrees, longitudeDegrees) * 111);
 
             // Define um MapSpan com uma margem extra para a visualização
-            var region = MapSpan.FromCenterAndRadius(new Location(centerLatitude, centerLongitude), distance);
+            var region = MapSpan.FromCenterAndRadius(new Position(centerLatitude, centerLongitude), distance);
 
             // Move o mapa para a região calculada
             map.MoveToRegion(region);
@@ -187,27 +141,20 @@ namespace MaCamp.Utils
                 return text;
             }
 
-            var stFormD = text.Trim().Normalize(NormalizationForm.FormD);
-            var sb = new StringBuilder();
+            var stringBuilder = new StringBuilder();
+            var textNormalized = text.Trim().Normalize(NormalizationForm.FormD);
 
-            foreach (var caracter in stFormD)
+            foreach (var caracter in textNormalized)
             {
-                var uc = CharUnicodeInfo.GetUnicodeCategory(caracter);
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(caracter);
 
-                if (uc != UnicodeCategory.NonSpacingMark)
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
                 {
-                    sb.Append(caracter);
+                    stringBuilder.Append(caracter);
                 }
             }
 
-            return sb.ToString().Normalize(NormalizationForm.FormC);
-        }
-
-        public static T ToPlatform<T>(this T defaultValue, Dictionary<DevicePlatform, T> keyValuePair)
-        {
-            var current = DeviceInfo.Platform;
-
-            return keyValuePair.GetValueOrDefault(current, defaultValue);
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
 
         public static T GetInstance<T>() where T : new()
@@ -220,15 +167,6 @@ namespace MaCamp.Utils
             }
 
             return new T();
-        }
-
-        public static T GetInstance<T>(Action<T> action) where T : new()
-        {
-            var instance = GetInstance<T>();
-
-            action.Invoke(instance);
-
-            return instance;
         }
 
         public static void ReplaceOrAdd<T>(this ObservableCollection<T> collection, T newItem, Func<T, bool> predicate)
@@ -247,44 +185,24 @@ namespace MaCamp.Utils
             }
         }
 
-        public static bool IsInside(this MapSpan region, Location location)
-        {
-            var minLat = region.Center.Latitude - (region.LatitudeDegrees / 2);
-            var maxLat = region.Center.Latitude + (region.LatitudeDegrees / 2);
-            var minLon = region.Center.Longitude - (region.LongitudeDegrees / 2);
-            var maxLon = region.Center.Longitude + (region.LongitudeDegrees / 2);
-
-            return location.Latitude >= minLat && location.Latitude <= maxLat && location.Longitude >= minLon && location.Longitude <= maxLon;
-        }
-
-        public static bool IsInside(this MapSpan region, double? latitude, double? longetitude)
-        {
-            if (latitude != null && longetitude != null)
-            {
-                return region.IsInside(new Location(latitude.Value, longetitude.Value));
-            }
-
-            return false;
-        }
-
-        public static Location GetLocation(this Item? item)
+        public static Position GetPosition(this Item? item)
         {
             if (item != null && item.Latitude != null && item.Longitude != null)
             {
-                return new Location(item.Latitude.Value, item.Longitude.Value);
+                return new Position(item.Latitude.Value, item.Longitude.Value);
             }
 
-            return new Location();
+            return default;
         }
 
-        public static SKColor ToSKColor(this Color color)
+        public static Position GetPosition(this Location? location)
         {
-            var red = Convert.ToByte(color.Red * 255);
-            var green = Convert.ToByte(color.Green * 255);
-            var blue = Convert.ToByte(color.Blue * 255);
-            var alpha = Convert.ToByte(color.Alpha * 255);
+            if (location != null)
+            {
+                return new Position(location.Latitude, location.Longitude);
+            }
 
-            return new SKColor(red, green, blue, alpha);
+            return default;
         }
 
         public static string NormalizeText(this string value)

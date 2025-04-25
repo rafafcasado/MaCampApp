@@ -79,7 +79,12 @@ namespace MaCamp.ViewModels
         {
             try
             {
-                App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
+                var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para buscar o");
+
+                if (permissionGranted)
+                {
+                    App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
+                }
 
                 await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_LocalizacaoSelecionada, "true");
                 await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_EstadoSelecionado, null);

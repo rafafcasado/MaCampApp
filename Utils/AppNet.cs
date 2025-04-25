@@ -94,7 +94,7 @@ namespace MaCamp.Utils
         {
             try
             {
-                var json = System.Text.Json.JsonSerializer.Serialize(data);
+                var json = JsonSerializer.Serialize(data);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await Client.PostAsync(url, content);
 

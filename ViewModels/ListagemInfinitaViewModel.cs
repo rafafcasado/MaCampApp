@@ -2,7 +2,6 @@
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Services;
-using MaCamp.Utils;
 using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.ViewModels
@@ -40,48 +39,47 @@ namespace MaCamp.ViewModels
                 var idLocal = Itens.Count;
                 var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
                 var anuncios = listaAnuncios.Where(x => x.Tipo == TipoAnuncio.Nativo).ToList();
-                var listaItensCampingsOrdenados = listaItensCampings.OrderBy(x => x.Identificadores.Min(y => y.TipoIdentificador)).ThenBy(x => x.Nome).ToList();
+                var identificadorPadrao = Enum.GetValues<TipoIdentificador>().Max() + 1;
+                var listaItensCampingsOrdenados = listaItensCampings.OrderBy(x => x.Identificadores.Min(y => y.TipoIdentificador) ?? identificadorPadrao).ThenBy(x => x.Nome).ToList();
 
-                listaItensCampingsOrdenados.ForEach(x =>
+                foreach (var itemCamping in listaItensCampingsOrdenados)
                 {
-                    x.IdLocal = ++idLocal;
+                    itemCamping.IdLocal = ++idLocal;
+                    Itens.Add(itemCamping);
 
-                    Itens.Add(x);
-
-                    if (configs != null)
+                    // Insere Anúncio Customizado
+                    if (configs?.QuantidadeCardsListagem > 0 && countAnuncio == 1 && anuncios?.Count > 0)
                     {
-                        if (countAnuncio == 1 && anuncios.Count > 0)
-                        {
-                            var anuncioEscolhido = anuncios[random.Next(anuncios.Count)];
+                        var anuncioEscolhido = anuncios[random.Next(anuncios.Count)];
 
-                            if (anuncioEscolhido.UrlExterna != null)
+                        if (!string.IsNullOrWhiteSpace(anuncioEscolhido.UrlExterna))
+                        {
+                            Itens.Add(new Item
                             {
-                                Itens.Add(new Item
-                                {
-                                    DeveAbrirExternamente = true,
-                                    UrlExterna = anuncioEscolhido.UrlExterna,
-                                    IdLocal = idLocal++,
-                                    EhAnuncio = true,
-                                    Anuncio = anuncioEscolhido
-                                });
-                            }
+                                IdLocal = ++idLocal,
+                                EhAnuncio = true,
+                                DeveAbrirExternamente = true,
+                                UrlExterna = anuncioEscolhido.UrlExterna,
+                                Anuncio = anuncioEscolhido
+                            });
+                        }
 
-                            countAnuncio = configs.QuantidadeCardsListagem;
-                        }
-                        else
-                        {
-                            countAnuncio--;
-                        }
+                        countAnuncio = configs.QuantidadeCardsListagem;
+                    }
+                    else
+                    {
+                        countAnuncio--;
                     }
 
+                    // Insere Anúncio AdMob
                     if (countAdMob == 1)
                     {
                         Itens.Add(new Item
                         {
+                            IdLocal = ++idLocal,
+                            EhAdMobRetangulo = true,
                             DeveAbrirExternamente = true,
-                            UrlExterna = string.Empty,
-                            IdLocal = idLocal++,
-                            EhAdMobRetangulo = true
+                            UrlExterna = string.Empty
                         });
 
                         countAdMob = 14;
@@ -90,76 +88,77 @@ namespace MaCamp.ViewModels
                     {
                         countAdMob--;
                     }
-                });
+                }
             }
             else
             {
                 var listItens = await new WebService().GetListAsync<Item>(endpoint, pagina, tag, query);
                 var idLocal = Itens.Count;
+                var listaAnuncios = new List<Anuncio>();
 
-                await listItens.ForEachAsync(async x =>
+                if (configs != null && pagina == 1)
                 {
-                    var savedItem = StorageHelper.GetItemById(x.IdPost);
+                    var resultadoAnuncios = await AnunciosServices.GetListAsync(true);
+
+                    listaAnuncios = resultadoAnuncios.Where(a => a.Tipo == TipoAnuncio.Nativo).ToList();
+                }
+
+                foreach (var item in listItens)
+                {
+                    var savedItem = StorageHelper.GetItemById(item.IdPost);
 
                     if (savedItem != null)
                     {
-                        x.Visualizado = savedItem.Visualizado;
-                        x.Favoritado = savedItem.Favoritado;
+                        item.Visualizado = savedItem.Visualizado;
+                        item.Favoritado = savedItem.Favoritado;
                     }
 
-                    x.IdLocal = ++idLocal;
+                    item.IdLocal = ++idLocal;
 
-                    Itens.Add(x);
+                    Itens.Add(item);
 
-                    if (configs != null)
+                    // Insere anúncio nativo
+                    if (configs != null && countAnuncio == 1 && listaAnuncios.Any())
                     {
-                        if (countAnuncio == 1)
-                        {
-                            var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
-                            var anuncios = listaAnuncios.Where(y => y.Tipo == TipoAnuncio.Nativo).ToList();
+                        var anuncioEscolhido = listaAnuncios[random.Next(listaAnuncios.Count)];
 
-                            if (anuncios.Count > 0)
-                            {
-                                var anuncioEscolhido = anuncios[random.Next(anuncios.Count)];
-
-                                if (anuncioEscolhido.UrlExterna != null)
-                                {
-                                    Itens.Add(new Item
-                                    {
-                                        DeveAbrirExternamente = true,
-                                        UrlExterna = anuncioEscolhido.UrlExterna,
-                                        IdLocal = idLocal++,
-                                        EhAnuncio = true,
-                                        Anuncio = anuncioEscolhido
-                                    });
-                                }
-                            }
-
-                            countAnuncio = configs.QuantidadeCardsListagem;
-                        }
-                        else
-                        {
-                            countAnuncio--;
-                        }
-
-                        if (countAdMob == 1)
+                        if (!string.IsNullOrWhiteSpace(anuncioEscolhido.UrlExterna))
                         {
                             Itens.Add(new Item
                             {
+                                IdLocal = ++idLocal,
+                                EhAnuncio = true,
                                 DeveAbrirExternamente = true,
-                                UrlExterna = string.Empty,
-                                IdLocal = idLocal++,
-                                EhAdMobRetangulo = true
+                                UrlExterna = anuncioEscolhido.UrlExterna,
+                                Anuncio = anuncioEscolhido
                             });
+                        }
 
-                            countAdMob = 14;
-                        }
-                        else
-                        {
-                            countAdMob--;
-                        }
+                        countAnuncio = configs.QuantidadeCardsListagem;
                     }
-                });
+                    else
+                    {
+                        countAnuncio--;
+                    }
+
+                    // Insere anúncio AdMob
+                    if (countAdMob == 1)
+                    {
+                        Itens.Add(new Item
+                        {
+                            IdLocal = ++idLocal,
+                            EhAdMobRetangulo = true,
+                            DeveAbrirExternamente = true,
+                            UrlExterna = string.Empty
+                        });
+
+                        countAdMob = 14;
+                    }
+                    else
+                    {
+                        countAdMob--;
+                    }
+                }
             }
         }
     }

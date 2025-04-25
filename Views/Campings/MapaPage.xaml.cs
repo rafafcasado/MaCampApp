@@ -6,9 +6,8 @@ using MaCamp.Models;
 using MaCamp.Utils;
 using MaCamp.ViewModels;
 using MaCamp.Views.Detalhes;
-using Microsoft.Maui.Controls.Maps;
-using Microsoft.Maui.Maps;
-using Map = Microsoft.Maui.Controls.Maps.Map;
+using Maui.GoogleMaps;
+using Map = Maui.GoogleMaps.Map;
 
 namespace MaCamp.Views.Campings
 {
@@ -25,7 +24,7 @@ namespace MaCamp.Views.Campings
             {
                 IsRunning = true,
                 IsVisible = true,
-                HeightRequest = 35,
+                HeightRequest = 70,
                 Color = AppColors.CorPrimaria,
                 HorizontalOptions = LayoutOptions.CenterAndExpand,
                 VerticalOptions = LayoutOptions.CenterAndExpand
@@ -43,7 +42,7 @@ namespace MaCamp.Views.Campings
         public MapaPage(bool usarFiltros) : this()
         {
             Title = "Mapa";
-            BindingContext = new MapaViewModel(PinOnInfoWindowClicked)
+            BindingContext = new MapaViewModel(Map_InfoWindowClicked)
             {
                 UsarFiltros = usarFiltros
             };
@@ -52,7 +51,7 @@ namespace MaCamp.Views.Campings
         public MapaPage(ObservableCollection<Item> itens) : this()
         {
             Title = "Ver no Mapa";
-            BindingContext = new MapaViewModel(PinOnInfoWindowClicked)
+            BindingContext = new MapaViewModel(Map_InfoWindowClicked)
             {
                 Itens = itens
             };
@@ -105,9 +104,9 @@ namespace MaCamp.Views.Campings
             }
         }
 
-        private async void PinOnInfoWindowClicked(object? sender, PinClickedEventArgs e)
+        private async void Map_InfoWindowClicked(object? sender, InfoWindowClickedEventArgs e)
         {
-            if (sender is StylishPin stylishPin && stylishPin.Data is Item item)
+            if (e.Pin.Tag is Item item)
             {
                 await Navigation.PushAsync(new DetalhesCampingPage(item));
             }

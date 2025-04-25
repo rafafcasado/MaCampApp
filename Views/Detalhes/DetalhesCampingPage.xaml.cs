@@ -170,7 +170,6 @@ namespace MaCamp.Views.Detalhes
             {
                 var descricao = Encoding.UTF8.GetString(Convert.FromBase64String(ItemAtual.Descricao));
 
-                //lbDescricao.Text = descricao;
                 lbDescricao.Text = descricao.Replace("\r\n", "<br/>");
                 cvTipo.Content = new TipoEstabelecimentoView(ItemAtual.Identificadores);
                 cvComodidades.Content = new ComodidadesView(ItemAtual.Identificadores);

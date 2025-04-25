@@ -70,7 +70,7 @@
 
         //        if (tentarAbrir)
         //        {
-        //            await App.ExibirNotificacaoPushAsync();
+        //            await ExibirNotificacaoPushAsync();
         //        }
         //    }
         //    catch (System.Exception ex)

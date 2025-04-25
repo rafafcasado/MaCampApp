@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net8.0-ios;;net8.0-android34.0</TargetFrameworks>
+		<TargetFrameworks>net8.0-ios;net8.0-android34.0</TargetFrameworks>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>MaCamp</RootNamespace>
@@ -61,6 +61,10 @@
 		<AndroidResource Include="Platforms\Android\Resources\drawable\**\*.gif" />
 		<AndroidResource Include="Platforms\Android\Resources\drawable\**\*.xml" />
 	</ItemGroup>
+	
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\Images\*" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
@@ -75,6 +79,8 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.100" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="8.0.100" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.3" />
+		<PackageReference Include="Onion.Maui.GoogleMaps" Version="6.1.0" />
+		<PackageReference Include="Onion.Maui.GoogleMaps.Clustering" Version="6.1.0" />
 		<PackageReference Include="Plugin.MauiMTAdmob" Version="1.7.1" />
 		<PackageReference Include="ReactiveUI" Version="20.2.45" />
 		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />

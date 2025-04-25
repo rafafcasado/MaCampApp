@@ -12,9 +12,7 @@ namespace MaCamp
     {
         public static int SCREEN_HEIGHT;
         public static int SCREEN_WIDTH;
-        public static Size ScreenPixelsSize;
         public static Location? LOCALIZACAO_USUARIO { get; set; }
-        public static bool EXISTEM_CAMPINGS_DISPONIVEIS { get; set; }
         public static bool BAIXANDO_CAMPINGS { get; set; }
 
         public static event EventHandler? Resumed;
@@ -23,7 +21,10 @@ namespace MaCamp
         {
             InitializeComponent();
 
-            CarregarTamanhoTela();
+            var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+
+            SCREEN_HEIGHT = Convert.ToInt32(displayInfo.Height / displayInfo.Density);
+            SCREEN_WIDTH = Convert.ToInt32(displayInfo.Width / displayInfo.Density);
 
             UserAppTheme = AppTheme.Light;
             MainPage = new SplashScreen(async () =>
@@ -52,7 +53,7 @@ namespace MaCamp
 
             TaskScheduler.UnobservedTaskException += (sender, args) =>
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(TaskScheduler), nameof(TaskScheduler.UnobservedTaskException), args?.Exception);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(TaskScheduler), nameof(TaskScheduler.UnobservedTaskException), args.Exception);
             };
         }
 
@@ -60,27 +61,6 @@ namespace MaCamp
         {
             //OneSignalServices.RegisterIOS();
             //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
-
-            //VerificarDownloadCampingsAsync();
-        }
-
-        private async Task VerificarDownloadCampingsAsync()
-        {
-            var permitidoBaixar = await BaixarUltimaVersaoConteudoAsync();
-
-            if (permitidoBaixar)
-            {
-                var baixar = await AppConstants.CurrentPage.DisplayAlert("Dados atualizados disponiveis", "Deseja baixar agora?", "Baixar", "Cancelar");
-
-                if (baixar)
-                {
-                    await CampingServices.BaixarCampingsAsync(true);
-                }
-            }
-            else
-            {
-                await CampingServices.BaixarCampingsAsync(false);
-            }
         }
 
         protected override async void OnStart()
@@ -112,17 +92,6 @@ namespace MaCamp
             base.CleanUp();
 
             BackgroundUpdater.Stop();
-        }
-
-        /// <summary>
-        ///     Carrega o tamanho de tela do dispositivo atual e salva na variável global para facilitar o acesso.
-        /// </summary>
-        private void CarregarTamanhoTela()
-        {
-            var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
-
-            SCREEN_HEIGHT = Convert.ToInt32(displayInfo.Height / displayInfo.Density);
-            SCREEN_WIDTH = Convert.ToInt32(displayInfo.Width / displayInfo.Density);
         }
 
         public static async Task ExibirNotificacaoPushAsync()
@@ -159,24 +128,6 @@ namespace MaCamp
                 //    });
                 //}
             }
-        }
-
-        public static async Task<bool> BaixarUltimaVersaoConteudoAsync()
-        {
-            var dataUltimaAtualizacao = await DBContract.GetKeyValueAsync(AppConstants.Chave_DataUltimaAtualizacaoConteudo);
-            var formato = "yyyy/MM/dd";
-
-            if (DateTime.TryParseExact(dataUltimaAtualizacao, formato, CultureInfo.InvariantCulture, DateTimeStyles.None, out var data))
-
-            //if (System.DateTime.Now.AddMinutes(-1) <= System.DateTime.Now) // Para testar a regra
-            {
-                if (data.AddDays(20) <= DateTime.Now)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

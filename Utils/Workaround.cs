@@ -75,7 +75,7 @@ namespace MaCamp.Utils
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(Dispatch), ex);
+                ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(Dispatch), ex);
             }
         });
 
@@ -91,7 +91,7 @@ namespace MaCamp.Utils
                     }
                     catch (Exception ex)
                     {
-                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWorkAsync), ex);
+                        ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWorkAsync), ex);
                     }
                 }, cancellationToken);
             }
@@ -103,29 +103,40 @@ namespace MaCamp.Utils
             return Task.CompletedTask;
         }
 
-        public static async Task TaskUIAsync(Action action, CancellationToken cancellationToken = default)
+        public static async Task<T> TaskWorkAsync<T>(Func<T> action, T defaultValue, CancellationToken cancellationToken = default)
         {
             try
             {
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    if (!cancellationToken.IsCancellationRequested)
-                    {
-                        try
-                        {
-                            action();
-                        }
-                        catch (Exception ex)
-                        {
-                            Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
-                        }
-                    }
-                });
+                return await Task.Run(action, cancellationToken);
             }
             catch (OperationCanceledException)
             {
                 // Execução cancelada, ignorar erro
             }
+
+            return defaultValue;
+        }
+
+        public static async Task TaskUIAsync(Action action, CancellationToken cancellationToken = default)
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        action();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Execução cancelada, ignorar erro
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
+                    }
+                }
+            });
         }
 
         public static async Task<bool> CheckPermissionAsync<T>(string title, string message) where T : Permissions.BasePermission, new()
@@ -166,9 +177,9 @@ namespace MaCamp.Utils
                 catch (Exception ex)
                 {
                     ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(CheckPermissionAsync), ex);
-
-                    return false;
                 }
+
+                return false;
             }
 
             return true;
@@ -208,7 +219,8 @@ namespace MaCamp.Utils
         {
             if (AppConstants.DictionaryDataDebounceTokens.TryRemove(key, out var existingToken))
             {
-                existingToken.Cancel();
+                await existingToken.CancelAsync();
+
                 existingToken.Dispose();
             }
 
@@ -232,6 +244,8 @@ namespace MaCamp.Utils
             finally
             {
                 AppConstants.DictionaryDataDebounceTokens.TryRemove(key, out _);
+
+                cancellationTokenSource.Dispose();
             }
         }
     }

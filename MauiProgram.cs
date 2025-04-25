@@ -5,10 +5,11 @@ using FluentIcons.Maui;
 using MaCamp.CustomControls;
 using MaCamp.Dependencias;
 using MaCamp.Utils;
+using Maui.GoogleMaps.Clustering.Hosting;
+using Maui.GoogleMaps.Hosting;
 using Microsoft.Extensions.Logging;
 using Plugin.MauiMTAdmob;
 using RGPopup.Maui.Extensions;
-using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace MaCamp
 {
@@ -18,11 +19,12 @@ namespace MaCamp
         {
             var builder = MauiApp.CreateBuilder();
 
-            builder.UseMauiMaps();
+            builder.UseFluentIcons();
             builder.UseMauiMTAdmob();
             builder.UseMauiApp<App>();
             builder.UseFFImageLoading();
-            builder.UseFluentIcons(false);
+            builder.UseGoogleMaps(null);
+            builder.UseGoogleMapsClustering();
             builder.UseMauiCommunityToolkit();
 
             builder.UseMauiRGPopup(config =>
@@ -42,7 +44,6 @@ namespace MaCamp
                 collection.AddPlatformHandler<AdmobRectangleBannerView>();
                 collection.AddPlatformHandler<CustomWebView>();
                 collection.AddPlatformHandler<IconView>();
-                collection.AddPlatformHandler<Map>();
             });
 
             builder.ConfigureFonts(collection =>

@@ -1,28 +1,26 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.Text.RegularExpressions;
 using DynamicData;
-using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.Services;
 using MaCamp.Utils;
-using Microsoft.Maui.Controls.Maps;
-using Microsoft.Maui.Maps;
+using Maui.GoogleMaps;
+using Maui.GoogleMaps.Clustering;
 using static MaCamp.Utils.Enumeradores;
-using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace MaCamp.ViewModels
 {
     public class MapaViewModel
     {
-        public Map? Mapa { get; set; }
+        public ClusteredMap? Mapa { get; set; }
         public ObservableCollection<Item> Itens { get; set; }
         public bool UsarFiltros { get; set; }
 
-        public EventHandler<PinClickedEventArgs> PinOnInfoWindowClicked { get; }
+        public EventHandler<InfoWindowClickedEventArgs> ClusteredMap_InfoWindowClicked { get; }
 
-        public MapaViewModel(EventHandler<PinClickedEventArgs> pinOnInfoWindowClicked)
+        public MapaViewModel(EventHandler<InfoWindowClickedEventArgs> clusteredMapInfoWindowClicked)
         {
-            PinOnInfoWindowClicked = pinOnInfoWindowClicked;
+            ClusteredMap_InfoWindowClicked = clusteredMapInfoWindowClicked;
             Itens = new ObservableCollection<Item>();
         }
 
@@ -33,19 +31,14 @@ namespace MaCamp.ViewModels
                 await CarregarItensAsync();
             }
 
-            var permissao = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
-
-            if (permissao)
-            {
-                await CarregarMapaAsync();
-            }
+            await CarregarMapaAsync();
         }
 
         private async Task CarregarItensAsync()
         {
             var viewModel = new ListagemInfinitaViewModel();
 
-            if (!Debugger.IsAttached && Connectivity.NetworkAccess == NetworkAccess.Internet)
+            if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
                 await viewModel.CarregarAsync(string.Empty, -1, string.Empty, string.Empty, TipoListagem.Camping, UsarFiltros);
             }
@@ -61,53 +54,58 @@ namespace MaCamp.ViewModels
 
         private async Task CarregarMapaAsync()
         {
-            var map = new Map
+            var clusteredMap = new ClusteredMap
             {
-                IsShowingUser = true
+                MyLocationEnabled = true
             };
-            var pins = CriarListaPins(Itens);
+            var listaPins = await Workaround.TaskWorkAsync(() => CriarListaPins(Itens), new List<Pin>());
 
-            map.PropertyChanged += async (s, e) =>
+            clusteredMap.Pins.AddRange(listaPins);
+
+            clusteredMap.Loaded += Map_Loaded;
+            clusteredMap.InfoWindowClicked += ClusteredMap_InfoWindowClicked;
+
+            Mapa = clusteredMap;
+        }
+
+        private async void Map_Loaded(object? sender, EventArgs e)
+        {
+            if (sender is ClusteredMap clusteredMap)
             {
-                if (e.PropertyName == nameof(map.VisibleRegion))
+                var chave = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstadoSelecionado);
+
+                if (chave != null)
                 {
-                    await Workaround.DebounceAsync($"{nameof(MapaViewModel)}_{nameof(CarregarMapaAsync)}", 200, async cancel =>
+                    clusteredMap.MoveMapToRegion(clusteredMap.Pins.Select(x => x.Position).ToList());
+                }
+                else
+                {
+                    var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
+
+                    if (permissionGranted)
                     {
-                        await AtualizarListaPinsAsync(pins, map.VisibleRegion, cancel);
-                    });
-                }
-            };
+                        if (App.LOCALIZACAO_USUARIO == null)
+                        {
+                            App.LOCALIZACAO_USUARIO = await Geolocation.GetLastKnownLocationAsync();
+                        }
 
-            Mapa = map;
+                        if (App.LOCALIZACAO_USUARIO == null)
+                        {
+                            App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
+                        }
+                    }
 
-            var chave = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstadoSelecionado);
+                    // Se a localização do usuário não estiver disponível, use uma posição padrão (São Paulo)
+                    var position = App.LOCALIZACAO_USUARIO != null ? App.LOCALIZACAO_USUARIO.GetPosition() : new Position(-23.550520, -46.633308);
 
-            if (chave != null)
-            {
-                map.MoveMapToRegion(pins.Select(x => x.Location).ToList());
-            }
-            else
-            {
-                if (App.LOCALIZACAO_USUARIO == null)
-                {
-                    App.LOCALIZACAO_USUARIO = await Geolocation.GetLastKnownLocationAsync();
-                }
-
-                if (App.LOCALIZACAO_USUARIO == null)
-                {
-                    App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
-                }
-
-                if (App.LOCALIZACAO_USUARIO != null)
-                {
-                    map.MoveToRegion(MapSpan.FromCenterAndRadius(App.LOCALIZACAO_USUARIO, Distance.FromKilometers(10)));
+                    clusteredMap.MoveToRegion(MapSpan.FromCenterAndRadius(position, Distance.FromKilometers(7.5)));
                 }
             }
         }
 
         private List<Pin> CriarListaPins(IEnumerable<Item> itens)
         {
-            var listPins = new List<Pin>();
+            var listaPins = new List<Pin>();
             var identificadoresPermitidos = new List<string>
             {
                 "campingemreformas",
@@ -120,6 +118,9 @@ namespace MaCamp.ViewModels
                 "semfuncaocampingapoiooufechado",
                 "campingemfuncionamento"
             };
+            var assembly = typeof(MapaViewModel).Assembly;
+            var names = assembly.GetManifestResourceNames();
+            var dictionaryImages = names.Where(x => x.EndsWith("_small.png")).ToDictionary(x => Regex.Replace(x, @"^.*(?=\bpointer_)", string.Empty), x => assembly.GetManifestResourceStream(x));
 
             foreach (var item in itens)
             {
@@ -128,83 +129,25 @@ namespace MaCamp.ViewModels
                 if (!string.IsNullOrEmpty(item.Nome) && tipos.Any())
                 {
                     var identificador = tipos.FirstOrDefault()?.Identificador ?? string.Empty;
-                    var imagem = "pointer_" + identificador.Replace("`", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + "_small.png";
-                    var pin = new StylishPin
+                    var pin = new Pin
                     {
                         Label = item.Nome,
-                        ImageSource = imagem,
                         Address = item.EnderecoCompleto,
-                        Location = item.GetLocation(),
-                        Data = item
+                        Position = item.GetPosition(),
+                        Tag = item
                     };
+                    var imagem = "pointer_" + identificador.Replace("`", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + "_small.png";
 
-                    pin.InfoWindowClicked += PinOnInfoWindowClicked;
-
-                    listPins.Add(pin);
-                }
-            }
-
-            return listPins;
-        }
-
-        private async Task AtualizarListaPinsAsync(List<Pin> listPins, MapSpan? region, CancellationToken token)
-        {
-            if (Mapa != null && region != null)
-            {
-                var maxClusters = Environment.ProcessorCount;
-                var visiblePins = listPins.Where(x => region.IsInside(x.Location)).ToList();
-
-                await Workaround.TaskUIAsync(() => Mapa.Pins.Clear(), token);
-
-                if (visiblePins.Count > maxClusters)
-                {
-                    var clusters = PegarListaClusters(visiblePins, region, maxClusters);
-
-                    foreach (var cluster in clusters)
+                    if (dictionaryImages.TryGetValue(imagem, out var stream))
                     {
-                        if (cluster.Count == 1)
-                        {
-                            await Workaround.TaskUIAsync(() => Mapa.Pins.Add(cluster.First()), token);
-                        }
-                        else
-                        {
-                            var avgLat = cluster.Average(x => x.Location.Latitude);
-                            var avgLon = cluster.Average(x => x.Location.Longitude);
-
-                            await Workaround.TaskUIAsync(() =>
-                            {
-                                Mapa.Pins.Add(new StylishPin
-                                {
-                                    Label = cluster.Count.ToString(),
-                                    Location = new Location(avgLat, avgLon)
-                                });
-                            }, token);
-                        }
+                        pin.Icon = BitmapDescriptorFactory.FromStream(stream);
                     }
-                }
-                else
-                {
-                    await Workaround.TaskUIAsync(() => Mapa.Pins.AddRange(visiblePins), token);
+
+                    listaPins.Add(pin);
                 }
             }
-        }
 
-        private List<List<Pin>> PegarListaClusters(List<Pin> pins, MapSpan region, int maxClusters)
-        {
-            var clusters = Enumerable.Range(0, maxClusters).Select(x => new List<Pin>()).ToList();
-            var latStep = region.LatitudeDegrees / Math.Sqrt(maxClusters);
-            var lonStep = region.LongitudeDegrees / Math.Sqrt(maxClusters);
-
-            foreach (var pin in pins)
-            {
-                var latIndex = (int)((pin.Location.Latitude - (region.Center.Latitude - region.LatitudeDegrees / 2)) / latStep);
-                var lonIndex = (int)((pin.Location.Longitude - (region.Center.Longitude - region.LongitudeDegrees / 2)) / lonStep);
-                var clusterIndex = (latIndex * (int)Math.Sqrt(maxClusters) + lonIndex) % maxClusters;
-
-                clusters[clusterIndex].Add(pin);
-            }
-
-            return clusters.Where(c => c.Count > 0).ToList();
+            return listaPins;
         }
     }
 }
