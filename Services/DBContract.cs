@@ -9,7 +9,7 @@ namespace MaCamp.Services
 {
     public static class DBContract
     {
-        public static SQLiteAsyncConnection? SqlConnection { get; set; }
+        private static SQLiteConnection? SqlConnection { get; set; }
 
         private static object Lock { get; set; }
 
@@ -18,18 +18,18 @@ namespace MaCamp.Services
             Lock = new object();
         }
 
-        public static async Task InitializeAsync()
+        public static void Initialize()
         {
-            SqlConnection = await GetConnectionAsync(AppConstants.SqliteFilename);
+            SqlConnection = GetConnection(AppConstants.SqliteFilename);
 
             if (SqlConnection != null)
             {
-                await SqlConnection.InsertOrReplaceAsync(new ChaveValor
+                SqlConnection.InsertOrReplace(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_ServicoSelecionados,
                     Valor = string.Empty
                 });
-                await SqlConnection.InsertOrReplaceAsync(new ChaveValor
+                SqlConnection.InsertOrReplace(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_NomeCamping,
                     Valor = string.Empty
@@ -37,46 +37,46 @@ namespace MaCamp.Services
             }
         }
 
-        private static async Task<SQLiteAsyncConnection?> GetConnectionAsync(string filename)
+        private static SQLiteConnection? GetConnection(string filename)
         {
             try
             {
                 var path = Path.Combine(AppConstants.Path, filename);
-                var connection = new SQLiteAsyncConnection(path, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
+                var connection = new SQLiteConnection(path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite);
 
-                await connection.CreateTablesAsync<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
+                connection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
 
                 return connection;
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(GetConnectionAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(GetConnection), ex);
             }
 
             return null;
         }
 
-        private static async Task<bool> VerifyDatabaseIntegrityAsync(string filename)
+        private static bool VerifyDatabaseIntegrity(string filename)
         {
             try
             {
                 var path = Path.Combine(AppConstants.Path, filename);
-                var connection = new SQLiteAsyncConnection(path);
-                var result = await connection.ExecuteScalarAsync<string>("PRAGMA integrity_check;");
+                var connection = new SQLiteConnection(path);
+                var result = connection.ExecuteScalar<string>("PRAGMA integrity_check;");
 
-                await connection.CloseAsync();
+                connection.Close();
 
                 return result == "ok";
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(VerifyDatabaseIntegrityAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(VerifyDatabaseIntegrity), ex);
 
                 return false;
             }
         }
 
-        private static async Task<bool> UpdateAsync(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
+        private static bool Update(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
         {
             var backupDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteBackupFilename);
             var currentDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteFilename);
@@ -109,7 +109,7 @@ namespace MaCamp.Services
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
 
-                var temporaryConnection = await GetConnectionAsync(AppConstants.SqliteTemporaryFilename);
+                var temporaryConnection = GetConnection(AppConstants.SqliteTemporaryFilename);
 
                 if (temporaryConnection == null)
                 {
@@ -126,23 +126,23 @@ namespace MaCamp.Services
 
                         if (table != null)
                         {
-                            await temporaryConnection.DeleteAllAsync(table);
+                            temporaryConnection.DeleteAll(table);
                         }
                     }
 
-                    await temporaryConnection.RunInTransactionAsync(x =>
+                    temporaryConnection.RunInTransaction(() =>
                     {
                         foreach (var value in values)
                         {
-                            x.InsertOrReplace(value);
+                            temporaryConnection.InsertOrReplace(value);
                         }
                     });
 
                     ProgressoVisual.AumentarAtual(progressoVisual);
                 }
 
-                await temporaryConnection.InsertOrReplaceAsync(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", TipoChave.ControleInterno));
-                await temporaryConnection.InsertOrReplaceAsync(new ChaveValor
+                temporaryConnection.InsertOrReplace(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, "true", TipoChave.ControleInterno));
+                temporaryConnection.InsertOrReplace(new ChaveValor
                 {
                     Chave = AppConstants.Chave_DataUltimaAtualizacaoConteudo,
                     Valor = DateTime.Now.ToString("yyyy/MM/dd")
@@ -150,7 +150,7 @@ namespace MaCamp.Services
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
 
-                var checkIntegrity = await VerifyDatabaseIntegrityAsync(AppConstants.SqliteTemporaryFilename);
+                var checkIntegrity = VerifyDatabaseIntegrity(AppConstants.SqliteTemporaryFilename);
 
                 if (!checkIntegrity)
                 {
@@ -161,7 +161,7 @@ namespace MaCamp.Services
 
                 if (SqlConnection != null)
                 {
-                    await SqlConnection.CloseAsync();
+                    SqlConnection.Close();
                 }
 
                 if (File.Exists(currentDatabasePath))
@@ -171,7 +171,7 @@ namespace MaCamp.Services
 
                 File.Move(temporaryDatabasePath, currentDatabasePath);
 
-                SqlConnection = await GetConnectionAsync(AppConstants.SqliteFilename);
+                SqlConnection = GetConnection(AppConstants.SqliteFilename);
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
 
@@ -179,11 +179,11 @@ namespace MaCamp.Services
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex);
 
                 if (SqlConnection != null)
                 {
-                    await SqlConnection.CloseAsync();
+                    SqlConnection.Close();
                 }
 
                 if (File.Exists(currentDatabasePath))
@@ -196,23 +196,23 @@ namespace MaCamp.Services
                     File.Copy(backupDatabasePath, currentDatabasePath, true);
                 }
 
-                SqlConnection = await GetConnectionAsync(AppConstants.SqliteFilename);
+                SqlConnection = GetConnection(AppConstants.SqliteFilename);
 
                 return false;
             }
         }
 
-        public static async Task<bool> UpdateAsync<T>(bool clean, IEnumerable<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
+        public static bool Update<T>(bool clean, IEnumerable<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
                 { typeof(T), listPrimaryData.OfType<object>().ToList() }
             };
 
-            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+            return Update(clean, dataDictionary, progressoVisual);
         }
 
-        public static async Task<bool> UpdateAsync<T, TK>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
+        public static bool Update<T, TK>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
@@ -220,10 +220,10 @@ namespace MaCamp.Services
                 { typeof(TK), listaSecondaryData.OfType<object>().ToList() }
             };
 
-            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+            return Update(clean, dataDictionary, progressoVisual);
         }
 
-        public static async Task<bool> UpdateAsync<T, TK, TR>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, IEnumerable<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
+        public static bool Update<T, TK, TR>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, IEnumerable<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
@@ -232,29 +232,29 @@ namespace MaCamp.Services
                 { typeof(TR), listaTertiaryData.OfType<object>().ToList() }
             };
 
-            return await UpdateAsync(clean, dataDictionary, progressoVisual);
+            return Update(clean, dataDictionary, progressoVisual);
         }
 
-        public static async Task<bool> UpdateAsync<T>(T value)
+        public static bool Update<T>(T value)
         {
             try
             {
                 if (SqlConnection != null)
                 {
-                    await SqlConnection.InsertOrReplaceAsync(value);
+                    SqlConnection.InsertOrReplace(value);
 
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex);
             }
 
             return false;
         }
 
-        public static async Task<bool> UpdateKeyValueAsync(string key, string? value, TipoChave type = default)
+        public static bool UpdateKeyValue(string key, string? value, TipoChave type = default)
         {
             var keyValue = new ChaveValor
             {
@@ -263,10 +263,10 @@ namespace MaCamp.Services
                 Tipo = type
             };
 
-            return await UpdateAsync(keyValue);
+            return Update(keyValue);
         }
 
-        public static async Task<T?> GetAsync<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
+        public static T? Get<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
         {
             try
             {
@@ -274,23 +274,23 @@ namespace MaCamp.Services
                 {
                     if (predicate != null)
                     {
-                        return await SqlConnection.Table<T>().FirstOrDefaultAsync(predicate);
+                        return SqlConnection.Table<T>().FirstOrDefault(predicate);
                     }
 
-                    return await SqlConnection.Table<T>().FirstOrDefaultAsync();
+                    return SqlConnection.Table<T>().FirstOrDefault();
                 }
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(GetAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Get), ex);
             }
 
             return default;
         }
 
-        public static async Task<string?> GetKeyValueAsync(string key)
+        public static string? GetKeyValue(string key)
         {
-            var keyValue = await GetAsync<ChaveValor>(x => x.Chave == key);
+            var keyValue = Get<ChaveValor>(x => x.Chave == key);
 
             if (keyValue != null)
             {
@@ -300,26 +300,26 @@ namespace MaCamp.Services
             return null;
         }
 
-        public static async Task<List<T>> QueryAsync<T>(string query, params object[] args) where T : new()
+        public static List<T> Query<T>(string query, params object[] args) where T : new()
         {
             try
             {
                 if (SqlConnection != null)
                 {
-                    var list = await SqlConnection.QueryAsync<T>(query, args);
+                    var list = SqlConnection.Query<T>(query, args);
 
                     return list;
                 }
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(QueryAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Query), ex);
             }
 
             return new List<T>();
         }
 
-        public static async Task<List<T>> ListAsync<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
+        public static List<T> List<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
         {
             try
             {
@@ -327,21 +327,21 @@ namespace MaCamp.Services
                 {
                     if (predicate != null)
                     {
-                        return await SqlConnection.Table<T>().Where(predicate).ToListAsync();
+                        return SqlConnection.Table<T>().Where(predicate).ToList();
                     }
 
-                    return await SqlConnection.Table<T>().ToListAsync();
+                    return SqlConnection.Table<T>().ToList();
                 }
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(List), ex);
             }
 
             return new List<T>();
         }
 
-        public static async Task<List<Item>> ListCampingsAsync(string nomeDoCamping, string? cidade, string? estado)
+        public static List<Item> ListCampings(string nomeDoCamping, string? cidade, string? estado)
         {
             try
             {
@@ -350,7 +350,7 @@ namespace MaCamp.Services
                     var nomeNormalizado = nomeDoCamping.RemoveDiacritics().ToLower();
                     var estadoNormalizado = estado?.RemoveDiacritics().ToLower();
                     var cidadeNormalizada = cidade?.RemoveDiacritics().ToLower();
-                    var list = await SqlConnection.Table<Item>().ToListAsync();
+                    var list = SqlConnection.Table<Item>().ToList();
                     var query = list.AsQueryable().Where(x =>
                         (string.IsNullOrWhiteSpace(estadoNormalizado) || x.Estado != null && x.Estado.RemoveDiacritics().ToLower().Contains(estadoNormalizado)) &&
                         (string.IsNullOrWhiteSpace(cidadeNormalizada) || x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(cidadeNormalizada)) &&
@@ -367,13 +367,13 @@ namespace MaCamp.Services
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampingsAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
             }
 
             return new List<Item>();
         }
 
-        public static async Task<List<int>> ListIdCampingsComComodidadesAsync(bool possuiFiltroComodidades, string comodidades)
+        public static List<int> ListIdCampingsComComodidades(bool possuiFiltroComodidades, string comodidades)
         {
             try
             {
@@ -403,20 +403,20 @@ namespace MaCamp.Services
                     }
 
                     var query = sbQueryComodidades.ToString();
-                    var list = await QueryAsync<RetornoIdItem>(query);
+                    var list = Query<RetornoIdItem>(query);
 
                     return list.Select(x => x.IdItem).ToList();
                 }
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampingsAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
             }
 
             return new List<int>();
         }
 
-        public static async Task<List<int>> ListIdCampingsComCategoriasAsync(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
+        public static List<int> ListIdCampingsComCategorias(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
         {
             try
             {
@@ -457,13 +457,13 @@ namespace MaCamp.Services
                 sbQueryCategorias.Append($" GROUP BY {nameof(ItemIdentificador.IdItem)} ");
 
                 var query = sbQueryCategorias.ToString();
-                var list = await QueryAsync<RetornoIdItem>(query);
+                var list = Query<RetornoIdItem>(query);
 
                 return list.Select(x => x.IdItem).ToList();
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampingsAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
             }
 
             return new List<int>();

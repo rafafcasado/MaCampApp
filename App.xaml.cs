@@ -70,8 +70,9 @@ namespace MaCamp
             var localizeService = await Workaround.GetServiceAsync<ILocalize>();
             var cultureInfo = localizeService.PegarCultureInfoUsuario();
 
-            await DBContract.InitializeAsync();
             await Workaround.CheckPermissionAsync<Permissions.PostNotifications>("Notificação", "Forneça a permissão para exibir os status das atualizações de dados");
+
+            DBContract.Initialize();
 
             AppLanguage.Culture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
@@ -96,13 +97,13 @@ namespace MaCamp
 
         public static async Task ExibirNotificacaoPushAsync()
         {
-            var tituloPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_TituloNotificacao);
-            var mensagemPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_MensagemNotificacao);
-            var itemPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_IdItemNotificacao);
+            var tituloPush = DBContract.GetKeyValue(AppConstants.Chave_TituloNotificacao);
+            var mensagemPush = DBContract.GetKeyValue(AppConstants.Chave_MensagemNotificacao);
+            var itemPush = DBContract.GetKeyValue(AppConstants.Chave_IdItemNotificacao);
 
-            await DBContract.UpdateKeyValueAsync(AppConstants.Chave_TituloNotificacao, null);
-            await DBContract.UpdateKeyValueAsync(AppConstants.Chave_MensagemNotificacao, null);
-            await DBContract.UpdateKeyValueAsync(AppConstants.Chave_IdItemNotificacao, null);
+            DBContract.UpdateKeyValue(AppConstants.Chave_TituloNotificacao, null);
+            DBContract.UpdateKeyValue(AppConstants.Chave_MensagemNotificacao, null);
+            DBContract.UpdateKeyValue(AppConstants.Chave_IdItemNotificacao, null);
 
             if (mensagemPush != null)
             {

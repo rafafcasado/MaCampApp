@@ -147,31 +147,33 @@ namespace MaCamp.Utils
                 {
                     var checkStatus = await Permissions.CheckStatusAsync<T>();
 
-                    if (checkStatus != PermissionStatus.Granted)
+                    if (checkStatus == PermissionStatus.Granted)
                     {
-                        var shouldShowRationale = Permissions.ShouldShowRationale<T>();
+                        return true;
+                    }
 
-                        if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(message) && shouldShowRationale)
+                    var shouldShowRationale = Permissions.ShouldShowRationale<T>();
+
+                    if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(message) && shouldShowRationale)
+                    {
+                        await AppConstants.CurrentPage.DisplayAlert(title, message, "OK");
+                    }
+
+                    var requestStatus = await Permissions.RequestAsync<T>();
+
+                    if (requestStatus == PermissionStatus.Granted)
+                    {
+                        return true;
+                    }
+
+                    if (requestStatus != PermissionStatus.Unknown)
+                    {
+                        if (!string.IsNullOrEmpty(title))
                         {
-                            await AppConstants.CurrentPage.DisplayAlert(title, message, "OK");
+                            await AppConstants.CurrentPage.DisplayAlert(title, "Não é possível continuar com a ação, tente novamente.", "OK");
                         }
 
-                        var requestStatus = await Permissions.RequestAsync<T>();
-
-                        if (requestStatus == PermissionStatus.Granted)
-                        {
-                            return true;
-                        }
-
-                        if (requestStatus != PermissionStatus.Unknown)
-                        {
-                            if (!string.IsNullOrEmpty(title))
-                            {
-                                await AppConstants.CurrentPage.DisplayAlert(title, "Não é possível continuar com a ação, tente novamente.", "OK");
-                            }
-
-                            return false;
-                        }
+                        return false;
                     }
                 }
                 catch (Exception ex)

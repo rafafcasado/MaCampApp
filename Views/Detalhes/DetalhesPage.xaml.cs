@@ -55,7 +55,7 @@ namespace MaCamp.Views.Detalhes
 
             ConfigurarToolbar(item);
 
-            WeakReferenceMessenger.Default.Register<object, string>(this, AppConstants.Atualizar_ProgressoWebView, async (recipient, message) =>
+            WeakReferenceMessenger.Default.Register<object, string>(this, AppConstants.Atualizar_ProgressoWebView, (recipient, message) =>
             {
                 if (message is int value && value == 100)
                 {
@@ -64,7 +64,7 @@ namespace MaCamp.Views.Detalhes
                     progress.IsVisible = false;
                     item.Visualizado = true;
 
-                    await DBContract.UpdateAsync(item);
+                    DBContract.Update(item);
                 }
             });
 
@@ -102,12 +102,12 @@ namespace MaCamp.Views.Detalhes
             {
                 var imagem = "icone_favoritos_on.png";
 
-                ToolbarItems.Add(new ToolbarItem("Remover Favorito", imagem, async () =>
+                ToolbarItems.Add(new ToolbarItem("Remover Favorito", imagem, () =>
                 {
                     item.Favoritado = false;
 
                     StorageHelper.AddOrUpdateItem(item);
-                    await DBContract.UpdateAsync(item);
+                    DBContract.Update(item);
                     ConfigurarToolbar(item);
 
                     WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
@@ -117,12 +117,12 @@ namespace MaCamp.Views.Detalhes
             {
                 var imagem = "icone_favoritos_off.png";
 
-                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, async () =>
+                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, () =>
                 {
                     item.Favoritado = true;
 
                     StorageHelper.AddOrUpdateItem(item);
-                    await DBContract.UpdateAsync(item);
+                    DBContract.Update(item);
                     ConfigurarToolbar(item);
 
                     WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);

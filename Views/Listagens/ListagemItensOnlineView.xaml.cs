@@ -109,7 +109,7 @@ namespace MaCamp.Views.Listagens
                 var formattedString = new FormattedString();
                 var gestureRecognizer = new TapGestureRecognizer();
                 //Verifica se existem Campings baixados
-                var existemCampings = await CampingServices.ExistemCampingsAsync();
+                var existemCampings = CampingServices.ExistemCampings();
 
                 formattedString.Spans.Add(new Span
                 {

@@ -30,11 +30,11 @@ namespace MaCamp.Views.Campings
         {
             if (BindingContext is BuscaCampingsViewModel viewModel)
             {
-                await viewModel.InicializarFiltrosAsync();
+                viewModel.InicializarFiltros();
 
                 var cidades = await viewModel.ObterListaCidadesAsync();
                 var estados = viewModel.ObterListaEstados(cidades);
-                var (estadoSalvo, cidadeSalva, nomeSalvo) = await viewModel.ObterFiltrosSalvosAsync();
+                var (estadoSalvo, cidadeSalva, nomeSalvo) = viewModel.ObterFiltrosSalvos();
 
                 ListaCidades = cidades;
                 CidadeSalva = cidadeSalva;
@@ -86,11 +86,11 @@ namespace MaCamp.Views.Campings
             }
         }
 
-        private async void btBuscar_Clicked(object sender, EventArgs e)
+        private void btBuscar_Clicked(object sender, EventArgs e)
         {
             if (BindingContext is BuscaCampingsViewModel viewModel)
             {
-                await viewModel.SalvarFiltrosAsync(EstadoSelecionado, CidadeSelecionada, NomeDoCamping);
+                viewModel.SalvarFiltros(EstadoSelecionado, CidadeSelecionada, NomeDoCamping);
 
                 NomeDoCamping = etNomeDoCamping.Text;
                 pkUF.SelectedItem = null;

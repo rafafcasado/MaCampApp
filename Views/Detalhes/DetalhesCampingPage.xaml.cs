@@ -205,12 +205,12 @@ namespace MaCamp.Views.Detalhes
             {
                 var imagem = "icone_favoritos_on.png";
 
-                ToolbarItems.Add(new ToolbarItem("Remover Favorito", imagem, async () =>
+                ToolbarItems.Add(new ToolbarItem("Remover Favorito", imagem, () =>
                 {
                     item.Favoritado = false;
 
                     StorageHelper.AddOrUpdateItem(item);
-                    await DBContract.UpdateAsync(item);
+                    DBContract.Update(item);
                     ConfigurarToolbar(item);
 
                     WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);
@@ -220,12 +220,12 @@ namespace MaCamp.Views.Detalhes
             {
                 var imagem = "icone_favoritos_off.png";
 
-                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, async () =>
+                ToolbarItems.Add(new ToolbarItem("Favoritar", imagem, () =>
                 {
                     item.Favoritado = true;
 
                     StorageHelper.AddOrUpdateItem(item);
-                    await DBContract.UpdateAsync(item);
+                    DBContract.Update(item);
                     ConfigurarToolbar(item);
 
                     WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_AtualizarListagemFavoritos);

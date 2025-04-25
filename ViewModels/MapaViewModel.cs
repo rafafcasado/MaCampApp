@@ -44,7 +44,7 @@ namespace MaCamp.ViewModels
             }
             else
             {
-                var itensSalvos = await DBContract.ListAsync<Item>();
+                var itensSalvos = DBContract.List<Item>();
 
                 viewModel.Itens = new ObservableCollection<Item>(itensSalvos);
             }
@@ -72,11 +72,14 @@ namespace MaCamp.ViewModels
         {
             if (sender is ClusteredMap clusteredMap)
             {
-                var chave = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstadoSelecionado);
+                var multiplicadorRaio = 1.2;
+                var quantidadeCampingsVisualizar = 10;
+                var chave = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
+                var listaPositions = clusteredMap.Pins.Select(x => x.Position).ToList();
 
                 if (chave != null)
                 {
-                    clusteredMap.MoveMapToRegion(clusteredMap.Pins.Select(x => x.Position).ToList());
+                    clusteredMap.MoveMapToRegion(listaPositions);
                 }
                 else
                 {
@@ -97,8 +100,10 @@ namespace MaCamp.ViewModels
 
                     // Se a localização do usuário não estiver disponível, use uma posição padrão (São Paulo)
                     var position = App.LOCALIZACAO_USUARIO != null ? App.LOCALIZACAO_USUARIO.GetPosition() : new Position(-23.550520, -46.633308);
+                    var orderedByDistance = listaPositions.Select(x => Location.CalculateDistance(position.Latitude, position.Longitude, x.Latitude, x.Longitude, DistanceUnits.Kilometers)).OrderBy(x => x).ToList();
+                    var radiusKm = orderedByDistance.Count >= quantidadeCampingsVisualizar ? orderedByDistance[quantidadeCampingsVisualizar - 1] : orderedByDistance.Last();
 
-                    clusteredMap.MoveToRegion(MapSpan.FromCenterAndRadius(position, Distance.FromKilometers(7.5)));
+                    clusteredMap.MoveToRegion(MapSpan.FromCenterAndRadius(position, Distance.FromKilometers(radiusKm * multiplicadorRaio)));
                 }
             }
         }

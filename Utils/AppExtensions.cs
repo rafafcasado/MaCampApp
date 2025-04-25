@@ -227,5 +227,29 @@ namespace MaCamp.Utils
 
             return filtered;
         }
+
+        public static object? Execute(this object obj, string methodName, Type[] genericTypes, params object[] parameters)
+        {
+            try
+            {
+                var objType = obj.GetType();
+                var method = objType.GetMethods().FirstOrDefault(x => x.Name == methodName && x.IsGenericMethod && x.GetGenericArguments().Length == genericTypes.Length);
+
+                if (method == null)
+                {
+                    throw new InvalidOperationException($"Método '{methodName}' não encontrado ou com assinatura inválida.");
+                }
+
+                var genericMethod = method.MakeGenericMethod(genericTypes);
+
+                return genericMethod.Invoke(obj, parameters);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($@"Erro inesperado: {ex.Message}");
+
+                return null;
+            }
+        }
     }
 }

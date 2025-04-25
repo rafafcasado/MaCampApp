@@ -41,8 +41,13 @@ namespace MaCamp.Utils
         {
             try
             {
-                var response = await Client.GetStreamAsync(url);
-                var data = await JsonSerializer.DeserializeAsync<List<T>>(response, JsonSerializerOptionsDefault);
+                using var response = await Client.GetAsync(url);
+
+                response.EnsureSuccessStatusCode();
+
+                await using var stream = await response.Content.ReadAsStreamAsync();
+
+                var data = await JsonSerializer.DeserializeAsync<List<T>>(stream, JsonSerializerOptionsDefault);
 
                 if (data != null)
                 {

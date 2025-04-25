@@ -17,7 +17,7 @@ namespace MaCamp.Services
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
 
-                await DBContract.UpdateAsync(false, listaCidades, progressoVisual);
+                DBContract.Update(false, listaCidades, progressoVisual);
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
             }

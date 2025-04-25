@@ -1,4 +1,5 @@
-﻿using MaCamp.Dependencias;
+﻿using System.Globalization;
+using MaCamp.Dependencias;
 using MaCamp.Utils;
 
 namespace MaCamp.Services
@@ -16,8 +17,8 @@ namespace MaCamp.Services
             }
 
             var versaoAtual = 1.39;
-            var chaveData = await DBContract.GetKeyValueAsync(AppConstants.Chave_UltimaAtualizacao);
-            var chaveVersao = await DBContract.GetKeyValueAsync(AppConstants.Chave_Versao);
+            var chaveData = DBContract.GetKeyValue(AppConstants.Chave_UltimaAtualizacao);
+            var chaveVersao = DBContract.GetKeyValue(AppConstants.Chave_Versao);
 
             if (DateTime.TryParse(chaveData, out var data) && data > DateTime.Now.Subtract(TimeSpan.FromDays(30)) && double.TryParse(chaveVersao, out var versao) && versao >= versaoAtual)
             {
@@ -40,14 +41,14 @@ namespace MaCamp.Services
                         ProgressValue = -1
                     };
                     var notificationId = notificationService.Show(notification);
-                    var openNotification = await DBContract.GetKeyValueAsync(AppConstants.Chave_NotificacaoAberta);
+                    var openNotification = DBContract.GetKeyValue(AppConstants.Chave_NotificacaoAberta);
 
                     if (openNotification != null)
                     {
                         notificationService.Complete(Convert.ToInt32(openNotification));
                     }
 
-                    await DBContract.UpdateKeyValueAsync(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
+                    DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
 
                     try
                     {
@@ -57,9 +58,9 @@ namespace MaCamp.Services
 
                         notificationService.Update(notificationId, notification);
 
-                        await DBContract.UpdateKeyValueAsync(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                        await DBContract.UpdateKeyValueAsync(AppConstants.Chave_Versao, versaoAtual.ToString());
-                        await DBContract.UpdateKeyValueAsync(AppConstants.Chave_NotificacaoAberta, null);
+                        DBContract.UpdateKeyValue(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                        DBContract.UpdateKeyValue(AppConstants.Chave_Versao, versaoAtual.ToString(CultureInfo.InvariantCulture));
+                        DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, null);
 
                         notificationService.Complete(notificationId);
                     }
@@ -79,9 +80,10 @@ namespace MaCamp.Services
                     notification.ProgressValue = null;
 
                     notificationService.Update(notificationId, notification);
-                    CancellationTokenSource.Cancel();
+
+                    await CancellationTokenSource.CancelAsync();
                 }
-            });
+            }, cancellationToken);
         }
 
         public static void Stop()

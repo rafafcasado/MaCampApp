@@ -164,7 +164,7 @@ namespace MaCamp.Views.Campings
         {
             ProgressoVisual.AumentarTotal(progressoVisual, 5);
 
-            var existemCampings = await CampingServices.ExistemCampingsAsync();
+            var existemCampings = CampingServices.ExistemCampings();
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
@@ -212,8 +212,8 @@ namespace MaCamp.Views.Campings
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
-            var valorChaveUsarLocalizacaoUsuario = await DBContract.GetKeyValueAsync(AppConstants.Filtro_LocalizacaoSelecionada);
-            var valorChaveBuscaCamping = await DBContract.GetKeyValueAsync(AppConstants.Filtro_NomeCamping);
+            var valorChaveUsarLocalizacaoUsuario = DBContract.GetKeyValue(AppConstants.Filtro_LocalizacaoSelecionada);
+            var valorChaveBuscaCamping = DBContract.GetKeyValue(AppConstants.Filtro_NomeCamping);
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
@@ -223,8 +223,8 @@ namespace MaCamp.Views.Campings
             }
             else
             {
-                var EstadoBD = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstadoSelecionado);
-                var CIDADE_BD = await DBContract.GetKeyValueAsync(AppConstants.Filtro_CidadeSelecionada);
+                var EstadoBD = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
+                var CIDADE_BD = DBContract.GetKeyValue(AppConstants.Filtro_CidadeSelecionada);
                 var quantidadeAnuncios = ViewModel.Itens.Count(x => !x.EhAnuncio && !x.EhAdMobRetangulo);
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
@@ -263,7 +263,7 @@ namespace MaCamp.Views.Campings
             else
             {
                 var mensagem = "Realize a busca novamente com outros critérios.";
-                var existemCampingsDisponiveis = await CampingServices.ExistemCampingsAsync();
+                var existemCampingsDisponiveis = CampingServices.ExistemCampings();
 
                 cvItens.IsVisible = true;
                 grBotoesFiltroMapa.IsVisible = true;

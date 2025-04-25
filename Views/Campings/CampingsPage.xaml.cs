@@ -30,18 +30,18 @@ namespace MaCamp.Views.Campings
 
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada);
 
-            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, async (recipient, message) =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, (recipient, message) =>
             {
-                await DBContract.UpdateKeyValueAsync(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
+                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView(string.Empty);
             });
 
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados);
 
-            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, async (recipient, message) =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, (recipient, message) =>
             {
-                await DBContract.UpdateKeyValueAsync(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
+                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView();
             });
@@ -56,7 +56,7 @@ namespace MaCamp.Views.Campings
 
         private async Task CarregarConteudoAsync()
         {
-            var buscaInicialRealizada = await DBContract.GetKeyValueAsync(AppConstants.Busca_InicialRealizada);
+            var buscaInicialRealizada = DBContract.GetKeyValue(AppConstants.Busca_InicialRealizada);
 
             if (buscaInicialRealizada != null)
             {
@@ -66,7 +66,7 @@ namespace MaCamp.Views.Campings
             {
                 var valorEstabelecimentos = "Campings,PontodeApoioaRV`s,CampingSelvagem/WildCamping/Bushcfaft,SemFunçãoCamping/ApoioouFechado";
 
-                await DBContract.UpdateKeyValueAsync(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
+                DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
 
                 if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                 {
