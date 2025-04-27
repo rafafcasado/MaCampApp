@@ -58,7 +58,7 @@ namespace MaCamp.Platforms.iOS.Extenders
             if (navigationAction.NavigationType == WKNavigationType.LinkActivated)
             {
                 // Abre links externos no navegador padrão
-                Workaround.Dispatch(async () => await Launcher.OpenAsync(url));
+                Workaround.TaskUI(async () => await Launcher.OpenAsync(url));
 
                 // Cancela a navegação no WebView para links externos
                 decisionHandler(WKNavigationActionPolicy.Cancel);

@@ -15,7 +15,7 @@ namespace MaCamp.Views.Detalhes
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Detalhes - " + item.Titulo);
 
-            if (!string.IsNullOrWhiteSpace(item.URLImagemMaior))
+            if (!string.IsNullOrEmpty(item.URLImagemMaior))
             {
                 //imgFotoItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
                 imgFotoItem.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
@@ -46,7 +46,7 @@ namespace MaCamp.Views.Detalhes
 
             lbTitulo.Text = item.Nome?.ToUpper() ?? string.Empty;
 
-            //if (!string.IsNullOrWhiteSpace(item.UriKmlLocal))
+            //if (!string.IsNullOrEmpty(item.UriKmlLocal))
             //{
             //    btAbrirMapa.BackgroundColor = Color.FromHex(App.DADOS_LOCAL.CorTopo);
             //    btAbrirMapa.IsVisible = true;

@@ -13,13 +13,13 @@ namespace MaCamp.Views.Menu
 {
     public partial class RootPage : FlyoutPage
     {
-        private RootPageMaster Master { get; }
+        private MasterPage Master { get; }
 
         public RootPage()
         {
             InitializeComponent();
 
-            Master = new RootPageMaster
+            Master = new MasterPage
             {
                 IconImageSource = new FileImageSource
                 {
@@ -149,7 +149,7 @@ namespace MaCamp.Views.Menu
 
                             if (instance is Page page)
                             {
-                                page.Title = !string.IsNullOrWhiteSpace(item.TituloPagina) ? item.TituloPagina : item.Titulo;
+                                page.Title = !string.IsNullOrEmpty(item.TituloPagina) ? item.TituloPagina : item.Titulo;
                                 Detail = CriarPaginaDetalhes(page);
                             }
                             break;

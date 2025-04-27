@@ -217,7 +217,7 @@ namespace MaCamp.Views.Campings
 
             ProgressoVisual.AumentarAtual(progressoVisual);
 
-            if (!string.IsNullOrWhiteSpace(valorChaveUsarLocalizacaoUsuario) && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
+            if (!string.IsNullOrEmpty(valorChaveUsarLocalizacaoUsuario) && Convert.ToBoolean(valorChaveUsarLocalizacaoUsuario))
             {
                 lbBuscaAtual.Text = "EXIBINDO OS VINTE CAMPINGS MAIS PRÓXIMOS A VOCÊ (20)";
             }
@@ -229,18 +229,18 @@ namespace MaCamp.Views.Campings
 
                 ProgressoVisual.AumentarAtual(progressoVisual);
 
-                if (string.IsNullOrWhiteSpace(EstadoBD))
+                if (string.IsNullOrEmpty(EstadoBD))
                 {
                     lbBuscaAtual.Text = $"EXIBINDO CAMPINGS DE TODOS OS ESTADOS ({quantidadeAnuncios})";
                 }
                 else
                 {
-                    var cidade = string.IsNullOrWhiteSpace(CIDADE_BD) ? string.Empty : " - " + CIDADE_BD;
+                    var cidade = string.IsNullOrEmpty(CIDADE_BD) ? string.Empty : " - " + CIDADE_BD;
 
                     lbBuscaAtual.Text = $"EXIBINDO CAMPINGS EM: {EstadoBD.ToUpper()}{cidade.ToUpper()} ({quantidadeAnuncios})";
                 }
 
-                if (!string.IsNullOrWhiteSpace(valorChaveBuscaCamping))
+                if (!string.IsNullOrEmpty(valorChaveBuscaCamping))
                 {
                     lbBuscaAtual.Text += $" COM NOME: {valorChaveBuscaCamping.ToUpper()}";
                 }
@@ -313,7 +313,9 @@ namespace MaCamp.Views.Campings
         {
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
-                await Navigation.PushAsync(new MapaPage(ViewModel.Itens));
+                var listaItens = ViewModel.Itens.Where(x => x.IsValidLocation()).ToList();
+
+                await Navigation.PushAsync(new MapaPage(new ObservableCollection<Item>(listaItens)));
             }
             else
             {

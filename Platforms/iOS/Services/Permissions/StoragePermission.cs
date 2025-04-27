@@ -1,6 +1,6 @@
-﻿using MaCamp.Dependencias;
+﻿using MaCamp.Dependencias.Permissions;
 
-namespace MaCamp.Platforms.iOS.Services
+namespace MaCamp.Platforms.iOS.Services.Permissions
 {
     public class StoragePermission : IStoragePermission
     {

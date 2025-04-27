@@ -113,7 +113,7 @@
                         VerticalOptions="Center" />
                     <Image
                         Grid.Column="1"
-                        HeightRequest="30"
+                        HeightRequest="25"
                         HorizontalOptions="Center"
                         Source="ic_atualizar.png"
                         VerticalOptions="Center" />
@@ -155,11 +155,11 @@
                 <Grid
                     x:Name="grFiltroMapa"
                     Padding="0,5"
-                    ColumnDefinitions="*,*">
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="10">
 
                     <StackLayout
                         Grid.Column="0"
-                        Padding="3"
                         BackgroundColor="{StaticResource CorDestaque}"
                         Orientation="Horizontal">
 
@@ -191,7 +191,7 @@
                     <StackLayout
                         x:Name="slVerNoMapa"
                         Grid.Column="1"
-                        Padding="3"
+                        Padding="7.5"
                         BackgroundColor="{StaticResource CorDestaque}"
                         Orientation="Horizontal">
 

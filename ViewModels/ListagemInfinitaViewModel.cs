@@ -17,7 +17,9 @@ namespace MaCamp.ViewModels
 
         public async Task CarregarAsync(string endpoint, int pagina, string? tag = null, string? query = null, TipoListagem tipoListagem = TipoListagem.Noticias, bool utilizarFiltros = true)
         {
+            var countAdMob = 14;
             var countAnuncio = 0;
+            var random = new Random();
             var configs = default(ConfiguracoesAnuncios?);
 
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
@@ -30,17 +32,14 @@ namespace MaCamp.ViewModels
                 }
             }
 
-            var countAdMob = 14;
-            var random = new Random();
-
             if (tipoListagem == TipoListagem.Camping)
             {
                 var listaItensCampings = await CampingServices.CarregarCampingsAsync(utilizarFiltros);
-                var idLocal = Itens.Count;
                 var listaAnuncios = await AnunciosServices.GetListAsync(pagina == 1);
                 var anuncios = listaAnuncios.Where(x => x.Tipo == TipoAnuncio.Nativo).ToList();
                 var identificadorPadrao = Enum.GetValues<TipoIdentificador>().Max() + 1;
                 var listaItensCampingsOrdenados = listaItensCampings.OrderBy(x => x.Identificadores.Min(y => y.TipoIdentificador) ?? identificadorPadrao).ThenBy(x => x.Nome).ToList();
+                var idLocal = Itens.Count;
 
                 foreach (var itemCamping in listaItensCampingsOrdenados)
                 {
@@ -52,7 +51,7 @@ namespace MaCamp.ViewModels
                     {
                         var anuncioEscolhido = anuncios[random.Next(anuncios.Count)];
 
-                        if (!string.IsNullOrWhiteSpace(anuncioEscolhido.UrlExterna))
+                        if (!string.IsNullOrEmpty(anuncioEscolhido.UrlExterna))
                         {
                             Itens.Add(new Item
                             {
@@ -93,8 +92,8 @@ namespace MaCamp.ViewModels
             else
             {
                 var listItens = await new WebService().GetListAsync<Item>(endpoint, pagina, tag, query);
-                var idLocal = Itens.Count;
                 var listaAnuncios = new List<Anuncio>();
+                var idLocal = Itens.Count;
 
                 if (configs != null && pagina == 1)
                 {
@@ -122,7 +121,7 @@ namespace MaCamp.ViewModels
                     {
                         var anuncioEscolhido = listaAnuncios[random.Next(listaAnuncios.Count)];
 
-                        if (!string.IsNullOrWhiteSpace(anuncioEscolhido.UrlExterna))
+                        if (!string.IsNullOrEmpty(anuncioEscolhido.UrlExterna))
                         {
                             Itens.Add(new Item
                             {

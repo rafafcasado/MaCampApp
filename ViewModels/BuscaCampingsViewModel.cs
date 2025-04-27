@@ -17,8 +17,8 @@ namespace MaCamp.ViewModels
 
         public void InicializarFiltros()
         {
-            DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, string.Empty);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, string.Empty);
+            DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, null);
+            DBContract.UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, null);
         }
 
         public List<string> ObterListaEstados(List<Cidade> listaCidades)
@@ -27,7 +27,7 @@ namespace MaCamp.ViewModels
             {
                 ParametroTODOS
             };
-            var listaCidadesFiltradas = listaCidades.Where(x => !string.IsNullOrWhiteSpace(x.Estado)).Select(x => x.Estado).Distinct().OfType<string>().ToList();
+            var listaCidadesFiltradas = listaCidades.Where(x => !string.IsNullOrEmpty(x.Estado)).Select(x => x.Estado).Distinct().OfType<string>().ToList();
 
             listEstados.AddRange(listaCidadesFiltradas);
 
@@ -67,7 +67,7 @@ namespace MaCamp.ViewModels
         {
             var estadoSelecionado = estado == ParametroTODOS ? null : estado;
             var cidadeSelecionada = cidade == ParametroTODOS ? null : cidade;
-            var nomeCampingSelecionado = string.IsNullOrWhiteSpace(nomeCamping) ? null : nomeCamping.RemoveDiacritics();
+            var nomeCampingSelecionado = string.IsNullOrEmpty(nomeCamping) ? null : nomeCamping.RemoveDiacritics();
 
             DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, estadoSelecionado);
             DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, cidadeSelecionada);
@@ -79,12 +79,7 @@ namespace MaCamp.ViewModels
         {
             try
             {
-                var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para buscar o");
-
-                if (permissionGranted)
-                {
-                    App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
-                }
+                App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Busca);
 
                 DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "true");
                 DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);

@@ -124,6 +124,9 @@
 	  <Compile Update="Views\CustomViews\ZoomableView.xaml.cs">
 	    <DependentUpon>ZoomableView.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\Menu\MasterPage.xaml.cs">
+	    <DependentUpon>MasterPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\SplashScreen.xaml.cs">
 	    <DependentUpon>SplashScreen.xaml</DependentUpon>
 	  </Compile>

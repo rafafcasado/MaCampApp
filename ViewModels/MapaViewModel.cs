@@ -16,11 +16,11 @@ namespace MaCamp.ViewModels
         public ObservableCollection<Item> Itens { get; set; }
         public bool UsarFiltros { get; set; }
 
-        public EventHandler<InfoWindowClickedEventArgs> ClusteredMap_InfoWindowClicked { get; }
+        private EventHandler<InfoWindowClickedEventArgs> ClusteredMap_InfoWindowClicked { get; }
 
-        public MapaViewModel(EventHandler<InfoWindowClickedEventArgs> clusteredMapInfoWindowClicked)
+        public MapaViewModel(EventHandler<InfoWindowClickedEventArgs> clusteredMap_InfoWindowClicked)
         {
-            ClusteredMap_InfoWindowClicked = clusteredMapInfoWindowClicked;
+            ClusteredMap_InfoWindowClicked = clusteredMap_InfoWindowClicked;
             Itens = new ObservableCollection<Item>();
         }
 
@@ -28,7 +28,7 @@ namespace MaCamp.ViewModels
         {
             if (!Itens.Any())
             {
-                await CarregarItensAsync();
+                await Workaround.TaskWorkAsync(async () => await CarregarItensAsync());
             }
 
             await CarregarMapaAsync();
@@ -49,15 +49,12 @@ namespace MaCamp.ViewModels
                 viewModel.Itens = new ObservableCollection<Item>(itensSalvos);
             }
 
-            Itens = new ObservableCollection<Item>(viewModel.Itens.Where(x => x.Longitude != 0 && x.Latitude != 0).ToList());
+            Itens = new ObservableCollection<Item>(viewModel.Itens.Where(x => x.IsValidLocation()).ToList());
         }
 
         private async Task CarregarMapaAsync()
         {
-            var clusteredMap = new ClusteredMap
-            {
-                MyLocationEnabled = true
-            };
+            var clusteredMap = new ClusteredMap();
             var listaPins = await Workaround.TaskWorkAsync(() => CriarListaPins(Itens), new List<Pin>());
 
             clusteredMap.Pins.AddRange(listaPins);
@@ -72,39 +69,33 @@ namespace MaCamp.ViewModels
         {
             if (sender is ClusteredMap clusteredMap)
             {
-                var multiplicadorRaio = 1.2;
-                var quantidadeCampingsVisualizar = 10;
-                var chave = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
-                var listaPositions = clusteredMap.Pins.Select(x => x.Position).ToList();
-
-                if (chave != null)
+                await Workaround.TaskWorkAsync(async () =>
                 {
-                    clusteredMap.MoveMapToRegion(listaPositions);
-                }
-                else
-                {
-                    var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
+                    var quantidadeCampingsVisualizar = 10;
+                    var chave = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
+                    var listaPositions = clusteredMap.Pins.Select(x => x.Position).ToList();
 
-                    if (permissionGranted)
+                    if (!string.IsNullOrEmpty(chave))
+                    {
+                        await Workaround.TaskUIAsync(() => clusteredMap.MoveMapToRegion(listaPositions));
+                    }
+                    else
                     {
                         if (App.LOCALIZACAO_USUARIO == null)
                         {
-                            App.LOCALIZACAO_USUARIO = await Geolocation.GetLastKnownLocationAsync();
+                            App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Mapa);
+
+                            await Workaround.TaskUIAsync(() => clusteredMap.MyLocationEnabled = true);
                         }
 
-                        if (App.LOCALIZACAO_USUARIO == null)
-                        {
-                            App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
-                        }
+                        // Se a localização do usuário não estiver disponível, use uma posição padrão (São Paulo)
+                        var position = App.LOCALIZACAO_USUARIO != null ? App.LOCALIZACAO_USUARIO.GetPosition() : new Position(-23.550520, -46.633308);
+                        var orderedByDistance = listaPositions.Select(x => Location.CalculateDistance(position.Latitude, position.Longitude, x.Latitude, x.Longitude, DistanceUnits.Kilometers)).OrderBy(x => x).ToList();
+                        var radiusKm = orderedByDistance.Count >= quantidadeCampingsVisualizar ? orderedByDistance[quantidadeCampingsVisualizar - 1] : orderedByDistance.Last();
+
+                        await Workaround.TaskUIAsync(() => clusteredMap.MoveToRegion(MapSpan.FromCenterAndRadius(position, Distance.FromKilometers(radiusKm * 0.5))));
                     }
-
-                    // Se a localização do usuário não estiver disponível, use uma posição padrão (São Paulo)
-                    var position = App.LOCALIZACAO_USUARIO != null ? App.LOCALIZACAO_USUARIO.GetPosition() : new Position(-23.550520, -46.633308);
-                    var orderedByDistance = listaPositions.Select(x => Location.CalculateDistance(position.Latitude, position.Longitude, x.Latitude, x.Longitude, DistanceUnits.Kilometers)).OrderBy(x => x).ToList();
-                    var radiusKm = orderedByDistance.Count >= quantidadeCampingsVisualizar ? orderedByDistance[quantidadeCampingsVisualizar - 1] : orderedByDistance.Last();
-
-                    clusteredMap.MoveToRegion(MapSpan.FromCenterAndRadius(position, Distance.FromKilometers(radiusKm * multiplicadorRaio)));
-                }
+                });
             }
         }
 
@@ -127,7 +118,7 @@ namespace MaCamp.ViewModels
             var names = assembly.GetManifestResourceNames();
             var dictionaryImages = names.Where(x => x.EndsWith("_small.png")).ToDictionary(x => Regex.Replace(x, @"^.*(?=\bpointer_)", string.Empty), x => assembly.GetManifestResourceStream(x));
 
-            foreach (var item in itens)
+            Parallel.ForEach(itens, item =>
             {
                 var tipos = item.Identificadores.Where(x => x.Opcao == 0 && x.Identificador != null && identificadoresPermitidos.Contains(x.Identificador.Replace("`", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower())).ToList();
 
@@ -150,7 +141,7 @@ namespace MaCamp.ViewModels
 
                     listaPins.Add(pin);
                 }
-            }
+            });
 
             return listaPins;
         }

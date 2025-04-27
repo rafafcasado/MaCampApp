@@ -75,11 +75,9 @@ namespace MaCamp.Views.Campings
         {
             if (BindingContext is MapaViewModel viewModel)
             {
-                await viewModel.CarregarAsync();
+                await Workaround.TaskWorkAsync(async () => await viewModel.CarregarAsync());
 
                 cvMapa.Content = viewModel.Mapa;
-
-                await Task.Delay(500);
 
                 toggleButton.IsVisible = true;
             }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using MaCamp.Dependencias;
+using MaCamp.Dependencias.Permissions;
 using MaCamp.Resources.Locale;
 using MaCamp.Services;
 using MaCamp.Utils;
@@ -32,8 +33,10 @@ namespace MaCamp
                 var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
                 var storagePermissionResult = await storagePermissionService.RequestAsync();
 
-                if (storagePermissionResult && Current != null)
+                if (storagePermissionResult)
                 {
+                    DBContract.Initialize();
+
                     return new RootPage();
                 }
 
@@ -41,8 +44,6 @@ namespace MaCamp
 
                 return new ContentPage();
             });
-
-            PageAppearing += App_PageAppearing;
 
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
@@ -57,22 +58,13 @@ namespace MaCamp
             };
         }
 
-        private void App_PageAppearing(object? sender, Page e)
-        {
-            //OneSignalServices.RegisterIOS();
-            //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
-        }
-
         protected override async void OnStart()
         {
-            //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
-
             var localizeService = await Workaround.GetServiceAsync<ILocalize>();
             var cultureInfo = localizeService.PegarCultureInfoUsuario();
 
-            await Workaround.CheckPermissionAsync<Permissions.PostNotifications>("Notificação", "Forneça a permissão para exibir os status das atualizações de dados");
-
-            DBContract.Initialize();
+            //OneSignalServices.RegisterIOS();
+            //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
 
             AppLanguage.Culture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;

@@ -163,7 +163,7 @@ namespace MaCamp.Models
 
         //public string ColorTag
         //{
-        //    get { return (!string.IsNullOrWhiteSpace(color_tag)) ? color_tag : "#000"; }
+        //    get { return (!string.IsNullOrEmpty(color_tag)) ? color_tag : "#000"; }
         //    set { color_tag = value; OnPropertyChanged(); }
         //}
 
@@ -206,7 +206,7 @@ namespace MaCamp.Models
         //{
         //    get
         //    {
-        //        if (string.IsNullOrWhiteSpace(visualizacoes))
+        //        if (string.IsNullOrEmpty(visualizacoes))
         //        {
         //             return string.Empty
         //        }
@@ -395,7 +395,7 @@ namespace MaCamp.Models
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(views))
+                if (string.IsNullOrEmpty(views))
                 {
                     return string.Empty;
                 }

@@ -4,6 +4,7 @@ using FFImageLoading.Maui;
 using FluentIcons.Maui;
 using MaCamp.CustomControls;
 using MaCamp.Dependencias;
+using MaCamp.Dependencias.Permissions;
 using MaCamp.Utils;
 using Maui.GoogleMaps.Clustering.Hosting;
 using Maui.GoogleMaps.Hosting;
@@ -33,9 +34,10 @@ namespace MaCamp
                 config.FixKeyboardOverlap = true;
             });
 
-            builder.Services.AddPlatformSingleton<ILocalize>();
             builder.Services.AddPlatformSingleton<ISQLite>();
+            builder.Services.AddPlatformSingleton<ILocalize>();
             builder.Services.AddPlatformSingleton<IStoragePermission>();
+            builder.Services.AddPlatformSingleton<ILocationPermission>();
             builder.Services.AddPlatformSingleton<INotification>();
 
             builder.ConfigureMauiHandlers(collection =>

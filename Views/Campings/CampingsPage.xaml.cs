@@ -111,19 +111,7 @@ namespace MaCamp.Views.Campings
                 cvContent.Content = new FormBuscaView();
             }
 
-            var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "Forneça a permissão de localização para poder visualizar a distância entre você e os campings");
-
-            if (permissionGranted)
-            {
-                try
-                {
-                    App.LOCALIZACAO_USUARIO = await Geolocation.GetLastKnownLocationAsync();
-                }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(CampingsPage), nameof(CarregarConteudoAsync), ex);
-                }
-            }
+            App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Camping);
         }
     }
 }

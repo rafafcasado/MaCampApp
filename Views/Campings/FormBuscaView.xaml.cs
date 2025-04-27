@@ -36,11 +36,11 @@ namespace MaCamp.Views.Campings
                 var estados = viewModel.ObterListaEstados(cidades);
                 var (estadoSalvo, cidadeSalva, nomeSalvo) = viewModel.ObterFiltrosSalvos();
 
-                ListaCidades = cidades;
+                ListaCidades = cidades.OrderBy(x => x.Nome).ToList();
                 CidadeSalva = cidadeSalva;
 
                 pkUF.Title = "Selecione o Estado";
-                pkUF.ItemsSource = estados;
+                pkUF.ItemsSource = estados.OrderBy(x => x).ToList();
                 pkUF.SelectedItem = estadoSalvo;
 
                 etNomeDoCamping.Text = nomeSalvo ?? string.Empty;

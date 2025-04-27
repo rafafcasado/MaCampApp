@@ -24,7 +24,7 @@ namespace MaCamp.Views.Detalhes
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Detalhes - " + item.Nome);
 
-            if (!string.IsNullOrWhiteSpace(item.LinkUltimaFoto))
+            if (!string.IsNullOrEmpty(item.LinkUltimaFoto))
             {
                 imgFotoItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
                 imgFotoItem.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
@@ -34,7 +34,7 @@ namespace MaCamp.Views.Detalhes
 
                 //imgFotoItem.Source = "https://img.freepik.com/fotos-premium/cachorro-andando-na-rua_41691-381.jpg?w=1380";
 
-                if (!string.IsNullOrWhiteSpace(item.LinksFotos))
+                if (!string.IsNullOrEmpty(item.LinksFotos))
                 {
                     //O id do item será obtido no clique através do ClassID do Grid
                     /*grdFotoPrincipal.ClassId = item.LinksFotos;*/
@@ -63,7 +63,7 @@ namespace MaCamp.Views.Detalhes
 
             var abrirMapa = new TapGestureRecognizer();
             var abrirEmail = new TapGestureRecognizer();
-            var existeCoordenadas = item.Latitude != 0 || item.Longitude != 0;
+            var existeCoordenadas = item.IsValidLocation();
 
             slCoordenadas.IsVisible = existeCoordenadas;
 

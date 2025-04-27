@@ -10,7 +10,7 @@ namespace MaCamp.Services
         public static bool ExistemCampings()
         {
             var valorChaveDownloadConcluido = DBContract.GetKeyValue(AppConstants.Chave_DownloadCampingsCompleto);
-            var downloadConcluido = !string.IsNullOrWhiteSpace(valorChaveDownloadConcluido) && Convert.ToBoolean(valorChaveDownloadConcluido);
+            var downloadConcluido = !string.IsNullOrEmpty(valorChaveDownloadConcluido) && Convert.ToBoolean(valorChaveDownloadConcluido);
             var item = DBContract.Get<Item>(x => x.IdPost == 0);
             var tem = downloadConcluido && item != null;
 
@@ -109,9 +109,9 @@ namespace MaCamp.Services
             var valorChaveLocalizacaoSelecionada = DBContract.GetKeyValue(AppConstants.Filtro_LocalizacaoSelecionada);
             var valorChaveBuscaCamping = DBContract.GetKeyValue(AppConstants.Filtro_NomeCamping);
             var usarLocalizacaoDoUsuario = valorChaveLocalizacaoSelecionada != null && Convert.ToBoolean(valorChaveLocalizacaoSelecionada);
-            var valorFiltroEstabelecimentos = DBContract.GetKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados);
+            var valorFiltroEstabelecimentos = DBContract.GetKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados) ?? string.Empty;
             var valorFiltroComodidades = DBContract.GetKeyValue(AppConstants.Filtro_ServicoSelecionados) ?? string.Empty;
-            var identificadoresEstabelecimento = "'" + valorFiltroEstabelecimentos?.Replace(",", "','") + "'";
+            var identificadoresEstabelecimento = "'" + valorFiltroEstabelecimentos.Replace(",", "','") + "'";
             var identificadoresComodidades = "'" + valorFiltroComodidades.Replace(",", "','") + "'";
             var possuiFiltroCategoria = identificadoresEstabelecimento != "''";
             var possuiFiltroComodidades = identificadoresComodidades != "''";
@@ -123,7 +123,7 @@ namespace MaCamp.Services
                 return new List<Item>();
             }
 
-            if (!string.IsNullOrWhiteSpace(valorChaveBuscaCamping))
+            if (!string.IsNullOrEmpty(valorChaveBuscaCamping))
             {
                 var resultadoBuscaDeCampings = DBContract.ListCampings(valorChaveBuscaCamping, valorChaveCidadeSelecionada, valorChaveEstadoSelecionado);
 
@@ -156,15 +156,12 @@ namespace MaCamp.Services
 
             var query = sbQuery.ToString();
             var campings = DBContract.Query<Item>(query);
-            var permissionGranted = await Workaround.CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", "A permissão de localização será necessária para exibir o mapa");
 
-            if (usarLocalizacaoDoUsuario && permissionGranted)
+            if (usarLocalizacaoDoUsuario)
             {
-                App.LOCALIZACAO_USUARIO = await Geolocation.GetLastKnownLocationAsync();
-
                 if (App.LOCALIZACAO_USUARIO == null)
                 {
-                    App.LOCALIZACAO_USUARIO = await Geolocation.GetLocationAsync();
+                    App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Mapa);
                 }
 
                 campings = campings.OrderBy(x => x.DistanciaDoUsuario).Take(20).ToList();

@@ -51,8 +51,8 @@ namespace MaCamp.Views.CustomViews
             if (BindingContext is Item itemAtual)
             {
                 ItemAtual = itemAtual;
-                imItem.Source = string.IsNullOrWhiteSpace(itemAtual.LinkUltimaFoto) ? "placeholder.jpg" : CampingServices.MontarUrlImagemTemporaria(itemAtual.LinkUltimaFoto);
-                imDirecoes.IsVisible = itemAtual.Latitude != 0 && itemAtual.Longitude != 0;
+                imItem.Source = string.IsNullOrEmpty(itemAtual.LinkUltimaFoto) ? "placeholder.jpg" : CampingServices.MontarUrlImagemTemporaria(itemAtual.LinkUltimaFoto);
+                imDirecoes.IsVisible = itemAtual.IsValidLocation();
 
                 CalcularDistancia();
                 //ExibirEstrelas();

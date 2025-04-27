@@ -6,7 +6,7 @@ namespace MaCamp.Utils.Converters
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return value is string valueConverted && !string.IsNullOrWhiteSpace(valueConverted);
+            return value is string valueConverted && !string.IsNullOrEmpty(valueConverted);
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

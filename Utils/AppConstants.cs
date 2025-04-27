@@ -98,8 +98,10 @@ namespace MaCamp.Utils
         public static string NotificationManager_ChannelName => "Atualizações";
         public static string NotificationManager_ChannelDescription => "Usado para atualização do banco de dados.";
 
-        public static string NotificationManager_Id => "NotificationManager_Id";
-        public static string NotificationManager_Data => "NotificationManager_Data";
+        // Mensagens
+        public static string Mensagem_Localizacao_Mapa => "A localização será necessária para exibir o mapa";
+        public static string Mensagem_Localizacao_Busca => "A localização será necessária para buscar os campings";
+        public static string Mensagem_Localizacao_Camping => "Forneça a localização para visualizar a distância entre você e os campings";
 
         static AppConstants()
         {

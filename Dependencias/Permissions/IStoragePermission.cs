@@ -1,4 +1,4 @@
-﻿namespace MaCamp.Dependencias
+﻿namespace MaCamp.Dependencias.Permissions
 {
     public interface IStoragePermission
     {

@@ -27,12 +27,22 @@ namespace MaCamp.Services
                 SqlConnection.InsertOrReplace(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_ServicoSelecionados,
-                    Valor = string.Empty
+                    Valor = null
+                });
+                SqlConnection.InsertOrReplace(new ChaveValor
+                {
+                    Chave = AppConstants.Filtro_EstadoSelecionado,
+                    Valor = null
+                });
+                SqlConnection.InsertOrReplace(new ChaveValor
+                {
+                    Chave = AppConstants.Filtro_CidadeSelecionada,
+                    Valor = null
                 });
                 SqlConnection.InsertOrReplace(new ChaveValor
                 {
                     Chave = AppConstants.Filtro_NomeCamping,
-                    Valor = string.Empty
+                    Valor = null
                 });
             }
         }
@@ -42,7 +52,7 @@ namespace MaCamp.Services
             try
             {
                 var path = Path.Combine(AppConstants.Path, filename);
-                var connection = new SQLiteConnection(path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite);
+                var connection = new SQLiteConnection(path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
 
                 connection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
 
@@ -352,9 +362,9 @@ namespace MaCamp.Services
                     var cidadeNormalizada = cidade?.RemoveDiacritics().ToLower();
                     var list = SqlConnection.Table<Item>().ToList();
                     var query = list.AsQueryable().Where(x =>
-                        (string.IsNullOrWhiteSpace(estadoNormalizado) || x.Estado != null && x.Estado.RemoveDiacritics().ToLower().Contains(estadoNormalizado)) &&
-                        (string.IsNullOrWhiteSpace(cidadeNormalizada) || x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(cidadeNormalizada)) &&
-                        (string.IsNullOrWhiteSpace(nomeNormalizado) ||
+                        (string.IsNullOrEmpty(estadoNormalizado) || x.Estado != null && x.Estado.RemoveDiacritics().ToLower().Contains(estadoNormalizado)) &&
+                        (string.IsNullOrEmpty(cidadeNormalizada) || x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(cidadeNormalizada)) &&
+                        (string.IsNullOrEmpty(nomeNormalizado) ||
                             x.Nome != null && x.Nome.RemoveDiacritics().ToLower().Contains(nomeNormalizado) ||
                             x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(nomeNormalizado)
                         //precisa converter base64 para string, não compensa

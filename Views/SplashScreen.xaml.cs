@@ -4,13 +4,13 @@ namespace MaCamp.Views
 {
     public partial class SplashScreen : ContentPage
     {
-        private Func<Task<Page>> Action { get; }
+        private Func<Task<Page>> PredicateTask { get; }
 
-        public SplashScreen(Func<Task<Page>> task)
+        public SplashScreen(Func<Task<Page>> predicateTask)
         {
             InitializeComponent();
 
-            Action = task;
+            PredicateTask = predicateTask;
 
             Loaded += SplashScreen_Loaded;
         }
@@ -21,10 +21,12 @@ namespace MaCamp.Views
 
             try
             {
-                await layout.ColorTo(Colors.White, AppColors.CorPrimaria, x => layout.BackgroundColor = x, duration);
-                await image.FadeTo(1, duration, Easing.CubicInOut);
+                await Task.WhenAll(
+                    layout.ColorTo(Colors.White, AppColors.CorPrimaria, x => layout.BackgroundColor = x, duration),
+                    image.FadeTo(1, duration, Easing.CubicInOut)
+                );
 
-                var page = await Action.Invoke();
+                var page = await PredicateTask();
 
                 await Task.Delay(Convert.ToInt32(duration * 4));
 
@@ -39,8 +41,10 @@ namespace MaCamp.Views
             }
             finally
             {
-                await layout.ColorTo(Colors.Black, Colors.White, x => layout.BackgroundColor = x, duration);
-                await image.FadeTo(0, duration, Easing.CubicInOut);
+                await Task.WhenAll(
+                    layout.ColorTo(Colors.Black, Colors.White, x => layout.BackgroundColor = x, duration),
+                    image.FadeTo(0, duration, Easing.CubicInOut)
+                );
             }
         }
     }

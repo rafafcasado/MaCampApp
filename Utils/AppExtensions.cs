@@ -136,7 +136,7 @@ namespace MaCamp.Utils
 
         public static string RemoveDiacritics(this string text)
         {
-            if (string.IsNullOrWhiteSpace(text))
+            if (string.IsNullOrEmpty(text))
             {
                 return text;
             }
@@ -250,6 +250,11 @@ namespace MaCamp.Utils
 
                 return null;
             }
+        }
+
+        public static bool IsValidLocation(this Item item)
+        {
+            return item.Latitude != null && item.Latitude != 0 && item.Longitude != null && item.Longitude != 0;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace MaCamp.Utils
             };
             JsonSerializerOptionsDefault = new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                IncludeFields = true
             };
         }
 
@@ -46,7 +46,6 @@ namespace MaCamp.Utils
                 response.EnsureSuccessStatusCode();
 
                 await using var stream = await response.Content.ReadAsStreamAsync();
-
                 var data = await JsonSerializer.DeserializeAsync<List<T>>(stream, JsonSerializerOptionsDefault);
 
                 if (data != null)

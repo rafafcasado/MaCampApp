@@ -37,7 +37,7 @@ namespace MaCamp.Services
         {
             PAGE_V = page;
             //Só envia o parâmetro TAG se o usuário tiver selecionado alguma efetivamente
-            TAG_V = string.IsNullOrWhiteSpace(tag) || tag == AppConstants.ParametroTodasTags ? string.Empty : tag;
+            TAG_V = string.IsNullOrEmpty(tag) || tag == AppConstants.ParametroTodasTags ? string.Empty : tag;
             QUERY_V = parametrosBusca ?? string.Empty;
 
             var builder = new StringBuilder(endpoint);

@@ -11,7 +11,7 @@ namespace MaCamp.ViewModels
 
             if (estabelecimentos != null)
             {
-                return estabelecimentos.Split(',').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                return estabelecimentos.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToList();
 
             }
 
@@ -30,7 +30,7 @@ namespace MaCamp.ViewModels
 
             if (servicos != null)
             {
-                return servicos.Split(',').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                return servicos.Split(',').Where(x => !string.IsNullOrEmpty(x)).ToList();
             }
 
             return new List<string>();

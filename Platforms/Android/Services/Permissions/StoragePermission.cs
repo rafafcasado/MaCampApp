@@ -1,16 +1,16 @@
 ﻿using Android.Content;
 using Android.OS;
-using MaCamp.Dependencias;
+using MaCamp.Dependencias.Permissions;
 using MaCamp.Utils;
 using Environment = Android.OS.Environment;
 using Settings = Android.Provider.Settings;
 using Uri = Android.Net.Uri;
 
-namespace MaCamp.Platforms.Android.Services
+namespace MaCamp.Platforms.Android.Services.Permissions
 {
     public class StoragePermission : IStoragePermission
     {
-        public TaskCompletionSource<bool> TaskCompletionSource { get; set; }
+        private TaskCompletionSource<bool> TaskCompletionSource { get; }
 
         public StoragePermission()
         {
@@ -49,10 +49,9 @@ namespace MaCamp.Platforms.Android.Services
                 var uri = Uri.Parse("package:" + AppInfo.PackageName);
                 var intent = new Intent(Settings.ActionManageAppAllFilesAccessPermission, uri);
 
-                if (Platform.CurrentActivity != null)
-                {
-                    Platform.CurrentActivity.StartActivity(intent);
-                }
+                intent.SetFlags(ActivityFlags.NewTask);
+
+                Platform.AppContext.StartActivity(intent);
             }
             catch (Exception ex)
             {

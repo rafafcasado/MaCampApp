@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using MaCamp.Dependencias.Permissions;
 
 namespace MaCamp.Utils
 {
@@ -67,27 +68,21 @@ namespace MaCamp.Utils
             throw new ArgumentNullException(nameof(service), $@"Não foi possível encontrar o serviço {typeof(T).Name}");
         }
 
-        public static void Dispatch(Func<Task> task) => AppConstants.CurrentPage.Dispatcher.Dispatch(async () =>
+        public static async Task TaskWorkAsync(Func<Task> task, CancellationToken cancellationToken = default)
         {
             try
             {
-                await task();
-            }
-            catch (Exception ex)
-            {
-                ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(Dispatch), ex);
-            }
-        });
-
-        public static Task TaskWorkAsync(Func<Task> task, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                return Task.Run(async () =>
+                await Task.Run(async () =>
                 {
                     try
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         await task();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Execução cancelada, ignorar erro
                     }
                     catch (Exception ex)
                     {
@@ -99,8 +94,6 @@ namespace MaCamp.Utils
             {
                 // Execução cancelada, ignorar erro
             }
-
-            return Task.CompletedTask;
         }
 
         public static async Task<T> TaskWorkAsync<T>(Func<T> action, T defaultValue, CancellationToken cancellationToken = default)
@@ -117,7 +110,7 @@ namespace MaCamp.Utils
             return defaultValue;
         }
 
-        public static async Task TaskUIAsync(Action action, CancellationToken cancellationToken = default)
+        public static async void TaskUI(Action action, CancellationToken cancellationToken = default)
         {
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
@@ -139,7 +132,86 @@ namespace MaCamp.Utils
             });
         }
 
-        public static async Task<bool> CheckPermissionAsync<T>(string title, string message) where T : Permissions.BasePermission, new()
+        public static async Task TaskUIAsync(Func<Task> action, CancellationToken cancellationToken = default)
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        await action();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Execução cancelada, ignorar erro
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
+                    }
+                }
+            });
+        }
+
+        public static async Task TaskUIAsync(Action action, CancellationToken cancellationToken = default)
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        action();
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
+                    }
+                }
+            });
+        }
+
+        public static async Task<Location?> GetLocationAsync(string message, bool openSettings = true)
+        {
+            try
+            {
+                var permission = await CheckPermissionAsync<Permissions.LocationWhenInUse>("Localização", message, openSettings);
+                var locationService = await GetServiceAsync<ILocationPermission>();
+                var locationIsEnabled = locationService.IsEnabled();
+
+                if (permission)
+                {
+                    if (locationIsEnabled)
+                    {
+                        var lastLocation = await Geolocation.GetLastKnownLocationAsync();
+
+                        if (lastLocation != null)
+                        {
+                            return lastLocation;
+                        }
+
+                        return await Geolocation.GetLocationAsync();
+                    }
+
+                    if (openSettings)
+                    {
+                        await TaskUIAsync(async () => await AppConstants.CurrentPage.DisplayAlert("Localização", message, "OK"));
+                        await locationService.OpenSettingsAsync();
+
+                        return await GetLocationAsync(message, false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(GetLocationAsync), ex);
+            }
+
+            return null;
+        }
+
+        public static async Task<bool> CheckPermissionAsync<T>(string title, string message, bool showMessage = true) where T : Permissions.BasePermission, new() => await MainThread.InvokeOnMainThreadAsync(async () =>
         {
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {
@@ -154,9 +226,9 @@ namespace MaCamp.Utils
 
                     var shouldShowRationale = Permissions.ShouldShowRationale<T>();
 
-                    if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(message) && shouldShowRationale)
+                    if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(message) && shouldShowRationale && showMessage)
                     {
-                        await AppConstants.CurrentPage.DisplayAlert(title, message, "OK");
+                        await TaskUIAsync(async () => await AppConstants.CurrentPage.DisplayAlert(title, message, "OK"));
                     }
 
                     var requestStatus = await Permissions.RequestAsync<T>();
@@ -166,15 +238,12 @@ namespace MaCamp.Utils
                         return true;
                     }
 
-                    if (requestStatus != PermissionStatus.Unknown)
+                    if (requestStatus != PermissionStatus.Denied && !string.IsNullOrEmpty(title) && showMessage)
                     {
-                        if (!string.IsNullOrEmpty(title))
-                        {
-                            await AppConstants.CurrentPage.DisplayAlert(title, "Não é possível continuar com a ação, tente novamente.", "OK");
-                        }
-
-                        return false;
+                        await TaskUIAsync(async () => await AppConstants.CurrentPage.DisplayAlert(title, "Não é possível continuar com a ação, tente novamente.", "OK"));
                     }
+
+                    return false;
                 }
                 catch (Exception ex)
                 {
@@ -185,7 +254,7 @@ namespace MaCamp.Utils
             }
 
             return true;
-        }
+        });
 
         public static async Task<bool> CheckPermissionAsync(params Permissions.BasePermission[] permissions)
         {

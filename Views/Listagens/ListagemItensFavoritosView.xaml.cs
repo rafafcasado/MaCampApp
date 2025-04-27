@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.CustomControls;
-using MaCamp.Dependencias;
+using MaCamp.Dependencias.Permissions;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Services;

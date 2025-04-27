@@ -60,7 +60,7 @@
 
                     <Label
                         x:Name="lbTitulo"
-                        Margin="15"
+                        Margin="10"
                         FontAttributes="Bold"
                         FontFamily="OpenSans"
                         FontSize="20"

@@ -55,14 +55,14 @@ namespace MaCamp.Views.Detalhes
         {
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Enviar Colaboração", NomeDoCamping);
 
-            if (string.IsNullOrWhiteSpace(etNome.Text))
+            if (string.IsNullOrEmpty(etNome.Text))
             {
                 await DisplayAlert("Aviso", "Digite seu nome.", "OK");
 
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(Informacao.Text))
+            if (string.IsNullOrEmpty(Informacao.Text))
             {
                 await DisplayAlert("Aviso", "Digite sua mensagem.", "OK");
 

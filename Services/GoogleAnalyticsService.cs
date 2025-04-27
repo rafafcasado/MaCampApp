@@ -17,7 +17,7 @@ namespace MaCamp.Services
         public async Task TrackEventAsync(string eventName, Dictionary<string, object>? parameters = null)
         {
             var clientId = Preferences.Get("ga_client_id", null);
-            if (string.IsNullOrWhiteSpace(clientId))
+            if (string.IsNullOrEmpty(clientId))
             {
                 clientId = Guid.NewGuid().ToString();
                 Preferences.Set("ga_client_id", clientId);

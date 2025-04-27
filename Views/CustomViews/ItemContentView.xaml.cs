@@ -35,7 +35,7 @@ namespace MaCamp.Views.CustomViews
                     imItem.Source = urlImagem;
                 }
 
-                grFoto.IsVisible = !string.IsNullOrWhiteSpace(itemAtual.image);
+                grFoto.IsVisible = !string.IsNullOrEmpty(itemAtual.image);
 
                 //lbSubtitulo.Text = ItemAtual.Descricao.Substring(0, 100);
 

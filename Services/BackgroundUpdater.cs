@@ -28,62 +28,66 @@ namespace MaCamp.Services
             CancellationTokenSource = new CancellationTokenSource();
 
             var cancellationToken = CancellationTokenSource.Token;
+            var permission = await Workaround.CheckPermissionAsync<Permissions.PostNotifications>("Notificação", "Forneça a permissão para exibir os status das atualizações de dados");
 
-            await Workaround.TaskWorkAsync(async () =>
+            if (permission)
             {
-                while (!cancellationToken.IsCancellationRequested)
+                await Workaround.TaskWorkAsync(async () =>
                 {
-                    var notificationService = await Workaround.GetServiceAsync<INotification>();
-                    var notification = new NotificationData
+                    while (!cancellationToken.IsCancellationRequested)
                     {
-                        Title = "Atualização do banco de dados",
-                        Message = "Estamos buscando informações de Campings",
-                        ProgressValue = -1
-                    };
-                    var notificationId = notificationService.Show(notification);
-                    var openNotification = DBContract.GetKeyValue(AppConstants.Chave_NotificacaoAberta);
+                        var notificationService = await Workaround.GetServiceAsync<INotification>();
+                        var notification = new NotificationData
+                        {
+                            Title = "Atualização do banco de dados",
+                            Message = "Estamos buscando informações de Campings",
+                            ProgressValue = -1
+                        };
+                        var notificationId = notificationService.Show(notification);
+                        var openNotification = DBContract.GetKeyValue(AppConstants.Chave_NotificacaoAberta);
 
-                    if (openNotification != null)
-                    {
-                        notificationService.Complete(Convert.ToInt32(openNotification));
-                    }
+                        if (openNotification != null)
+                        {
+                            notificationService.Complete(Convert.ToInt32(openNotification));
+                        }
 
-                    DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
+                        DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
 
-                    try
-                    {
-                        await CampingServices.BaixarCampingsAsync(true);
+                        try
+                        {
+                            await CampingServices.BaixarCampingsAsync(true);
 
-                        notification.Message = "Estamos salvando informações de Campings";
+                            notification.Message = "Estamos salvando informações de Campings";
+
+                            notificationService.Update(notificationId, notification);
+
+                            DBContract.UpdateKeyValue(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                            DBContract.UpdateKeyValue(AppConstants.Chave_Versao, versaoAtual.ToString(CultureInfo.InvariantCulture));
+                            DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, null);
+
+                            notificationService.Complete(notificationId);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            notification.Message = "A atualização foi cancelada";
+                            // Tarefa cancelada, interrompe o loop
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            notification.Title = "Ocorreu um erro, tentaremos novamente mais tarde";
+
+                            Workaround.ShowExceptionOnlyDevolpmentMode(nameof(BackgroundUpdater), nameof(StartAsync), ex);
+                        }
+
+                        notification.ProgressValue = null;
 
                         notificationService.Update(notificationId, notification);
 
-                        DBContract.UpdateKeyValue(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                        DBContract.UpdateKeyValue(AppConstants.Chave_Versao, versaoAtual.ToString(CultureInfo.InvariantCulture));
-                        DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, null);
-
-                        notificationService.Complete(notificationId);
+                        await CancellationTokenSource.CancelAsync();
                     }
-                    catch (TaskCanceledException)
-                    {
-                        notification.Message = "A atualização foi cancelada";
-                        // Tarefa cancelada, interrompe o loop
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        notification.Title = "Ocorreu um erro, tentaremos novamente mais tarde";
-
-                        Workaround.ShowExceptionOnlyDevolpmentMode(nameof(BackgroundUpdater), nameof(StartAsync), ex);
-                    }
-
-                    notification.ProgressValue = null;
-
-                    notificationService.Update(notificationId, notification);
-
-                    await CancellationTokenSource.CancelAsync();
-                }
-            }, cancellationToken);
+                }, cancellationToken);
+            }
         }
 
         public static void Stop()
