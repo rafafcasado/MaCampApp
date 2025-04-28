@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using FluentIcons.Common;
+﻿using FluentIcons.Common;
 using FluentIcons.Maui;
 using MaCamp.CustomControls;
 using MaCamp.Models;
@@ -13,7 +12,7 @@ namespace MaCamp.Views.Campings
 {
     public partial class MapaPage : SmartContentPage
     {
-        private MapaPage()
+        public MapaPage()
         {
             InitializeComponent();
 
@@ -48,7 +47,7 @@ namespace MaCamp.Views.Campings
             };
         }
 
-        public MapaPage(ObservableCollection<Item> itens) : this()
+        public MapaPage(List<Item> itens) : this()
         {
             Title = "Ver no Mapa";
             BindingContext = new MapaViewModel(Map_InfoWindowClicked)
@@ -69,6 +68,11 @@ namespace MaCamp.Views.Campings
             base.OnDisappearing();
 
             DeviceDisplay.KeepScreenOn = false;
+
+            if (BindingContext is MapaViewModel viewModel)
+            {
+                viewModel.Cancel();
+            }
         }
 
         private async void MapaPage_FirstAppeared(object? sender, EventArgs e)
@@ -76,10 +80,11 @@ namespace MaCamp.Views.Campings
             if (BindingContext is MapaViewModel viewModel)
             {
                 await Workaround.TaskWorkAsync(async () => await viewModel.CarregarAsync());
-
-                cvMapa.Content = viewModel.Mapa;
-
-                toggleButton.IsVisible = true;
+                await Workaround.TaskUIAsync(() =>
+                {
+                    cvMapa.Content = viewModel.Mapa;
+                    toggleButton.IsVisible = true;
+                });
             }
         }
 
@@ -92,7 +97,6 @@ namespace MaCamp.Views.Campings
                 map.MapType = isStreet ? MapType.Satellite : MapType.Street;
 
                 toggleButton.Text = isStreet ? "Satélite" : "Terreno";
-                toggleButton.BackgroundColor = isStreet ? Color.FromArgb("#FFFFFFFF") : Color.FromArgb("#FFFFFFD9");
                 toggleButton.ImageSource = new SymbolImageSource
                 {
                     Symbol = Symbol.Map,

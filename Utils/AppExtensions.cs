@@ -88,6 +88,29 @@ namespace MaCamp.Utils
             return value;
         }
 
+        public static Position? GetCenterPosition(this IEnumerable<Position>? source)
+        {
+            var listPositions = source != null ? source.ToList() : new List<Position>();
+
+            if (listPositions.Any())
+            {
+                // Encontra os limites da lista de localizações
+                var minLatitude = listPositions.Min(x => x.Latitude);
+                var maxLatitude = listPositions.Max(x => x.Latitude);
+                var minLongitude = listPositions.Min(x => x.Longitude);
+                var maxLongitude = listPositions.Max(x => x.Longitude);
+
+                // Calcula o centro do mapa
+                var centerLatitude = (minLatitude + maxLatitude) / 2;
+                var centerLongitude = (minLongitude + maxLongitude) / 2;
+
+                return new Position(centerLatitude, centerLongitude);
+            }
+
+            return null;
+        }
+
+
         public static void MoveMapToRegion(this Map map, List<Position>? listPositions)
         {
             if (listPositions == null || listPositions.Count == 0)
@@ -255,6 +278,81 @@ namespace MaCamp.Utils
         public static bool IsValidLocation(this Item item)
         {
             return item.Latitude != null && item.Latitude != 0 && item.Longitude != null && item.Longitude != 0;
+        }
+
+        /// <summary>
+        /// Adiciona uma coleção de itens em lotes, de forma assíncrona, evitando travar a UI.
+        /// </summary>
+        /// <typeparam name="TCollection">Tipo da coleção (deve implementar ICollection&lt;TItem&gt;)</typeparam>
+        /// <typeparam name="TItem">Tipo dos itens a serem adicionados</typeparam>
+        /// <param name="collection">Coleção de destino</param>
+        /// <param name="items">Itens a serem adicionados</param>
+        /// <param name="batchSize">Tamanho do lote (padrão: 100)</param>
+        /// <param name="delayMilliseconds">Tempo de espera entre lotes (padrão: 50ms)</param>
+        /// <param name="cancellationToken">Token de cancelamento opcional</param>
+        public static async Task AddRangeAsync<TCollection, TItem>(this TCollection collection, IEnumerable<TItem> items, int batchSize = 100, int delayMilliseconds = 50, CancellationToken cancellationToken = default) where TCollection : ICollection<TItem>
+        {
+            var itemList = items.ToList();
+
+            for (var i = 0; i < itemList.Count; i += batchSize)
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    var batch = itemList.Skip(i).Take(batchSize).ToList();
+
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        foreach (var item in batch)
+                        {
+                            collection.Add(item);
+                        }
+                    });
+
+                    if (i + batchSize < itemList.Count)
+                    {
+                        await Task.Delay(delayMilliseconds, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+            }
+        }
+
+        public static bool Contains(this Bounds bounds, double latitude, double longitude)
+        {
+            return latitude >= bounds.SouthWest.Latitude && latitude <= bounds.NorthEast.Latitude && longitude >= bounds.SouthWest.Longitude && longitude <= bounds.NorthEast.Longitude;
+        }
+
+        public static bool Contains(this MapRegion? region, Position position)
+        {
+            if (region != null)
+            {
+                var minLat = Math.Min(region.FarLeft.Latitude, region.NearLeft.Latitude);
+                var maxLat = Math.Max(region.FarRight.Latitude, region.NearRight.Latitude);
+                var minLon = Math.Min(region.FarLeft.Longitude, region.FarRight.Longitude);
+                var maxLon = Math.Max(region.NearLeft.Longitude, region.NearRight.Longitude);
+                var latitude = position.Latitude >= minLat && position.Latitude <= maxLat;
+                var longitude = position.Longitude >= minLon && position.Longitude <= maxLon;
+
+                return latitude && longitude;
+            }
+
+            return false;
+        }
+
+        public static bool Contains(this CameraPosition? camera, Position position, double visibleRadiusKm = 10)
+        {
+            if (camera != null)
+            {
+                // Distância entre centro da câmera e o ponto
+                var distance = Location.CalculateDistance(camera.Target.Latitude, camera.Target.Longitude, position.Latitude, position.Longitude, DistanceUnits.Kilometers);
+                // Zoom influencia o quão perto/far está visível
+                // Aproximação: cada nível de zoom dobra ou divide o raio.
+                // Zoom 15 → ~1km, Zoom 10 → ~10km
+                var effectiveRadiusKm = Math.Pow(2, 21 - camera.Zoom) * 0.001;
+
+                return distance <= (effectiveRadiusKm * visibleRadiusKm);
+            }
+
+            return false;
         }
     }
 }

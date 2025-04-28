@@ -68,46 +68,63 @@ namespace MaCamp.Utils
             throw new ArgumentNullException(nameof(service), $@"Não foi possível encontrar o serviço {typeof(T).Name}");
         }
 
-        public static async Task TaskWorkAsync(Func<Task> task, CancellationToken cancellationToken = default)
+        public static async Task TaskWorkAsync(Func<Task> predicate, CancellationToken cancellationToken = default)
         {
-            try
+            if (!cancellationToken.IsCancellationRequested)
             {
-                await Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        await task();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Execução cancelada, ignorar erro
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWorkAsync), ex);
-                    }
-                }, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                // Execução cancelada, ignorar erro
+                    await Task.Run(predicate, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Execução cancelada, ignorar erro
+                }
+                catch (Exception ex)
+                {
+                    ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskWorkAsync), ex);
+                }
             }
         }
 
-        public static async Task<T> TaskWorkAsync<T>(Func<T> action, T defaultValue, CancellationToken cancellationToken = default)
+        public static async Task<T> TaskWorkAsync<T>(Func<T> predicate, T defaultValue, CancellationToken cancellationToken = default)
         {
-            try
+            if (!cancellationToken.IsCancellationRequested)
             {
-                return await Task.Run(action, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                // Execução cancelada, ignorar erro
+                try
+                {
+                    return await Task.Run(predicate, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Execução cancelada, ignorar erro
+                }
+                catch (Exception ex)
+                {
+                    ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
+                }
             }
 
             return defaultValue;
+        }
+
+        public static async Task TaskWorkAsync(Action action, CancellationToken cancellationToken = default)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Run(action, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Execução cancelada, ignorar erro
+                }
+                catch (Exception ex)
+                {
+                    ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
+                }
+            }
         }
 
         public static async void TaskUI(Action action, CancellationToken cancellationToken = default)
@@ -132,7 +149,26 @@ namespace MaCamp.Utils
             });
         }
 
-        public static async Task TaskUIAsync(Func<Task> action, CancellationToken cancellationToken = default)
+        public static async Task TaskUIAsync(Action action)
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (OperationCanceledException)
+                {
+                    // Execução cancelada, ignorar erro
+                }
+                catch (Exception ex)
+                {
+                    ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
+                }
+            });
+        }
+
+        public static async Task TaskUIAsync(Func<Task> predicate, CancellationToken cancellationToken = default)
         {
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
@@ -140,7 +176,7 @@ namespace MaCamp.Utils
                 {
                     try
                     {
-                        await action();
+                        await predicate();
                     }
                     catch (OperationCanceledException)
                     {
@@ -154,22 +190,30 @@ namespace MaCamp.Utils
             });
         }
 
-        public static async Task TaskUIAsync(Action action, CancellationToken cancellationToken = default)
+        public static async Task<T> TaskUIAsync<T>(Func<Task<T>> predicate, T defaultValue, CancellationToken cancellationToken = default)
         {
-            await MainThread.InvokeOnMainThreadAsync(() =>
+            await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     try
                     {
-                        action();
+                        return await predicate();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Execução cancelada, ignorar erro
                     }
                     catch (Exception ex)
                     {
                         ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
                     }
                 }
+
+                return defaultValue;
             });
+
+            return defaultValue;
         }
 
         public static async Task<Location?> GetLocationAsync(string message, bool openSettings = true)
@@ -196,10 +240,14 @@ namespace MaCamp.Utils
 
                     if (openSettings)
                     {
-                        await TaskUIAsync(async () => await AppConstants.CurrentPage.DisplayAlert("Localização", message, "OK"));
-                        await locationService.OpenSettingsAsync();
+                        var response = await TaskUIAsync(async () => await AppConstants.CurrentPage.DisplayAlert("Localização", AppConstants.Mensagem_Localizacao_Camping, "Habilitar", "Cancelar"), false);
 
-                        return await GetLocationAsync(message, false);
+                        if (response)
+                        {
+                            await locationService.OpenSettingsAsync();
+
+                            return await GetLocationAsync(message, false);
+                        }
                     }
                 }
             }

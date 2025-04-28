@@ -313,9 +313,7 @@ namespace MaCamp.Views.Campings
         {
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
-                var listaItens = ViewModel.Itens.Where(x => x.IsValidLocation()).ToList();
-
-                await Navigation.PushAsync(new MapaPage(new ObservableCollection<Item>(listaItens)));
+                await Navigation.PushAsync(new MapaPage(ViewModel.Itens.ToList()));
             }
             else
             {

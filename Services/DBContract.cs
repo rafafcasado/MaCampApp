@@ -438,9 +438,11 @@ namespace MaCamp.Services
                 }
 
                 var sbQueryCategorias = new StringBuilder();
+
                 sbQueryCategorias.Append($"SELECT II.{nameof(ItemIdentificador.IdItem)} ");
                 sbQueryCategorias.Append($" FROM {nameof(ItemIdentificador)} II ");
                 sbQueryCategorias.Append($" WHERE ");
+
                 var complementoDaQuery = string.Empty;
 
                 if (categorias.Length == 104)

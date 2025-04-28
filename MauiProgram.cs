@@ -27,7 +27,6 @@ namespace MaCamp
             builder.UseGoogleMaps(null);
             builder.UseGoogleMapsClustering();
             builder.UseMauiCommunityToolkit();
-
             builder.UseMauiRGPopup(config =>
             {
                 config.BackPressHandler = null;
