@@ -2,16 +2,18 @@
 {
     public class SmartContentView : ContentView
     {
-        public bool HasAppeared { get; private set; }
+        private bool HasAppeared { get; set; }
 
         public event EventHandler? FirstAppeared;
 
-        protected override void OnParentSet()
+        protected override async void OnParentSet()
         {
             base.OnParentSet();
 
             if (!HasAppeared && Parent != null && IsVisible)
             {
+                await Task.Delay(250);
+
                 HasAppeared = true;
                 FirstAppeared?.Invoke(this, EventArgs.Empty);
             }

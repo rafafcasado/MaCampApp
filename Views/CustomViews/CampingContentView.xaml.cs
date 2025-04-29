@@ -3,6 +3,7 @@ using MaCamp.Models;
 using MaCamp.Services;
 using MaCamp.Utils;
 using Microsoft.Maui.Controls.Shapes;
+using Map = Microsoft.Maui.ApplicationModel.Map;
 
 namespace MaCamp.Views.CustomViews
 {
@@ -122,16 +123,23 @@ namespace MaCamp.Views.CustomViews
 
         private void CalcularDistancia()
         {
-            if (ItemAtual != null)
+            var distance = ItemAtual.GetDistanceKilometersFromUser();
+
+            if (distance is double distanceKilometers)
             {
-                var distancia = ItemAtual.DistanciaDoUsuario;
-
-                if (distancia > 0)
+                if (distanceKilometers < 1)
                 {
-                    var d = distancia > 1000 ? Math.Round(distancia / 1000, 2) : Math.Round(distancia, 2);
-                    var unidade = distancia > 1000 ? "km" : "m";
+                    // Menos de 1km, exibe em metros
+                    var distanceMeters = Math.Round(distanceKilometers * 1000, 0);
 
-                    lbDistancia.Text = d + unidade + " de distância";
+                    lbDistancia.Text = $"{distanceMeters} m de distância";
+                }
+                else
+                {
+                    // 1km ou mais, exibe em km
+                    var distanceRoundedKm = Math.Round(distanceKilometers, 2);
+
+                    lbDistancia.Text = $"{distanceRoundedKm} km de distância";
                 }
             }
         }

@@ -41,7 +41,7 @@ namespace MaCamp.ViewModels
             ClusteredMap_InfoWindowClicked = clusteredMap_InfoWindowClicked;
             Itens = new List<Item>();
             ListaPins = new List<Pin>();
-            ChunkLoad = Environment.ProcessorCount * 50;
+            ChunkLoad = 100;
         }
 
         public async Task CarregarAsync(CancellationToken cancellationToken = default)
@@ -59,12 +59,16 @@ namespace MaCamp.ViewModels
 
             if (!Itens.Any())
             {
-                await Workaround.TaskWorkAsync(async () => await CarregarItensAsync(cancellationToken), cancellationToken);
+                //await Workaround.TaskWorkAsync(async () => await CarregarItensAsync(cancellationToken), cancellationToken);
             }
 
-            ListaPins = await Workaround.TaskWorkAsync(() => CriarListaPins(Itens.Where(x => x.IsValidLocation()).ToList()), new List<Pin>(), CancellationTokenSource.Token);
+            var position = PegarPosicaoInicial();
+            var listaItensFiltrados = Itens.Where(x => x.IsValidLocation()).ToList();
+            var listaItensFiltradosOrdenados = listaItensFiltrados.OrderBy(x => x.GetDistanceKilometersFromUser() ?? double.MaxValue).ToList();
 
-            await Workaround.TaskUIAsync(() => CarregarMapa());
+            ListaPins = await Workaround.TaskWorkAsync(() => CriarListaPins(listaItensFiltradosOrdenados), new List<Pin>(), CancellationTokenSource.Token);
+
+            await Workaround.TaskUIAsync(() => CarregarMapa(position));
         }
 
         public void Cancel()
@@ -74,7 +78,7 @@ namespace MaCamp.ViewModels
 
         private async Task CarregarItensAsync(CancellationToken cancellationToken)
         {
-            if (Connectivity.NetworkAccess == NetworkAccess.Internet)
+            if (!System.Diagnostics.Debugger.IsAttached && Connectivity.NetworkAccess == NetworkAccess.Internet)
             {
                 var viewModel = new ListagemInfinitaViewModel();
 
@@ -111,43 +115,31 @@ namespace MaCamp.ViewModels
             return new Position(-23.550520, -46.633308);
         }
 
-        private void CarregarMapa()
+        private void CarregarMapa(Position position)
         {
-            var position = PegarPosicaoInicial();
+            var bounds = ListaPins.Select(x => x.Position).ToBounds();
+            var cameraUpdate = bounds != null ? CameraUpdateFactory.NewBounds(bounds, 25) : CameraUpdateFactory.NewPosition(position);
             var map = new ClusteredMap
             {
                 MyLocationEnabled = true,
-                InitialCameraUpdate = CameraUpdateFactory.NewPositionZoom(position, 5)
+                InitialCameraUpdate = cameraUpdate
             };
-            var listaTuplaPinsDistancia = ListaPins.Select(x => new
-            {
-                Pin = x,
-                Distance = Location.CalculateDistance(position.Latitude, position.Longitude, x.Position.Latitude, x.Position.Longitude, DistanceUnits.Kilometers)
-            }).OrderBy(x => x.Distance).ToList();
 
-            map.Loaded += Map_Loaded;
-            map.CameraIdled += MapOnCameraIdled;
+            //ListaPins.Take(ChunkLoad).ForEach(x => map.Pins.Add(x));
+            ListaPins.ForEach(x => map.Pins.Add(x));
+
+            //map.Loaded += Map_Loaded;
             map.InfoWindowClicked += ClusteredMap_InfoWindowClicked;
 
-            ListaPins = listaTuplaPinsDistancia.Select(x => x.Pin).ToList();
             Mapa = map;
         }
 
-        private void Map_Loaded(object? sender, EventArgs e)
+        private async void Map_Loaded(object? sender, EventArgs e)
         {
-            if (sender is ClusteredMap clusteredMap)
+            if (sender is ClusteredMap map)
             {
-                ListaPins.Take(ChunkLoad).ForEach(x => clusteredMap.Pins.Add(x));
-            }
-        }
-
-        private async void MapOnCameraIdled(object? sender, CameraIdledEventArgs e)
-        {
-            if (sender is ClusteredMap clusteredMap)
-            {
-                var listaPins = ListaPins.Where(x => !clusteredMap.Pins.Contains(x) && e.Position.Contains(x.Position)).ToList();
-
-                await clusteredMap.Pins.AddRangeAsync(listaPins);
+                await Task.Delay(3000);
+                await map.Pins.AddRangeAsync(ListaPins.Skip(ChunkLoad), CancellationTokenSource.Token);
             }
         }
 

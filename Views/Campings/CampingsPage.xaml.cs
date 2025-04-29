@@ -49,12 +49,12 @@ namespace MaCamp.Views.Campings
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Página do Camping: ");
         }
 
-        private async void CampingsPage_FirstAppeared(object? sender, EventArgs e)
+        private void CampingsPage_FirstAppeared(object? sender, EventArgs e)
         {
-            await CarregarConteudoAsync();
+            CarregarConteudo();
         }
 
-        private async Task CarregarConteudoAsync()
+        private void CarregarConteudo()
         {
             var buscaInicialRealizada = DBContract.GetKeyValue(AppConstants.Busca_InicialRealizada);
 
@@ -94,9 +94,9 @@ namespace MaCamp.Views.Campings
 
                     var gestureRecognizer = new TapGestureRecognizer();
 
-                    gestureRecognizer.Tapped += async delegate
+                    gestureRecognizer.Tapped += delegate
                     {
-                        await CarregarConteudoAsync();
+                        CarregarConteudo();
                     };
 
                     lbMensagemAviso.GestureRecognizers.Add(gestureRecognizer);
@@ -110,8 +110,6 @@ namespace MaCamp.Views.Campings
                 BackgroundColor = Colors.White;
                 cvContent.Content = new FormBuscaView();
             }
-
-            App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Camping);
         }
     }
 }

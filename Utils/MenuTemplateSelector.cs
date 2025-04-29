@@ -1,7 +1,8 @@
 ﻿using MaCamp.Views.CustomViews;
+using MaCamp.Views.Menu;
 using static MaCamp.Utils.Enumeradores;
 
-namespace MaCamp.Views.Menu
+namespace MaCamp.Utils
 {
     public class MenuTemplateSelector : DataTemplateSelector
     {

@@ -164,7 +164,7 @@ namespace MaCamp.Services
                     App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Mapa);
                 }
 
-                campings = campings.OrderBy(x => x.DistanciaDoUsuario).Take(20).ToList();
+                campings = campings.OrderBy(x => x.GetDistanceKilometersFromUser() ?? double.MaxValue).Take(20).ToList();
             }
 
             return campings;

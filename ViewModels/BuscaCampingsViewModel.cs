@@ -84,7 +84,7 @@ namespace MaCamp.ViewModels
                 DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "true");
                 DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
                 DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
-                DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, string.Empty);
+                DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, null);
             }
             catch (Exception ex)
             {

@@ -14,7 +14,7 @@
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-	<application android:icon="@mipmap/appicon" android:allowBackup="true" android:supportsRtl="true" android:usesCleartextTraffic="false">
+	<application android:icon="@mipmap/appicon" android:allowBackup="true" android:supportsRtl="true" android:usesCleartextTraffic="false" android:largeHeap="true">
 		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDMgtg637cz-GG0cimn_EXg95idLbaDwOY" />
 		<meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-8959365990645001~9967771040" />
 	</application>

@@ -28,11 +28,12 @@ namespace MaCamp.Views.Campings
                 HorizontalOptions = LayoutOptions.CenterAndExpand,
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
-            toggleButton.ImageSource = new SymbolImageSource
+
+            toggleButton.ImageSource = new FluentImageSource
             {
-                Symbol = Symbol.Map,
-                IconVariant = IconVariant.Regular,
-                Color = AppColors.CorPrimaria
+                Color = AppColors.CorPrimaria,
+                Icon = Icon.Map,
+                IconVariant = IconVariant.Regular
             };
 
             FirstAppeared += MapaPage_FirstAppeared;
@@ -80,11 +81,9 @@ namespace MaCamp.Views.Campings
             if (BindingContext is MapaViewModel viewModel)
             {
                 await Workaround.TaskWorkAsync(async () => await viewModel.CarregarAsync());
-                await Workaround.TaskUIAsync(() =>
-                {
-                    cvMapa.Content = viewModel.Mapa;
-                    toggleButton.IsVisible = true;
-                });
+
+                cvMapa.Content = viewModel.Mapa;
+                toggleButton.IsVisible = true;
             }
         }
 
@@ -97,10 +96,10 @@ namespace MaCamp.Views.Campings
                 map.MapType = isStreet ? MapType.Satellite : MapType.Street;
 
                 toggleButton.Text = isStreet ? "Satélite" : "Terreno";
-                toggleButton.ImageSource = new SymbolImageSource
+                toggleButton.ImageSource = new FluentImageSource
                 {
-                    Symbol = Symbol.Map,
                     Color = AppColors.CorPrimaria,
+                    Icon = Icon.Map,
                     IconVariant = isStreet ? IconVariant.Filled : IconVariant.Regular
                 };
             }

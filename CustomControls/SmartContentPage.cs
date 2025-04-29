@@ -2,16 +2,18 @@
 {
     public class SmartContentPage : ContentPage
     {
-        public bool HasAppeared { get; private set; }
+        private bool HasAppeared { get; set; }
 
         public event EventHandler? FirstAppeared;
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
             if (!HasAppeared)
             {
+                await Task.Delay(250);
+
                 HasAppeared = true;
                 FirstAppeared?.Invoke(this, EventArgs.Empty);
             }

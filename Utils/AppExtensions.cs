@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using MaCamp.Models;
 using Maui.GoogleMaps;
@@ -208,6 +210,16 @@ namespace MaCamp.Utils
             }
         }
 
+        public static Location? GetLocation(this Item? item)
+        {
+            if (item != null && item.Latitude != null && item.Longitude != null)
+            {
+                return new Location(item.Latitude.Value, item.Longitude.Value);
+            }
+
+            return default;
+        }
+
         public static Position GetPosition(this Item? item)
         {
             if (item != null && item.Latitude != null && item.Longitude != null)
@@ -275,9 +287,14 @@ namespace MaCamp.Utils
             }
         }
 
-        public static bool IsValidLocation(this Item item)
+        public static bool IsValidLocation(this Item? item)
         {
-            return item.Latitude != null && item.Latitude != 0 && item.Longitude != null && item.Longitude != 0;
+            return item != null && item.Latitude != null && item.Latitude != 0 && item.Longitude != null && item.Longitude != 0;
+        }
+
+        public static bool IsValid(this Location? location)
+        {
+            return location != null && location.Latitude != 0 && location.Longitude != 0;
         }
 
         /// <summary>
@@ -310,10 +327,26 @@ namespace MaCamp.Utils
 
                     if (i + batchSize < itemList.Count)
                     {
-                        await Task.Delay(delayMilliseconds, cancellationToken).ConfigureAwait(false);
+                        await Task.Delay(delayMilliseconds, cancellationToken);
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Adiciona uma coleção de itens em lotes, de forma assíncrona, evitando travar a UI.
+        /// </summary>
+        /// <typeparam name="TCollection">Tipo da coleção (deve implementar ICollection&lt;TItem&gt;)</typeparam>
+        /// <typeparam name="TItem">Tipo dos itens a serem adicionados</typeparam>
+        /// <param name="collection">Coleção de destino</param>
+        /// <param name="items">Itens a serem adicionados</param>
+        /// <param name="cancellationToken">Token de cancelamento opcional</param>
+        public static async Task AddRangeAsync<TCollection, TItem>(this TCollection collection, IEnumerable<TItem> items, CancellationToken cancellationToken = default) where TCollection : ICollection<TItem>
+        {
+            var batchSize = Environment.ProcessorCount * 100;
+            var delayMilliseconds = 500 / Environment.ProcessorCount;
+
+            await AddRangeAsync(collection, items, batchSize, delayMilliseconds, cancellationToken);
         }
 
         public static bool Contains(this Bounds bounds, double latitude, double longitude)
@@ -354,5 +387,74 @@ namespace MaCamp.Utils
 
             return false;
         }
+
+        public static Bounds? ToBounds(this IEnumerable<Position>? source)
+        {
+            if (source != null)
+            {
+                var positions = source.ToList();
+
+                if (positions.Any())
+                {
+                    var minLat = positions.Min(p => p.Latitude);
+                    var minLng = positions.Min(p => p.Longitude);
+                    var maxLat = positions.Max(p => p.Latitude);
+                    var maxLng = positions.Max(p => p.Longitude);
+
+                    return new Bounds(new Position(minLat, minLng), new Position(maxLat, maxLng));
+                }
+            }
+
+            return null;
+        }
+
+        public static double? GetDistanceKilometersFromUser(this Item? item)
+        {
+            if (item.IsValidLocation() && App.LOCALIZACAO_USUARIO.IsValid())
+            {
+                var itemPosition = item.GetPosition();
+                var userPosition = App.LOCALIZACAO_USUARIO.GetPosition();
+                var distanceKilometers = Location.CalculateDistance(itemPosition.Latitude, itemPosition.Longitude, userPosition.Latitude, userPosition.Longitude, DistanceUnits.Kilometers);
+
+                return distanceKilometers;
+            }
+
+            return default;
+        }
+
+        public static string ToGeoJson(this IEnumerable<Pin> source)
+        {
+            var features = source.Select(pin => new
+            {
+                type = "Feature",
+                geometry = new
+                {
+                    type = "Point",
+                    coordinates = new[]
+                    {
+                        pin.Position.Longitude,
+                        pin.Position.Latitude
+                    }
+                },
+                properties = new
+                {
+                    title = pin.Label,
+                    snippet = pin.Address
+                }
+            });
+            var geoJson = new
+            {
+                type = "FeatureCollection",
+                features = features
+            };
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            return JsonSerializer.Serialize(geoJson, options);
+        }
+
     }
 }

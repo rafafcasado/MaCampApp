@@ -190,32 +190,6 @@ namespace MaCamp.Utils
             });
         }
 
-        public static async Task<T> TaskUIAsync<T>(Func<Task<T>> predicate, T defaultValue, CancellationToken cancellationToken = default)
-        {
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        return await predicate();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Execução cancelada, ignorar erro
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
-                    }
-                }
-
-                return defaultValue;
-            });
-
-            return defaultValue;
-        }
-
         public static async Task<Location?> GetLocationAsync(string message, bool openSettings = true)
         {
             try
@@ -240,7 +214,7 @@ namespace MaCamp.Utils
 
                     if (openSettings)
                     {
-                        var response = await TaskUIAsync(async () => await AppConstants.CurrentPage.DisplayAlert("Localização", AppConstants.Mensagem_Localizacao_Camping, "Habilitar", "Cancelar"), false);
+                        var response = await AppConstants.CurrentPage.DisplayAlert("Localização", AppConstants.Mensagem_Localizacao_Camping, "Habilitar", "Cancelar");
 
                         if (response)
                         {

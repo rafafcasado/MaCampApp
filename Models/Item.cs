@@ -333,29 +333,6 @@ namespace MaCamp.Models
 
         #endregion
 
-        public double DistanciaDoUsuario
-        {
-            get
-            {
-                if (App.LOCALIZACAO_USUARIO == null || Latitude == null || Longitude == null || (Latitude == 0 && Longitude == 0))
-                {
-                    return -1;
-                }
-
-                var latitude = App.LOCALIZACAO_USUARIO.Latitude * 0.0174532925199433;
-                var longitude = App.LOCALIZACAO_USUARIO.Longitude * 0.0174532925199433;
-                var num = Latitude.Value * 0.0174532925199433;
-                var longitude1 = Longitude.Value * 0.0174532925199433;
-                var num1 = longitude1 - longitude;
-                var num2 = num - latitude;
-                var num3 = Math.Pow(Math.Sin(num2 / 2), 2) + Math.Cos(latitude) * Math.Cos(num) * Math.Pow(Math.Sin(num1 / 2), 2);
-                var num4 = 2 * Math.Atan2(Math.Sqrt(num3), Math.Sqrt(1 - num3));
-                var num5 = 6376500 * num4;
-
-                return num5;
-            }
-        }
-
         public bool EhAdMobRetangulo { get; set; } = false;
         public bool EhAnuncio { get; set; } = false;
 
