@@ -7,6 +7,22 @@ namespace MaCamp.Platforms.Android.Extenders
 {
     public class ExtendedWebChromeClient : WebChromeClient
     {
+        public override void OnPermissionRequest(PermissionRequest? request)
+        {
+            if (request != null)
+            {
+                request.Grant(request.GetResources());
+            }
+        }
+
+        public override void OnGeolocationPermissionsShowPrompt(string? origin, GeolocationPermissions.ICallback? callback)
+        {
+            if (callback != null)
+            {
+                callback.Invoke(origin, true, false);
+            }
+        }
+
         public override void OnProgressChanged(WebView? view, int newProgress)
         {
             base.OnProgressChanged(view, newProgress);

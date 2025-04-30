@@ -22,7 +22,9 @@ namespace MaCamp.Utils
 
             if (type.BaseType != null && type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(ViewHandler<,>))
             {
-                return viewType.GetInterfaces().Any(x => type.BaseType.GetGenericArguments().FirstOrDefault() == x);
+                var baseType = type.BaseType.GetGenericArguments().FirstOrDefault();
+
+                return viewType.BaseType == baseType || viewType.GetInterfaces().Any(x => baseType == x);
             }
 
             return false;

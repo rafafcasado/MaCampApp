@@ -23,13 +23,14 @@
 
         <CollectionView.ItemTemplate>
             <DataTemplate>
+
                 <ContentView>
                     <StackLayout
                         Padding="15,10"
                         HorizontalOptions="FillAndExpand">
                         <Label
                             FontSize="17"
-                            Text="{Binding Title}"
+                            Text="{Binding Titulo}"
                             VerticalOptions="FillAndExpand"
                             VerticalTextAlignment="Center" />
                     </StackLayout>

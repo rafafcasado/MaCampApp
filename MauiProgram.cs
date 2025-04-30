@@ -44,9 +44,7 @@ namespace MaCamp
             {
                 collection.AddPlatformHandler<AdMobBannerView>();
                 collection.AddPlatformHandler<AdmobRectangleBannerView>();
-#if ANDROID
-                collection.AddHandler<ClusteredMap, MaCamp.Platforms.Android.Handlers.CustomMapHandler>();
-#endif
+                collection.AddPlatformHandler<ClusteredMap>();
                 collection.AddPlatformHandler<CustomWebView>();
                 collection.AddPlatformHandler<IconView>();
             });

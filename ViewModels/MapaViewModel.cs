@@ -1,16 +1,16 @@
-﻿using MaCamp.Models;
+﻿using MaCamp.CustomControls;
+using MaCamp.Models;
 using MaCamp.Services;
 using MaCamp.Utils;
 using Maui.GoogleMaps;
 using Maui.GoogleMaps.Clustering;
 using static MaCamp.Utils.Enumeradores;
-using Map = Maui.GoogleMaps.Map;
 
 namespace MaCamp.ViewModels
 {
     public class MapaViewModel
     {
-        public Map? Mapa { get; set; }
+        public View? Content { get; private set; }
         public List<Item> Itens { get; set; }
         public bool UsarFiltros { get; set; }
 
@@ -35,8 +35,8 @@ namespace MaCamp.ViewModels
                 "campingemfuncionamento"
             };
             ClusteredMap_InfoWindowClicked = clusteredMap_InfoWindowClicked;
-            Itens = new List<Item>();
             ListaPins = new List<Pin>();
+            Itens = new List<Item>();
         }
 
         public async Task CarregarAsync(CancellationToken cancellationToken = default)
@@ -48,16 +48,24 @@ namespace MaCamp.ViewModels
 
             if (!Itens.Any())
             {
-                await Workaround.TaskWorkAsync(async () => await CarregarItensAsync(cancellationToken), cancellationToken);
+                //await Workaround.TaskWorkAsync(async () => await CarregarItensAsync(cancellationToken), cancellationToken);
+
+                Content = new CustomWebView
+                {
+                    Source = $"{AppConstants.Url_WebViewMapa}?lat={App.LOCALIZACAO_USUARIO?.Latitude}&long={App.LOCALIZACAO_USUARIO?.Longitude}"
+                };
+            }
+            else
+            {
+                var position = PegarPosicaoInicial();
+                var listaItensFiltrados = Itens.Where(x => x.IsValidLocation()).ToList();
+                var listaItensFiltradosOrdenados = listaItensFiltrados.OrderBy(x => x.GetDistanceKilometersFromUser() ?? double.MaxValue).ToList();
+
+                ListaPins = await Workaround.TaskWorkAsync(() => CriarListaPins(listaItensFiltradosOrdenados), new List<Pin>(), CancellationTokenSource.Token);
+
+                await Workaround.TaskUIAsync(() => CarregarMapa(position));
             }
 
-            var position = PegarPosicaoInicial();
-            var listaItensFiltrados = Itens.Where(x => x.IsValidLocation()).ToList();
-            var listaItensFiltradosOrdenados = listaItensFiltrados.OrderBy(x => x.GetDistanceKilometersFromUser() ?? double.MaxValue).ToList();
-
-            ListaPins = await Workaround.TaskWorkAsync(() => CriarListaPins(listaItensFiltradosOrdenados), new List<Pin>(), CancellationTokenSource.Token);
-
-            await Workaround.TaskUIAsync(() => CarregarMapa(position));
         }
 
         public void Cancel()
@@ -115,20 +123,9 @@ namespace MaCamp.ViewModels
                 GeoJson = ListaPins.ToGeoJson()
             };
 
-            //map.Loaded += Map_Loaded;
             map.InfoWindowClicked += ClusteredMap_InfoWindowClicked;
 
-            Mapa = map;
-        }
-
-        private async void Map_Loaded(object? sender, EventArgs e)
-        {
-            if (sender is ClusteredMap map)
-            {
-                await Task.Delay(AppConstants.Delay * 4);
-
-                map.GeoJson = ListaPins.ToGeoJson();
-            }
+            Content = map;
         }
 
         private List<Pin> CriarListaPins(IEnumerable<Item> itens)

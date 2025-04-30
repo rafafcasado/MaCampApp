@@ -6,7 +6,7 @@ set PROJECT_PATH=.
 set KEYSTORE_PATH=MaCamp.keystore
 set KEY_ALIAS=MaCamp
 set /p PASSWORD=Digite a senha da chave:
-set FRAMEWORK=net8.0-android34.0
+set FRAMEWORK=net9.0-android
 set CONFIGURATION=Release
 set OUTPUT_FOLDER=publish
 

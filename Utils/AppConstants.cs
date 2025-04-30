@@ -58,6 +58,7 @@ namespace MaCamp.Utils
         public static string Url_DominioOficial => "https://macamp.com.br/";
         public static string Url_TermoUso => "https://macamp.com.br/guia/termos-de-uso/";
         public static string Url_EasyTransports => "https://www.easytransport.com.br/";
+        public static string Url_WebViewMapa => "https://pontual-site.azurewebsites.net/clientes/macamp/mapa/";
 
         // WeakReferenceMessenger
         public static string WeakReferenceMessenger_AtualizarListagemCampings => "AtualizarListagemCampings";

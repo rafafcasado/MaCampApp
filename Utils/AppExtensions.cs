@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using MaCamp.Models;
@@ -455,6 +456,73 @@ namespace MaCamp.Utils
             };
 
             return JsonSerializer.Serialize(geoJson, options);
+        }
+
+        public static bool TryGetValue<T>(this JsonNode? jsonNode, string key, out T value)
+        {
+            if (jsonNode != null)
+            {
+                var data = jsonNode[key];
+
+                if (data != null)
+                {
+                    value = data is T response ? response : data.GetValue<T>();
+
+                    return true;
+                }
+            }
+
+            value = default!;
+
+            return false;
+        }
+
+        public static bool TryGetValue<T>(this JsonArray? jsonArray, int index, out T value)
+        {
+            if (jsonArray != null)
+            {
+                var element = jsonArray.ElementAtOrDefault(index);
+
+                if (element is JsonNode jsonNode)
+                {
+                    value = jsonNode.GetValue<T>();
+
+                    return true;
+                }
+            }
+
+            value = default!;
+
+            return false;
+        }
+
+        public static bool TryGetValue<T, TK>(this Dictionary<T, TK> dictionary, T key, out TK value) where T : notnull
+        {
+            if (dictionary.TryGetValue(key, out var response) && response != null && (response is not Stream stream || stream != Stream.Null))
+            {
+                value = response;
+
+                return true;
+            }
+
+            value = default!;
+
+            return false;
+        }
+
+        public static byte[] GetManifestResourceBytes(this Assembly assembly, string name)
+        {
+            using var stream = assembly.GetManifestResourceStream(name);
+            using var memoryStream = new MemoryStream();
+
+            if (stream != null)
+            {
+                stream.CopyTo(memoryStream);
+
+                return memoryStream.ToArray();
+            }
+
+            return Array.Empty<byte>();
         }
     }
 }

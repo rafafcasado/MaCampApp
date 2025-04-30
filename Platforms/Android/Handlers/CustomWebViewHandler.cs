@@ -23,10 +23,6 @@ namespace MaCamp.Platforms.Android.Handlers
         {
             NativeWebView = new WebView(Context);
 
-            NativeWebView.Settings.JavaScriptEnabled = true;
-            NativeWebView.SetWebViewClient(new ExtendedWebViewClient(this));
-            NativeWebView.SetWebChromeClient(new ExtendedWebChromeClient());
-
             return NativeWebView;
         }
 
@@ -44,15 +40,29 @@ namespace MaCamp.Platforms.Android.Handlers
         {
             if (handler.NativeWebView != null)
             {
-                if (webView.Source is HtmlWebViewSource htmlSource)
+                switch (webView.Source)
                 {
-                    handler.NativeWebView.LoadDataWithBaseURL(null, htmlSource.Html, "text/html", "utf-8", null);
-                }
-                else if (webView.Source is UrlWebViewSource urlSource)
-                {
-                    handler.NativeWebView.LoadUrl(urlSource.Url);
+                    case HtmlWebViewSource htmlSource:
+                        handler.NativeWebView.LoadDataWithBaseURL(null, htmlSource.Html, "text/html", "utf-8", null);
+                        break;
+                    case UrlWebViewSource urlSource:
+                        handler.NativeWebView.LoadUrl(urlSource.Url);
+                        break;
                 }
             }
+        }
+
+        protected override void ConnectHandler(WebView platformView)
+        {
+            base.ConnectHandler(platformView);
+
+            platformView.Settings.DomStorageEnabled = true;
+            platformView.Settings.JavaScriptEnabled = true;
+            platformView.Settings.SetGeolocationEnabled(true);
+            platformView.Settings.JavaScriptCanOpenWindowsAutomatically = true;
+
+            platformView.SetWebViewClient(new ExtendedWebViewClient(this));
+            platformView.SetWebChromeClient(new ExtendedWebChromeClient());
         }
 
         protected override void DisconnectHandler(WebView platformView)

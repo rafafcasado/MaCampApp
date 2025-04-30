@@ -1,7 +1,7 @@
-﻿using Google.MobileAds;
-using MaCamp.CustomControls;
+﻿using MaCamp.CustomControls;
 using MaCamp.Utils;
 using Microsoft.Maui.Handlers;
+using MTAdmob.Google.MobileAds;
 using UIKit;
 
 namespace MaCamp.Platforms.iOS.Handlers
@@ -18,8 +18,8 @@ namespace MaCamp.Platforms.iOS.Handlers
         {
             var adView = new BannerView
             {
-                AdSize = AdSizeCons.MediumRectangle,
-                AdUnitId = AppConstants.AdmobIdBannerIOs,
+                AdSize = AdSizeCons.GetCurrentOrientationAnchoredAdaptiveBannerAdSize(App.SCREEN_WIDTH),
+                AdUnitID = AppConstants.AdmobIdBannerIOs,
                 RootViewController = GetRootViewController()
             };
 

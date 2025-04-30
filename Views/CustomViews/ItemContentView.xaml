@@ -28,7 +28,7 @@
                     x:Name="imItem"
                     Aspect="AspectFill"
                     LoadingPlaceholder="placeholder.jpg"
-                    Source="{Binding UrlImagem}" />
+                    Source="{Binding URLImagem}" />
 
                 <!--<BoxView HeightRequest="4" BackgroundColor="DarkGoldenrod" Grid.Row="1" />-->
                 <!--                        <StackLayout BackgroundColor="{Binding ColorTag}" HorizontalOptions="Start" VerticalOptions="End" Padding="8" Margin="0,0,0,10">-->
