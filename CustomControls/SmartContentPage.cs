@@ -1,4 +1,6 @@
-﻿namespace MaCamp.CustomControls
+﻿using MaCamp.Utils;
+
+namespace MaCamp.CustomControls
 {
     public class SmartContentPage : ContentPage
     {
@@ -12,7 +14,7 @@
 
             if (!HasAppeared)
             {
-                await Task.Delay(250);
+                await Task.Delay(AppConstants.Delay);
 
                 HasAppeared = true;
                 FirstAppeared?.Invoke(this, EventArgs.Empty);

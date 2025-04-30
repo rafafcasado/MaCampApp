@@ -46,7 +46,7 @@ namespace MaCamp.Views.Detalhes
                         var isEvenIndex = i % 2 == 0;
                         var maisAltura = i % 4 == 0 || i % 4 == 3;
                         var altura = largura * (maisAltura ? 1.5 : 1);
-                        var frame = new Border
+                        var border = new Border
                         {
                             HeightRequest = altura,
                             WidthRequest = largura,
@@ -71,17 +71,17 @@ namespace MaCamp.Views.Detalhes
                             await Navigation.PushAsync(new VisualizacaoFotoPage(url, Title ?? string.Empty));
                         };
 
-                        frame.GestureRecognizers.Add(abrirFotoMasonary);
+                        border.GestureRecognizers.Add(abrirFotoMasonary);
 
-                        frame.Content = imagemMasonary;
+                        border.Content = imagemMasonary;
 
                         if (isEvenIndex)
                         {
-                            evenLayout.Children.Add(frame);
+                            evenLayout.Children.Add(border);
                         }
                         else
                         {
-                            oddLayout.Children.Add(frame);
+                            oddLayout.Children.Add(border);
                         }
                     }
 
@@ -152,11 +152,10 @@ namespace MaCamp.Views.Detalhes
                             frame.Content = image;
 
                             return frame;
-                        })
+                        }),
+                        ItemsSource = urlsFotos,
+                        Position = 0
                     };
-
-                    carouselView.ItemsSource = urlsFotos;
-                    carouselView.Position = 0;
 
                     Background = AppColors.CorPrimaria;
 

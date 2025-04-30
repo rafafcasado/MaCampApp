@@ -5,7 +5,9 @@
     xmlns:converter="clr-namespace:MaCamp.Utils.Converters"
     xmlns:custom="clr-namespace:MaCamp.CustomControls"
     xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui"
-    xmlns:localViews="clr-namespace:MaCamp.Views">
+    xmlns:localViews="clr-namespace:MaCamp.Views"
+    xmlns:models="clr-namespace:MaCamp.Models"
+    x:DataType="models:Item">
 
     <ContentPage.Resources>
         <ResourceDictionary>

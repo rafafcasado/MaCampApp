@@ -11,13 +11,6 @@ namespace MaCamp.Services
     {
         private static SQLiteConnection? SqlConnection { get; set; }
 
-        private static object Lock { get; set; }
-
-        static DBContract()
-        {
-            Lock = new object();
-        }
-
         public static void Initialize()
         {
             SqlConnection = GetConnection(AppConstants.SqliteFilename);

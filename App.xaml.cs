@@ -24,11 +24,26 @@ namespace MaCamp
 
             var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
 
+            UserAppTheme = AppTheme.Light;
+
             SCREEN_HEIGHT = Convert.ToInt32(displayInfo.Height / displayInfo.Density);
             SCREEN_WIDTH = Convert.ToInt32(displayInfo.Width / displayInfo.Density);
 
-            UserAppTheme = AppTheme.Light;
-            MainPage = new SplashScreen(async () =>
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                var excecao = args.ExceptionObject is Exception exception ? exception : new Exception($"não foi possível converter o valor de {nameof(args)}_{nameof(args.ExceptionObject)} para {nameof(Exception)}");
+
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(App), nameof(AppDomain.CurrentDomain.UnhandledException), excecao);
+            };
+            TaskScheduler.UnobservedTaskException += (sender, args) =>
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(TaskScheduler), nameof(TaskScheduler.UnobservedTaskException), args.Exception);
+            };
+        }
+
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new SplashScreen(async () =>
             {
                 var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
                 var storagePermissionResult = await storagePermissionService.RequestAsync();
@@ -43,19 +58,7 @@ namespace MaCamp
                 Environment.Exit(0);
 
                 return new ContentPage();
-            });
-
-            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
-            {
-                var excecao = args.ExceptionObject is Exception exception ? exception : new Exception($"não foi possível converter o valor de {nameof(args)}_{nameof(args.ExceptionObject)} para {nameof(Exception)}");
-
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(App), nameof(AppDomain.CurrentDomain.UnhandledException), excecao);
-            };
-
-            TaskScheduler.UnobservedTaskException += (sender, args) =>
-            {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(TaskScheduler), nameof(TaskScheduler.UnobservedTaskException), args.Exception);
-            };
+            }));
         }
 
         protected override async void OnStart()

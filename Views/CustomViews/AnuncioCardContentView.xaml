@@ -2,7 +2,9 @@
     x:Class="MaCamp.Views.CustomViews.AnuncioCardContentView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui">
+    xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui"
+    xmlns:models="clr-namespace:MaCamp.Models"
+    x:DataType="models:Item">
 
     <Border
         Margin="10"
@@ -20,7 +22,7 @@
                     x:Name="imItem"
                     Aspect="AspectFill"
                     LoadingPlaceholder="placeholder.jpg"
-                    Source="{Binding UrlImagem}" />
+                    Source="{Binding URLImagem}" />
                 <StackLayout
                     Margin="0,0,0,10"
                     Padding="8"

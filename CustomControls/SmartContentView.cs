@@ -1,4 +1,6 @@
-﻿namespace MaCamp.CustomControls
+﻿using MaCamp.Utils;
+
+namespace MaCamp.CustomControls
 {
     public class SmartContentView : ContentView
     {
@@ -12,7 +14,7 @@
 
             if (!HasAppeared && Parent != null && IsVisible)
             {
-                await Task.Delay(250);
+                await Task.Delay(AppConstants.Delay);
 
                 HasAppeared = true;
                 FirstAppeared?.Invoke(this, EventArgs.Empty);

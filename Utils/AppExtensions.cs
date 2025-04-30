@@ -344,7 +344,7 @@ namespace MaCamp.Utils
         public static async Task AddRangeAsync<TCollection, TItem>(this TCollection collection, IEnumerable<TItem> items, CancellationToken cancellationToken = default) where TCollection : ICollection<TItem>
         {
             var batchSize = Environment.ProcessorCount * 100;
-            var delayMilliseconds = 500 / Environment.ProcessorCount;
+            var delayMilliseconds = AppConstants.Delay / Environment.ProcessorCount;
 
             await AddRangeAsync(collection, items, batchSize, delayMilliseconds, cancellationToken);
         }
@@ -439,13 +439,14 @@ namespace MaCamp.Utils
                 properties = new
                 {
                     title = pin.Label,
-                    snippet = pin.Address
+                    snippet = pin.Address,
+                    icon = pin.NativeObject
                 }
             });
             var geoJson = new
             {
                 type = "FeatureCollection",
-                features = features
+                features
             };
             var options = new JsonSerializerOptions
             {
@@ -455,6 +456,5 @@ namespace MaCamp.Utils
 
             return JsonSerializer.Serialize(geoJson, options);
         }
-
     }
 }

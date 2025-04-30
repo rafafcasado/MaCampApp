@@ -3,7 +3,9 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:MaCamp.CustomControls"
+    xmlns:viewModels="clr-namespace:MaCamp.ViewModels"
     Title="Master"
+    x:DataType="viewModels:MasterPageViewModel"
     BackgroundColor="#F5F5F5">
 
     <local:CollectionViewNonScrollsToTop
@@ -15,7 +17,7 @@
         <CollectionView.Header>
             <Image
                 Margin="0,0,0,0"
-                Aspect="AspectFill"
+                Aspect="AspectFit"
                 Source="imagem_topo_menu.jpg" />
         </CollectionView.Header>
 

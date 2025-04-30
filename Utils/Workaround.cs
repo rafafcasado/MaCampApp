@@ -53,7 +53,7 @@ namespace MaCamp.Utils
 
             if (provider == null)
             {
-                await Task.Delay(250);
+                await Task.Delay(AppConstants.Delay);
 
                 return await GetServiceAsync<T>();
             }

@@ -1,10 +1,10 @@
 {
   "sdk": {
-    "version": "8.0.404",
+    "version": "9.0.101",
 	"rollForward": "latestPatch",
 	"workload": {
 		"manifestVersions": {
-			"microsoft.net.sdk.maui": "8.0.404"
+			"microsoft.net.sdk.maui": "9.0.101"
 		}
 	}
   }

@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using MaCamp.Models;
+﻿using MaCamp.Models;
 using MaCamp.Services;
 using MaCamp.Utils;
 using Maui.GoogleMaps;
@@ -18,9 +17,7 @@ namespace MaCamp.ViewModels
         private List<Pin> ListaPins { get; set; }
         private CancellationTokenSource CancellationTokenSource { get; set; }
         private List<string> ListaIdentificadoresPermitidos { get; }
-        private Dictionary<string, Stream?> DictionaryImages { get; set; }
         private EventHandler<InfoWindowClickedEventArgs> ClusteredMap_InfoWindowClicked { get; }
-        private int ChunkLoad { get; }
 
         public MapaViewModel(EventHandler<InfoWindowClickedEventArgs> clusteredMap_InfoWindowClicked)
         {
@@ -37,21 +34,13 @@ namespace MaCamp.ViewModels
                 "semfuncaocampingapoiooufechado",
                 "campingemfuncionamento"
             };
-            DictionaryImages = new Dictionary<string, Stream?>();
             ClusteredMap_InfoWindowClicked = clusteredMap_InfoWindowClicked;
             Itens = new List<Item>();
             ListaPins = new List<Pin>();
-            ChunkLoad = 100;
         }
 
         public async Task CarregarAsync(CancellationToken cancellationToken = default)
         {
-            var assembly = typeof(MapaViewModel).Assembly;
-            var listResourceNames = assembly.GetManifestResourceNames();
-
-            CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            DictionaryImages = listResourceNames.Where(x => x.EndsWith("_small.png")).ToDictionary(x => Regex.Replace(x, @"^.*(?=\bpointer_)", string.Empty), x => assembly.GetManifestResourceStream(x));
-
             if (App.LOCALIZACAO_USUARIO == null)
             {
                 App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Mapa);
@@ -59,7 +48,7 @@ namespace MaCamp.ViewModels
 
             if (!Itens.Any())
             {
-                //await Workaround.TaskWorkAsync(async () => await CarregarItensAsync(cancellationToken), cancellationToken);
+                await Workaround.TaskWorkAsync(async () => await CarregarItensAsync(cancellationToken), cancellationToken);
             }
 
             var position = PegarPosicaoInicial();
@@ -122,11 +111,9 @@ namespace MaCamp.ViewModels
             var map = new ClusteredMap
             {
                 MyLocationEnabled = true,
-                InitialCameraUpdate = cameraUpdate
+                InitialCameraUpdate = cameraUpdate,
+                GeoJson = ListaPins.ToGeoJson()
             };
-
-            //ListaPins.Take(ChunkLoad).ForEach(x => map.Pins.Add(x));
-            ListaPins.ForEach(x => map.Pins.Add(x));
 
             //map.Loaded += Map_Loaded;
             map.InfoWindowClicked += ClusteredMap_InfoWindowClicked;
@@ -138,8 +125,9 @@ namespace MaCamp.ViewModels
         {
             if (sender is ClusteredMap map)
             {
-                await Task.Delay(3000);
-                await map.Pins.AddRangeAsync(ListaPins.Skip(ChunkLoad), CancellationTokenSource.Token);
+                await Task.Delay(AppConstants.Delay * 4);
+
+                map.GeoJson = ListaPins.ToGeoJson();
             }
         }
 
@@ -154,19 +142,15 @@ namespace MaCamp.ViewModels
                 if (!string.IsNullOrEmpty(item.Nome) && tipos.Any())
                 {
                     var identificador = tipos.FirstOrDefault()?.Identificador ?? string.Empty;
+                    var imagem = "pointer_" + identificador.Replace("`", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + "_small.png";
                     var pin = new Pin
                     {
                         Label = item.Nome,
                         Address = item.EnderecoCompleto,
                         Position = item.GetPosition(),
-                        Tag = item
+                        Tag = item,
+                        NativeObject = imagem
                     };
-                    var imagem = "pointer_" + identificador.Replace("`", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + "_small.png";
-
-                    if (DictionaryImages.TryGetValue(imagem, out var stream) && stream != null && stream != Stream.Null)
-                    {
-                        pin.Icon = BitmapDescriptorFactory.FromStream(stream);
-                    }
 
                     listaPins.Add(pin);
                 }

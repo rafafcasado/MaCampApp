@@ -5,6 +5,7 @@ namespace MaCamp.Utils
 {
     public static class AppConstants
     {
+        public static int Delay => 250;
         public static string Path => Workaround.GetPath();
         public static Page CurrentPage => Application.Current?.MainPage ?? throw new NullReferenceException();
 

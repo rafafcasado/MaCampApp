@@ -6,6 +6,7 @@ using MaCamp.CustomControls;
 using MaCamp.Dependencias;
 using MaCamp.Dependencias.Permissions;
 using MaCamp.Utils;
+using Maui.GoogleMaps.Clustering;
 using Maui.GoogleMaps.Clustering.Hosting;
 using Maui.GoogleMaps.Hosting;
 using Microsoft.Extensions.Logging;
@@ -43,6 +44,9 @@ namespace MaCamp
             {
                 collection.AddPlatformHandler<AdMobBannerView>();
                 collection.AddPlatformHandler<AdmobRectangleBannerView>();
+#if ANDROID
+                collection.AddHandler<ClusteredMap, MaCamp.Platforms.Android.Handlers.CustomMapHandler>();
+#endif
                 collection.AddPlatformHandler<CustomWebView>();
                 collection.AddPlatformHandler<IconView>();
             });
