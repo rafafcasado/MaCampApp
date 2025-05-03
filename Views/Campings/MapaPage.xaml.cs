@@ -5,13 +5,14 @@ using MaCamp.Models;
 using MaCamp.Utils;
 using MaCamp.ViewModels;
 using MaCamp.Views.Detalhes;
-using Maui.GoogleMaps;
-using Map = Maui.GoogleMaps.Map;
+using MPowerKit.GoogleMaps;
 
 namespace MaCamp.Views.Campings
 {
     public partial class MapaPage : SmartContentPage
     {
+        private Action<Pin> Map_InfoWindowClick { get; }
+
         public MapaPage()
         {
             InitializeComponent();
@@ -28,12 +29,23 @@ namespace MaCamp.Views.Campings
                 HorizontalOptions = LayoutOptions.CenterAndExpand,
                 VerticalOptions = LayoutOptions.CenterAndExpand
             };
-
             toggleButton.ImageSource = new FluentImageSource
             {
                 Color = AppColors.CorPrimaria,
                 Icon = Icon.Map,
                 IconVariant = IconVariant.Regular
+            };
+            Map_InfoWindowClick = async pin =>
+            {
+                if (BindingContext is MapaViewModel viewModel)
+                {
+                    var item = viewModel.Itens.Find(x => Equals(x.Latitude, pin.Position.X) && Equals(x.Longitude, pin.Position.Y));
+
+                    if (item != null)
+                    {
+                        await Navigation.PushAsync(new DetalhesCampingPage(item));
+                    }
+                }
             };
 
             FirstAppeared += MapaPage_FirstAppeared;
@@ -42,7 +54,7 @@ namespace MaCamp.Views.Campings
         public MapaPage(bool usarFiltros) : this()
         {
             Title = "Mapa";
-            BindingContext = new MapaViewModel(Map_InfoWindowClicked)
+            BindingContext = new MapaViewModel(Map_InfoWindowClick)
             {
                 UsarFiltros = usarFiltros
             };
@@ -51,7 +63,7 @@ namespace MaCamp.Views.Campings
         public MapaPage(List<Item> itens) : this()
         {
             Title = "Ver no Mapa";
-            BindingContext = new MapaViewModel(Map_InfoWindowClicked)
+            BindingContext = new MapaViewModel(Map_InfoWindowClick)
             {
                 Itens = itens
             };
@@ -89,27 +101,19 @@ namespace MaCamp.Views.Campings
 
         private void OnToggleButtonClicked(object sender, EventArgs e)
         {
-            if (cvMapa.Content is Map map)
+            if (cvMapa.Content is GoogleMap map)
             {
-                var isStreet = map.MapType == MapType.Street;
+                var isNormal = map.MapType == MapType.Normal;
 
-                map.MapType = isStreet ? MapType.Satellite : MapType.Street;
+                map.MapType = isNormal ? MapType.Satellite : MapType.Normal;
 
-                toggleButton.Text = isStreet ? "Satélite" : "Terreno";
+                toggleButton.Text = isNormal ? "Satélite" : "Terreno";
                 toggleButton.ImageSource = new FluentImageSource
                 {
                     Color = AppColors.CorPrimaria,
                     Icon = Icon.Map,
-                    IconVariant = isStreet ? IconVariant.Filled : IconVariant.Regular
+                    IconVariant = isNormal ? IconVariant.Filled : IconVariant.Regular
                 };
-            }
-        }
-
-        private async void Map_InfoWindowClicked(object? sender, InfoWindowClickedEventArgs e)
-        {
-            if (e.Pin.Tag is Item item)
-            {
-                await Navigation.PushAsync(new DetalhesCampingPage(item));
             }
         }
     }

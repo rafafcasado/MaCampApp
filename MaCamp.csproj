@@ -30,12 +30,11 @@
 		<NoWarn>CS0618;NU1608;</NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
-	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	<PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='net9.0-android|AnyCPU'">
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android34.0|AnyCPU'">
-	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -47,6 +46,7 @@
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
+		<EmbeddedResource Include="Resources\Images\*" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -60,10 +60,6 @@
 		<AndroidResource Include="Platforms\Android\Resources\drawable\**\*.jpg" />
 		<AndroidResource Include="Platforms\Android\Resources\drawable\**\*.gif" />
 		<AndroidResource Include="Platforms\Android\Resources\drawable\**\*.xml" />
-	</ItemGroup>
-	
-	<ItemGroup>
-		<EmbeddedResource Include="Resources\Images\*" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -79,14 +75,19 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.60" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="9.0.60" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
-		<PackageReference Include="Onion.Maui.GoogleMaps" Version="6.2.0" />
-		<PackageReference Include="Onion.Maui.GoogleMaps.Clustering" Version="6.2.0" />
-		<PackageReference Include="Plugin.MauiMTAdmob" Version="2.0.0.5" />
+		<PackageReference Include="MPowerKit.GoogleMaps" Version="3.0.0" />
+		<PackageReference Include="Plugin.MauiMTAdmob" Version="2.0.1" />
 		<PackageReference Include="ReactiveUI" Version="20.2.45" />
 		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
 		<PackageReference Include="RGPopup.Maui" Version="1.1.2" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="System.Text.Json" Version="9.0.4" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+	  <PackageReference Include="GoogleMapsUtils.Android.Maui">
+	    <Version>1.0.2</Version>
+	  </PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>

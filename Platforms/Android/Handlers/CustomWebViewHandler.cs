@@ -1,4 +1,5 @@
-﻿using MaCamp.CustomControls;
+﻿using Android.Webkit;
+using MaCamp.CustomControls;
 using MaCamp.Platforms.Android.Extenders;
 using Microsoft.Maui.Handlers;
 using WebView = Android.Webkit.WebView;
@@ -60,6 +61,7 @@ namespace MaCamp.Platforms.Android.Handlers
             platformView.Settings.JavaScriptEnabled = true;
             platformView.Settings.SetGeolocationEnabled(true);
             platformView.Settings.JavaScriptCanOpenWindowsAutomatically = true;
+            platformView.Settings.MixedContentMode = MixedContentHandling.CompatibilityMode;
 
             platformView.SetWebViewClient(new ExtendedWebViewClient(this));
             platformView.SetWebChromeClient(new ExtendedWebChromeClient());

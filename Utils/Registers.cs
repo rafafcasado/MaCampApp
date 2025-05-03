@@ -24,7 +24,7 @@ namespace MaCamp.Utils
             {
                 var baseType = type.BaseType.GetGenericArguments().FirstOrDefault();
 
-                return viewType.BaseType == baseType || viewType.GetInterfaces().Any(x => baseType == x);
+                return viewType == baseType || viewType.BaseType == baseType || viewType.GetInterfaces().Any(x => baseType == x);
             }
 
             return false;

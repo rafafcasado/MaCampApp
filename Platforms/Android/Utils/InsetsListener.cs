@@ -12,14 +12,21 @@ namespace MaCamp.Platforms.Android.Utils
         public WindowInsets OnApplyWindowInsets(View view, WindowInsets insets)
         {
             var insetsCompat = WindowInsetsCompat.ToWindowInsetsCompat(insets, view);
-            var statusBarInsets = insetsCompat.GetInsets(WindowInsetsCompat.Type.StatusBars());
-            var navigationBarInsets = insetsCompat.GetInsets(WindowInsetsCompat.Type.NavigationBars());
 
-            view.SetPadding(0, statusBarInsets.Top, 0, navigationBarInsets.Bottom);
-
-            if (MainColor is Color color)
+            if (insetsCompat != null)
             {
-                view.SetBackgroundColor(color);
+                var statusBarInsets = insetsCompat.GetInsets(WindowInsetsCompat.Type.StatusBars());
+                var navigationBarInsets = insetsCompat.GetInsets(WindowInsetsCompat.Type.NavigationBars());
+
+                if (statusBarInsets != null && navigationBarInsets != null)
+                {
+                    view.SetPadding(0, statusBarInsets.Top, 0, navigationBarInsets.Bottom);
+                }
+
+                if (MainColor is Color color)
+                {
+                    view.SetBackgroundColor(color);
+                }
             }
 
             return insets;

@@ -7,8 +7,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using MaCamp.Models;
-using Maui.GoogleMaps;
-using Map = Maui.GoogleMaps.Map;
+using MPowerKit.GoogleMaps;
 
 namespace MaCamp.Utils
 {
@@ -65,7 +64,7 @@ namespace MaCamp.Utils
             }
         }
 
-        public static string GetHexadecimalValue(this Color color)
+        public static string ToHexadecimal(this Color color)
         {
             var red = Convert.ToInt32(color.Red * 255);
             var green = Convert.ToInt32(color.Green * 255);
@@ -89,60 +88,6 @@ namespace MaCamp.Utils
             }
 
             return value;
-        }
-
-        public static Position? GetCenterPosition(this IEnumerable<Position>? source)
-        {
-            var listPositions = source != null ? source.ToList() : new List<Position>();
-
-            if (listPositions.Any())
-            {
-                // Encontra os limites da lista de localizações
-                var minLatitude = listPositions.Min(x => x.Latitude);
-                var maxLatitude = listPositions.Max(x => x.Latitude);
-                var minLongitude = listPositions.Min(x => x.Longitude);
-                var maxLongitude = listPositions.Max(x => x.Longitude);
-
-                // Calcula o centro do mapa
-                var centerLatitude = (minLatitude + maxLatitude) / 2;
-                var centerLongitude = (minLongitude + maxLongitude) / 2;
-
-                return new Position(centerLatitude, centerLongitude);
-            }
-
-            return null;
-        }
-
-
-        public static void MoveMapToRegion(this Map map, List<Position>? listPositions)
-        {
-            if (listPositions == null || listPositions.Count == 0)
-            {
-                return;
-            }
-
-            // Encontra os limites da lista de localizações
-            var minLatitude = listPositions.Min(x => x.Latitude);
-            var maxLatitude = listPositions.Max(x => x.Latitude);
-            var minLongitude = listPositions.Min(x => x.Longitude);
-            var maxLongitude = listPositions.Max(x => x.Longitude);
-
-            // Calcula o centro do mapa
-            var centerLatitude = (minLatitude + maxLatitude) / 2;
-            var centerLongitude = (minLongitude + maxLongitude) / 2;
-
-            // Calcula a distância em graus para a visualização
-            var latitudeDegrees = maxLatitude - minLatitude;
-            var longitudeDegrees = maxLongitude - minLongitude;
-
-            // 1 grau = ~111 km
-            var distance = Distance.FromKilometers(Math.Max(latitudeDegrees, longitudeDegrees) * 111);
-
-            // Define um MapSpan com uma margem extra para a visualização
-            var region = MapSpan.FromCenterAndRadius(new Position(centerLatitude, centerLongitude), distance);
-
-            // Move o mapa para a região calculada
-            map.MoveToRegion(region);
         }
 
         public static Task ColorTo(this VisualElement self, Color fromColor, Color toColor, Action<Color> callback, uint duration)
@@ -221,21 +166,21 @@ namespace MaCamp.Utils
             return default;
         }
 
-        public static Position GetPosition(this Item? item)
+        public static Point GetPosition(this Item? item)
         {
             if (item != null && item.Latitude != null && item.Longitude != null)
             {
-                return new Position(item.Latitude.Value, item.Longitude.Value);
+                return new Point(item.Latitude.Value, item.Longitude.Value);
             }
 
             return default;
         }
 
-        public static Position GetPosition(this Location? location)
+        public static Point GetPosition(this Location? location)
         {
             if (location != null)
             {
-                return new Position(location.Latitude, location.Longitude);
+                return new Point(location.Latitude, location.Longitude);
             }
 
             return default;
@@ -301,14 +246,14 @@ namespace MaCamp.Utils
         /// <summary>
         /// Adiciona uma coleção de itens em lotes, de forma assíncrona, evitando travar a UI.
         /// </summary>
-        /// <typeparam name="TCollection">Tipo da coleção (deve implementar ICollection&lt;TItem&gt;)</typeparam>
-        /// <typeparam name="TItem">Tipo dos itens a serem adicionados</typeparam>
+        /// <typeparam name="T">Tipo da coleção (deve implementar ICollection&lt;TItem&gt;)</typeparam>
+        /// <typeparam name="TK">Tipo dos itens a serem adicionados</typeparam>
         /// <param name="collection">Coleção de destino</param>
         /// <param name="items">Itens a serem adicionados</param>
         /// <param name="batchSize">Tamanho do lote (padrão: 100)</param>
         /// <param name="delayMilliseconds">Tempo de espera entre lotes (padrão: 50ms)</param>
         /// <param name="cancellationToken">Token de cancelamento opcional</param>
-        public static async Task AddRangeAsync<TCollection, TItem>(this TCollection collection, IEnumerable<TItem> items, int batchSize = 100, int delayMilliseconds = 50, CancellationToken cancellationToken = default) where TCollection : ICollection<TItem>
+        public static async Task AddRangeAsync<T, TK>(this IList<TK> collection, IEnumerable<TK> items, int batchSize = 100, int delayMilliseconds = 50, CancellationToken cancellationToken = default)
         {
             var itemList = items.ToList();
 
@@ -337,76 +282,17 @@ namespace MaCamp.Utils
         /// <summary>
         /// Adiciona uma coleção de itens em lotes, de forma assíncrona, evitando travar a UI.
         /// </summary>
-        /// <typeparam name="TCollection">Tipo da coleção (deve implementar ICollection&lt;TItem&gt;)</typeparam>
-        /// <typeparam name="TItem">Tipo dos itens a serem adicionados</typeparam>
+        /// <typeparam name="T">Tipo da coleção (deve implementar ICollection&lt;TItem&gt;)</typeparam>
+        /// <typeparam name="TK">Tipo dos itens a serem adicionados</typeparam>
         /// <param name="collection">Coleção de destino</param>
         /// <param name="items">Itens a serem adicionados</param>
         /// <param name="cancellationToken">Token de cancelamento opcional</param>
-        public static async Task AddRangeAsync<TCollection, TItem>(this TCollection collection, IEnumerable<TItem> items, CancellationToken cancellationToken = default) where TCollection : ICollection<TItem>
+        public static async Task AddRangeAsync<T, TK>(this IList<TK> collection, IEnumerable<TK> items, CancellationToken cancellationToken = default)
         {
             var batchSize = Environment.ProcessorCount * 100;
             var delayMilliseconds = AppConstants.Delay / Environment.ProcessorCount;
 
-            await AddRangeAsync(collection, items, batchSize, delayMilliseconds, cancellationToken);
-        }
-
-        public static bool Contains(this Bounds bounds, double latitude, double longitude)
-        {
-            return latitude >= bounds.SouthWest.Latitude && latitude <= bounds.NorthEast.Latitude && longitude >= bounds.SouthWest.Longitude && longitude <= bounds.NorthEast.Longitude;
-        }
-
-        public static bool Contains(this MapRegion? region, Position position)
-        {
-            if (region != null)
-            {
-                var minLat = Math.Min(region.FarLeft.Latitude, region.NearLeft.Latitude);
-                var maxLat = Math.Max(region.FarRight.Latitude, region.NearRight.Latitude);
-                var minLon = Math.Min(region.FarLeft.Longitude, region.FarRight.Longitude);
-                var maxLon = Math.Max(region.NearLeft.Longitude, region.NearRight.Longitude);
-                var latitude = position.Latitude >= minLat && position.Latitude <= maxLat;
-                var longitude = position.Longitude >= minLon && position.Longitude <= maxLon;
-
-                return latitude && longitude;
-            }
-
-            return false;
-        }
-
-        public static bool Contains(this CameraPosition? camera, Position position, double visibleRadiusKm = 10)
-        {
-            if (camera != null)
-            {
-                // Distância entre centro da câmera e o ponto
-                var distance = Location.CalculateDistance(camera.Target.Latitude, camera.Target.Longitude, position.Latitude, position.Longitude, DistanceUnits.Kilometers);
-                // Zoom influencia o quão perto/far está visível
-                // Aproximação: cada nível de zoom dobra ou divide o raio.
-                // Zoom 15 → ~1km, Zoom 10 → ~10km
-                var effectiveRadiusKm = Math.Pow(2, 21 - camera.Zoom) * 0.001;
-
-                return distance <= (effectiveRadiusKm * visibleRadiusKm);
-            }
-
-            return false;
-        }
-
-        public static Bounds? ToBounds(this IEnumerable<Position>? source)
-        {
-            if (source != null)
-            {
-                var positions = source.ToList();
-
-                if (positions.Any())
-                {
-                    var minLat = positions.Min(p => p.Latitude);
-                    var minLng = positions.Min(p => p.Longitude);
-                    var maxLat = positions.Max(p => p.Latitude);
-                    var maxLng = positions.Max(p => p.Longitude);
-
-                    return new Bounds(new Position(minLat, minLng), new Position(maxLat, maxLng));
-                }
-            }
-
-            return null;
+            await AddRangeAsync<T, TK>(collection, items, batchSize, delayMilliseconds, cancellationToken);
         }
 
         public static double? GetDistanceKilometersFromUser(this Item? item)
@@ -415,7 +301,7 @@ namespace MaCamp.Utils
             {
                 var itemPosition = item.GetPosition();
                 var userPosition = App.LOCALIZACAO_USUARIO.GetPosition();
-                var distanceKilometers = Location.CalculateDistance(itemPosition.Latitude, itemPosition.Longitude, userPosition.Latitude, userPosition.Longitude, DistanceUnits.Kilometers);
+                var distanceKilometers = Location.CalculateDistance(itemPosition.X, itemPosition.Y, userPosition.X, userPosition.Y, DistanceUnits.Kilometers);
 
                 return distanceKilometers;
             }
@@ -425,7 +311,7 @@ namespace MaCamp.Utils
 
         public static string ToGeoJson(this IEnumerable<Pin> source)
         {
-            var features = source.Select(pin => new
+            var listFeatures = source.Select(pin => new
             {
                 type = "Feature",
                 geometry = new
@@ -433,21 +319,22 @@ namespace MaCamp.Utils
                     type = "Point",
                     coordinates = new[]
                     {
-                        pin.Position.Longitude,
-                        pin.Position.Latitude
+                        pin.Position.Y,
+                        pin.Position.X
                     }
                 },
                 properties = new
                 {
-                    title = pin.Label,
-                    snippet = pin.Address,
-                    icon = pin.NativeObject
+                    id = pin.ClassId,
+                    title = pin.Title,
+                    snippet = pin.Snippet,
+                    icon = pin.Icon.GetResourceValue()
                 }
-            });
+            }).ToList();
             var geoJson = new
             {
                 type = "FeatureCollection",
-                features
+                features = listFeatures
             };
             var options = new JsonSerializerOptions
             {
@@ -523,6 +410,61 @@ namespace MaCamp.Utils
             }
 
             return Array.Empty<byte>();
+        }
+
+        /// <summary>
+        /// Gera um CameraUpdate que centraliza e dá zoom de forma a exibir todos os pins.
+        /// Se não houver pins, usa a posição do usuário.
+        /// </summary>
+        /// <param name="pins">Coleção de pins (cada pin.Position.X=latitude, Y=longitude).</param>
+        /// <param name="userPosition">
+        /// Posição fallback caso não haja pins (Latitude/Longitude).
+        /// </param>
+        public static CameraUpdate ToCameraUpdate(this List<Pin>? pins, Location? userPosition = null)
+        {
+            var positions = new List<Point>();
+
+            if (pins != null && pins.Any())
+            {
+                positions.AddRange(pins.Select(p => p.Position));
+            }
+            else if (userPosition != null)
+            {
+                positions.Add(new Point(userPosition.Latitude, userPosition.Longitude));
+            }
+            else
+            {
+                // Se a localização do usuário não estiver disponível, use uma posição padrão (São Paulo)
+                positions.Add(new Point(-23.550520, -46.633308));
+            }
+
+            var minLat = positions.Min(p => p.X);
+            var maxLat = positions.Max(p => p.X);
+            var minLon = positions.Min(p => p.Y);
+            var maxLon = positions.Max(p => p.Y);
+
+            var centerLat = (minLat + maxLat) / 2;
+            var centerLon = (minLon + maxLon) / 2;
+            var center = new Point(centerLat, centerLon);
+
+            var maxDistMeters = positions.Max(p =>
+            {
+                var distKm = Location.CalculateDistance(centerLat, centerLon, p.X, p.Y, DistanceUnits.Kilometers);
+
+                return distKm * 1000;
+            });
+
+            return CameraUpdateFactory.FromCenterAndRadius(center, maxDistMeters * 0.85);
+        }
+
+        public static string GetResourceValue(this ImageSource source)
+        {
+            if (source is ResourceImageSource namedStreamImageSource)
+            {
+                return namedStreamImageSource.Value;
+            }
+
+            throw new InvalidOperationException("O ImageSource não é um ResourceImageSource.");
         }
     }
 }

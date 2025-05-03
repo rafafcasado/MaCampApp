@@ -34,7 +34,7 @@ namespace MaCamp.Views.Campings
             {
                 DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
 
-                cvContent.Content = new ListagemCampingsView(string.Empty);
+                cvContent.Content = new ListagemCampingsView();
             });
 
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados);
@@ -60,7 +60,7 @@ namespace MaCamp.Views.Campings
 
             if (buscaInicialRealizada != null)
             {
-                cvContent.Content = new ListagemCampingsView(string.Empty);
+                cvContent.Content = new ListagemCampingsView();
             }
             else
             {

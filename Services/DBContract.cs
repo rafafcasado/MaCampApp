@@ -182,7 +182,7 @@ namespace MaCamp.Services
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex, false);
 
                 if (SqlConnection != null)
                 {
@@ -251,7 +251,7 @@ namespace MaCamp.Services
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex, false);
             }
 
             return false;

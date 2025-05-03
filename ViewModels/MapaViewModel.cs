@@ -1,9 +1,7 @@
-﻿using MaCamp.CustomControls;
-using MaCamp.Models;
+﻿using MaCamp.Models;
 using MaCamp.Services;
 using MaCamp.Utils;
-using Maui.GoogleMaps;
-using Maui.GoogleMaps.Clustering;
+using MPowerKit.GoogleMaps;
 using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.ViewModels
@@ -17,9 +15,9 @@ namespace MaCamp.ViewModels
         private List<Pin> ListaPins { get; set; }
         private CancellationTokenSource CancellationTokenSource { get; set; }
         private List<string> ListaIdentificadoresPermitidos { get; }
-        private EventHandler<InfoWindowClickedEventArgs> ClusteredMap_InfoWindowClicked { get; }
+        private Action<Pin> Map_InfoWindowClick { get; }
 
-        public MapaViewModel(EventHandler<InfoWindowClickedEventArgs> clusteredMap_InfoWindowClicked)
+        public MapaViewModel(Action<Pin> map_InfoWindowClick)
         {
             CancellationTokenSource = new CancellationTokenSource();
             ListaIdentificadoresPermitidos = new List<string>
@@ -34,7 +32,7 @@ namespace MaCamp.ViewModels
                 "semfuncaocampingapoiooufechado",
                 "campingemfuncionamento"
             };
-            ClusteredMap_InfoWindowClicked = clusteredMap_InfoWindowClicked;
+            Map_InfoWindowClick = map_InfoWindowClick;
             ListaPins = new List<Pin>();
             Itens = new List<Item>();
         }
@@ -50,22 +48,20 @@ namespace MaCamp.ViewModels
             {
                 //await Workaround.TaskWorkAsync(async () => await CarregarItensAsync(cancellationToken), cancellationToken);
 
-                Content = new CustomWebView
+                Content = new WebView
                 {
                     Source = $"{AppConstants.Url_WebViewMapa}?lat={App.LOCALIZACAO_USUARIO?.Latitude}&long={App.LOCALIZACAO_USUARIO?.Longitude}"
                 };
             }
             else
             {
-                var position = PegarPosicaoInicial();
                 var listaItensFiltrados = Itens.Where(x => x.IsValidLocation()).ToList();
                 var listaItensFiltradosOrdenados = listaItensFiltrados.OrderBy(x => x.GetDistanceKilometersFromUser() ?? double.MaxValue).ToList();
 
                 ListaPins = await Workaround.TaskWorkAsync(() => CriarListaPins(listaItensFiltradosOrdenados), new List<Pin>(), CancellationTokenSource.Token);
 
-                await Workaround.TaskUIAsync(() => CarregarMapa(position));
+                await Workaround.TaskUIAsync(() => CarregarMapa());
             }
-
         }
 
         public void Cancel()
@@ -89,41 +85,31 @@ namespace MaCamp.ViewModels
             }
         }
 
-        private Position PegarPosicaoInicial()
+        private void CarregarMapa()
         {
-            var chave = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
-
-            if (!string.IsNullOrEmpty(chave))
-            {
-                var centerPosition = ListaPins.Select(x => x.Position).GetCenterPosition();
-
-                if (centerPosition is Position position)
-                {
-                    return position;
-                }
-            }
-
-            if (App.LOCALIZACAO_USUARIO != null)
-            {
-                return App.LOCALIZACAO_USUARIO.GetPosition();
-            }
-
-            // Se a localização do usuário não estiver disponível, use uma posição padrão (São Paulo)
-            return new Position(-23.550520, -46.633308);
-        }
-
-        private void CarregarMapa(Position position)
-        {
-            var bounds = ListaPins.Select(x => x.Position).ToBounds();
-            var cameraUpdate = bounds != null ? CameraUpdateFactory.NewBounds(bounds, 25) : CameraUpdateFactory.NewPosition(position);
-            var map = new ClusteredMap
+            var cameraUpdate = ListaPins.ToCameraUpdate(App.LOCALIZACAO_USUARIO);
+            var map = new GoogleMap
             {
                 MyLocationEnabled = true,
-                InitialCameraUpdate = cameraUpdate,
+                MyLocationButtonEnabled = true,
+                ZoomControlsEnabled = true,
+                CompassEnabled = true,
+                MapToolbarEnabled = true,
+                BuildingsEnabled = true,
+                IndoorEnabled = true,
+                IndoorLevelPickerEnabled = true,
+                RotateGesturesEnabled = true,
+                ScrollGesturesEnabled = true,
+                TiltGesturesEnabled = true,
+                ZoomGesturesEnabled = true,
+                MapType = MapType.Normal,
+                InitialCameraPosition = cameraUpdate,
                 GeoJson = ListaPins.ToGeoJson()
             };
 
-            map.InfoWindowClicked += ClusteredMap_InfoWindowClicked;
+            map.InfoWindowClick += Map_InfoWindowClick;
+
+            //map.Pins = ListaPins;
 
             Content = map;
         }
@@ -142,11 +128,10 @@ namespace MaCamp.ViewModels
                     var imagem = "pointer_" + identificador.Replace("`", string.Empty).Replace("çã", "ca").Replace("/", string.Empty).ToLower() + "_small.png";
                     var pin = new Pin
                     {
-                        Label = item.Nome,
-                        Address = item.EnderecoCompleto,
+                        Title = item.Nome,
+                        Snippet = item.EnderecoCompleto,
                         Position = item.GetPosition(),
-                        Tag = item,
-                        NativeObject = imagem
+                        Icon = ResourceImageSource.From(imagem)
                     };
 
                     listaPins.Add(pin);

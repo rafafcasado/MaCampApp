@@ -49,7 +49,7 @@ namespace MaCamp.Platforms.Android.Services
             var id = new Random().Next();
             var notification = BuildNotification(data);
 
-            if (NotificationManager != null)
+            if (notification != null && NotificationManager != null)
             {
                 NotificationManager.Notify(id, notification);
             }
@@ -61,7 +61,7 @@ namespace MaCamp.Platforms.Android.Services
         {
             var notification = BuildNotification(data);
 
-            if (NotificationManager != null)
+            if (notification != null && NotificationManager != null)
             {
                 var listNotifications = NotificationManager.GetActiveNotifications();
 
@@ -80,7 +80,7 @@ namespace MaCamp.Platforms.Android.Services
             }
         }
 
-        private Notification BuildNotification(NotificationData data)
+        private Notification? BuildNotification(NotificationData data)
         {
             var builder = new NotificationCompat.Builder(Context, AppConstants.NotificationManager_ChannelId);
 

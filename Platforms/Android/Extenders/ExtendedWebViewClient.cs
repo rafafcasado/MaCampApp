@@ -55,8 +55,8 @@ namespace MaCamp.Platforms.Android.Extenders
                 Workaround.TaskUI(async () => await Launcher.OpenAsync(url));
             }
 
-            // Interrompe o carregamento no WebView
-            return true;
+            // retornar 'true' interrompe o carregamento no WebView
+            return false;
         }
     }
 }

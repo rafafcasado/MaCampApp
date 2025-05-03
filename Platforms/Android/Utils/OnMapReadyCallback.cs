@@ -1,96 +1,95 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
+using MaCamp.Platforms.Android.Handlers;
 using MaCamp.Utils;
-using Maui.GoogleMaps;
-using Maui.GoogleMaps.Clustering;
-using BitmapDescriptor = Android.Gms.Maps.Model.BitmapDescriptor;
-using Map = Maui.GoogleMaps.Map;
+using Org.Json;
 
 namespace MaCamp.Platforms.Android.Utils
 {
-    public class OnMapReadyCallback : Java.Lang.Object, IOnMapReadyCallback, GoogleMap.IOnInfoWindowClickListener
+    public class OnMapReadyCallback : Java.Lang.Object, IOnMapReadyCallback
     {
-        private ClusteredMap? ClusteredMap { get; }
+        private CustomGoogleMapsMapHandler MapHandler { get; }
         private Dictionary<string, BitmapDescriptor> DictionaryImages { get; }
 
-        public OnMapReadyCallback(Map map)
+        public OnMapReadyCallback(CustomGoogleMapsMapHandler mapHandler)
         {
             var assembly = typeof(OnMapReadyCallback).Assembly;
             var listResourceNames = assembly.GetManifestResourceNames();
 
+            MapHandler = mapHandler;
             DictionaryImages = listResourceNames.Where(x => x.EndsWith("_small.png")).ToDictionary(x => Regex.Replace(x, @"^.*(?=\bpointer_)", string.Empty), x => assembly.GetManifestResourceBitmapDescriptor(x));
-
-            if (map is ClusteredMap clusteredMap)
-            {
-                ClusteredMap = clusteredMap;
-            }
         }
 
-        public void OnMapReady(GoogleMap googleMap)
+        public void OnMapReady(GoogleMap nativeMap)
         {
-            if (ClusteredMap != null)
+            var json = MapHandler.VirtualView.GeoJson;
+
+            if (!string.IsNullOrEmpty(json))
             {
-                googleMap.SetOnInfoWindowClickListener(this);
-
-                if (!string.IsNullOrEmpty(ClusteredMap.GeoJson))
+                try
                 {
-                    var geoJson = JsonNode.Parse(ClusteredMap.GeoJson);
+                    var geojson = new JSONObject(json);
+                    var listFeatures = geojson.ToList("features");
 
-                    if (geoJson.TryGetValue<JsonArray>("features", out var features))
+                    foreach (var feature in listFeatures)
                     {
-                        Parallel.ForEach(features, async feature =>
+                        var markerOpts = new MarkerOptions();
+                        var properties = feature.GetJSONObject("properties");
+                        var geometry = feature.GetJSONObject("geometry");
+
+                        if (properties.TryGetValue<string>("title", out var title))
                         {
-                            if (feature.TryGetValue<JsonNode>("geometry", out var geometry) && geometry.TryGetValue<string>("type", out var type) && type == "Point" && feature.TryGetValue<JsonNode>("properties", out var properties))
-                            {
-                                if (geometry.TryGetValue<JsonArray>("coordinates", out var coordinates) && coordinates.Count == 2)
-                                {
-                                    if (coordinates.TryGetValue<double>(0, out var longitude) && coordinates.TryGetValue<double>(1, out var latitude) && properties.TryGetValue<string>("title", out var title) && properties.TryGetValue<string>("snippet", out var snippet) && properties.TryGetValue<string>("icon", out var icon))
-                                    {
-                                        try
-                                        {
-                                            var markerOptions = new MarkerOptions();
+                            markerOpts.SetTitle(title);
+                        }
+                        if (properties.TryGetValue<string>("snippet", out var snippet))
+                        {
+                            markerOpts.SetSnippet(snippet);
+                        }
+                        if (properties.TryGetValue<string>("icon", out var icon) && DictionaryImages.TryGetValue<string, BitmapDescriptor>(icon, out var bitmapDescriptor))
+                        {
+                            markerOpts.SetIcon(bitmapDescriptor);
+                        }
+                        if (geometry.TryGetValue<(double, double)>("coordinates", out var coordinates))
+                        {
+                            var (lat, lon) = coordinates;
 
-                                            markerOptions.SetPosition(new LatLng(latitude, longitude));
-                                            markerOptions.SetTitle(title);
-                                            markerOptions.SetSnippet(snippet);
-
-                                            if (DictionaryImages.TryGetValue<string, BitmapDescriptor>(icon, out var bitmapDescriptor))
-                                            {
-                                                markerOptions.SetIcon(bitmapDescriptor);
-                                            }
-
-                                            await MainThread.InvokeOnMainThreadAsync(() =>
-                                            {
-                                                googleMap.AddMarker(markerOptions);
-                                            });
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Workaround.ShowExceptionOnlyDevolpmentMode(nameof(OnMapReady), nameof(OnMapReady), ex);
-                                        }
-                                    }
-                                }
-                            }
-                        });
+                            markerOpts.SetPosition(new LatLng(lat, lon));
+                        }
                     }
+
+                    nativeMap.SetOnInfoWindowClickListener(new CustomInfoWindowClickListener(MapHandler));
+                }
+                catch (Exception ex)
+                {
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(OnMapReadyCallback), nameof(OnMapReady), ex);
                 }
             }
+        }
+    }
+
+    public class CustomInfoWindowClickListener : Java.Lang.Object, GoogleMap.IOnInfoWindowClickListener
+    {
+        private CustomGoogleMapsMapHandler MapHandler { get; }
+        private MethodInfo? OnInfoWindowClickMethod { get; }
+
+        public CustomInfoWindowClickListener(CustomGoogleMapsMapHandler mapHandler)
+        {
+            MapHandler = mapHandler;
+            OnInfoWindowClickMethod = typeof(MPowerKit.GoogleMaps.GoogleMap).GetMethod("SendInfoWindowClick");
         }
 
         public void OnInfoWindowClick(Marker marker)
         {
-            if (ClusteredMap != null)
-            {
-                var pin = new Pin
-                {
-                    Label = marker.Title,
-                    Address = marker.Snippet,
-                    Position = new Position(marker.Position.Latitude, marker.Position.Longitude)
-                };
+            var pin = MapHandler.VirtualView.Pins.FirstOrDefault(p => marker.Tag?.ToString() is string tag && p.ClassId == tag);
 
-                ClusteredMap.SendInfoWindowClicked(pin);
+            if (OnInfoWindowClickMethod != null && MapHandler.VirtualView is MPowerKit.GoogleMaps.GoogleMap googleMap)
+            {
+                OnInfoWindowClickMethod.Invoke(googleMap, new object[]
+                {
+                    pin
+                });
             }
         }
     }

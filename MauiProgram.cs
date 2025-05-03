@@ -6,10 +6,8 @@ using MaCamp.CustomControls;
 using MaCamp.Dependencias;
 using MaCamp.Dependencias.Permissions;
 using MaCamp.Utils;
-using Maui.GoogleMaps.Clustering;
-using Maui.GoogleMaps.Clustering.Hosting;
-using Maui.GoogleMaps.Hosting;
 using Microsoft.Extensions.Logging;
+using MPowerKit.GoogleMaps;
 using Plugin.MauiMTAdmob;
 using RGPopup.Maui.Extensions;
 
@@ -25,8 +23,7 @@ namespace MaCamp
             builder.UseMauiMTAdmob();
             builder.UseMauiApp<App>();
             builder.UseFFImageLoading();
-            builder.UseGoogleMaps(null);
-            builder.UseGoogleMapsClustering();
+            builder.UseMPowerKitGoogleMaps();
             builder.UseMauiCommunityToolkit();
             builder.UseMauiRGPopup(config =>
             {
@@ -44,7 +41,7 @@ namespace MaCamp
             {
                 collection.AddPlatformHandler<AdMobBannerView>();
                 collection.AddPlatformHandler<AdmobRectangleBannerView>();
-                collection.AddPlatformHandler<ClusteredMap>();
+                collection.AddPlatformHandler<GoogleMap>();
                 collection.AddPlatformHandler<CustomWebView>();
                 collection.AddPlatformHandler<IconView>();
             });

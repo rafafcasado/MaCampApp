@@ -27,7 +27,7 @@ namespace MaCamp.Views.Campings
         private int IdUltimoItemExibido { get; set; }
         private bool ViewFiltroAberta { get; set; }
 
-        public ListagemCampingsView()
+        public ListagemCampingsView(string? endpointListagem = null, string? tag = null, string? parametrosBusca = null)
         {
             InitializeComponent();
 
@@ -35,24 +35,7 @@ namespace MaCamp.Views.Campings
 
             ViewModel = new ListagemInfinitaViewModel();
             IdsQueJaChamaramPaginacao = new List<int>();
-            EndpointListagem = string.Empty;
-            ViewFiltroAberta = true;
-            Tag = null;
-            ParametrosBusca = null;
-            cvItens.ItemTemplate = new ItemDataTemplateSelector();
-
-            FirstAppeared += ListagemCampingsView_FirstAppeared;
-        }
-
-        public ListagemCampingsView(string endpointListagem, string? tag = null, string? parametrosBusca = null)
-        {
-            InitializeComponent();
-
-            NavigationPage.SetBackButtonTitle(this, string.Empty);
-
-            ViewModel = new ListagemInfinitaViewModel();
-            IdsQueJaChamaramPaginacao = new List<int>();
-            EndpointListagem = endpointListagem;
+            EndpointListagem = endpointListagem ?? string.Empty;
             ViewFiltroAberta = true;
             Tag = tag;
             ParametrosBusca = parametrosBusca;
@@ -97,6 +80,11 @@ namespace MaCamp.Views.Campings
                 CampingServices.BaixarCampingsAsync(false, progressoVisual),
                 CarregarConteudoAsync(progressoVisual)
             );
+
+            //if (System.Diagnostics.Debugger.IsAttached)
+            //{
+            //    VerNoMapa(null, EventArgs.Empty);
+            //}
         }
 
         private async void Handle_Scrolled(object sender, ItemsViewScrolledEventArgs e)
@@ -309,7 +297,7 @@ namespace MaCamp.Views.Campings
             await Navigation.PushPopupAsync(new FormBuscaPopupPage());
         }
 
-        private async void VerNoMapa(object sender, EventArgs e)
+        private async void VerNoMapa(object? sender, EventArgs e)
         {
             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
             {

@@ -30,7 +30,7 @@ namespace MaCamp.Utils
             return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         }
 
-        public static void ShowExceptionOnlyDevolpmentMode(string className, string methodName, Exception? exception)
+        public static void ShowExceptionOnlyDevolpmentMode(string className, string methodName, Exception? exception, bool showPopup = true)
         {
             var message = $"{className}_{methodName}\n\n{exception?.Message}";
 
@@ -38,7 +38,7 @@ namespace MaCamp.Utils
             Debug.WriteLine(message);
             Debug.WriteLine(exception?.StackTrace);
 
-            if (Debugger.IsAttached)
+            if (showPopup && Debugger.IsAttached)
             {
                 AppConstants.CurrentPage.Dispatcher.Dispatch(async () =>
                 {
