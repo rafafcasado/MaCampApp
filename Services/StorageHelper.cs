@@ -15,7 +15,7 @@ namespace MaCamp.Services
 
         static StorageHelper()
         {
-            FilePath = AppConstants.Path;
+            FilePath = App.PATH;
             JsonSerializerOptions = new JsonSerializerOptions
             {
                 WriteIndented = true

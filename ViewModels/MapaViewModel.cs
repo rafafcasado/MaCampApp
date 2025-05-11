@@ -1,4 +1,5 @@
-﻿using MaCamp.Models;
+﻿using System.Globalization;
+using MaCamp.Models;
 using MaCamp.Services;
 using MaCamp.Utils;
 using MPowerKit.GoogleMaps;
@@ -39,18 +40,18 @@ namespace MaCamp.ViewModels
 
         public async Task CarregarAsync(CancellationToken cancellationToken = default)
         {
-            if (App.LOCALIZACAO_USUARIO == null)
-            {
-                App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Mapa);
-            }
+            App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Mapa, true, cancellationToken);
 
             if (!Itens.Any())
             {
                 //await Workaround.TaskWorkAsync(async () => await CarregarItensAsync(cancellationToken), cancellationToken);
 
+                var latitude = Convert.ToString(App.LOCALIZACAO_USUARIO?.Latitude ?? 0, CultureInfo.InvariantCulture).Replace(",", ".");
+                var longitude = Convert.ToString(App.LOCALIZACAO_USUARIO?.Longitude ?? 0, CultureInfo.InvariantCulture).Replace(",", ".");
+
                 Content = new WebView
                 {
-                    Source = $"{AppConstants.Url_WebViewMapa}?lat={App.LOCALIZACAO_USUARIO?.Latitude}&long={App.LOCALIZACAO_USUARIO?.Longitude}"
+                    Source = $"{AppConstants.Url_WebViewMapa}?lat={latitude}&long={longitude}"
                 };
             }
             else

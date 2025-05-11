@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Utils
 {
@@ -104,6 +105,12 @@ namespace MaCamp.Utils
         public static string Mensagem_Localizacao_Mapa => "A localização será necessária para exibir o mapa";
         public static string Mensagem_Localizacao_Busca => "A localização será necessária para buscar os campings";
         public static string Mensagem_Localizacao_Camping => "Forneça a localização para visualizar a distância entre você e os campings";
+
+        // Debug
+        public static List<TipoDepuracao> ListaDepuracao => new List<TipoDepuracao>
+        {
+            TipoDepuracao.Nenhum
+        };
 
         static AppConstants()
         {

@@ -81,10 +81,10 @@ namespace MaCamp.Views.Campings
                 CarregarConteudoAsync(progressoVisual)
             );
 
-            //if (System.Diagnostics.Debugger.IsAttached)
-            //{
-            //    VerNoMapa(null, EventArgs.Empty);
-            //}
+            if (AppConstants.ListaDepuracao.Contains(TipoDepuracao.CarregamentoMapa))
+            {
+                VerNoMapa(null, EventArgs.Empty);
+            }
         }
 
         private async void Handle_Scrolled(object sender, ItemsViewScrolledEventArgs e)

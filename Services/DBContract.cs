@@ -44,7 +44,7 @@ namespace MaCamp.Services
         {
             try
             {
-                var path = Path.Combine(AppConstants.Path, filename);
+                var path = Path.Combine(App.PATH, filename);
                 var connection = new SQLiteConnection(path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
 
                 connection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
@@ -63,7 +63,7 @@ namespace MaCamp.Services
         {
             try
             {
-                var path = Path.Combine(AppConstants.Path, filename);
+                var path = Path.Combine(App.PATH, filename);
                 var connection = new SQLiteConnection(path);
                 var result = connection.ExecuteScalar<string>("PRAGMA integrity_check;");
 
@@ -81,9 +81,9 @@ namespace MaCamp.Services
 
         private static bool Update(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
         {
-            var backupDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteBackupFilename);
-            var currentDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteFilename);
-            var temporaryDatabasePath = Path.Combine(AppConstants.Path, AppConstants.SqliteTemporaryFilename);
+            var backupDatabasePath = Path.Combine(App.PATH, AppConstants.SqliteBackupFilename);
+            var currentDatabasePath = Path.Combine(App.PATH, AppConstants.SqliteFilename);
+            var temporaryDatabasePath = Path.Combine(App.PATH, AppConstants.SqliteTemporaryFilename);
 
             ProgressoVisual.AumentarTotal(progressoVisual, 8 + dataDictionary.Count);
 

@@ -44,7 +44,7 @@ namespace MaCamp.Views.Listagens
 
             NavigationPage.SetBackButtonTitle(this, AppLanguage.Texto_Voltar);
 
-            if (/*System.Diagnostics.Debugger.IsAttached ||*/ tipoListagem == TipoListagem.Camping)
+            if (AppConstants.ListaDepuracao.Contains(TipoDepuracao.ListagemCampings) || tipoListagem == TipoListagem.Camping)
             {
                 cvListagemItens.Content = new ListagemCampingsView(endpoint);
 

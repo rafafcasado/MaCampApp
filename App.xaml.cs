@@ -11,6 +11,7 @@ namespace MaCamp
 {
     public partial class App : Application
     {
+        public static string PATH { get; set; }
         public static int SCREEN_HEIGHT;
         public static int SCREEN_WIDTH;
         public static Location? LOCALIZACAO_USUARIO { get; set; }
@@ -50,6 +51,10 @@ namespace MaCamp
 
                 if (storagePermissionResult)
                 {
+                    var path = storagePermissionService.GetExternalStorageDirectory();
+
+                    PATH = Path.Combine(path, AppConstants.NomeApp);
+
                     DBContract.Initialize();
 
                     return new RootPage();

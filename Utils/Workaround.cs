@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using MaCamp.Dependencias.Permissions;
+using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Utils
 {
@@ -9,22 +10,22 @@ namespace MaCamp.Utils
         {
             if (DeviceInfo.Platform == DevicePlatform.Android)
             {
-                return Path.Combine("/storage/emulated/0/Documents", "MaCamp");
+                return Path.Combine("/storage/emulated/0/Documents", AppConstants.NomeApp);
             }
 
             if (DeviceInfo.Platform == DevicePlatform.iOS)
             {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "..", "Library", "MaCamp");
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "..", "Library", AppConstants.NomeApp);
             }
 
             if (DeviceInfo.Platform == DevicePlatform.WinUI)
             {
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "MaCamp");
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), AppConstants.NomeApp);
             }
 
             if (DeviceInfo.Platform == DevicePlatform.macOS)
             {
-                return Path.Combine("Users/Shared/MaCamp");
+                return Path.Combine("Users/Shared", AppConstants.NomeApp);
             }
 
             return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -190,7 +191,31 @@ namespace MaCamp.Utils
             });
         }
 
-        public static async Task<Location?> GetLocationAsync(string message, bool openSettings = true)
+        public static async Task<T> TaskUIAsync<T>(Func<Task<T>> predicate, T defaultValue, CancellationToken cancellationToken = default)
+        {
+            return await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        return await predicate();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Execução cancelada, ignorar erro
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowExceptionOnlyDevolpmentMode(nameof(Workaround), nameof(TaskUIAsync), ex);
+                    }
+                }
+
+                return defaultValue;
+            });
+        }
+
+        public static async Task<Location?> GetLocationAsync(string message, bool openSettings = true, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -202,25 +227,36 @@ namespace MaCamp.Utils
                 {
                     if (locationIsEnabled)
                     {
-                        var lastLocation = await Geolocation.GetLastKnownLocationAsync();
-
-                        if (lastLocation != null)
+                        var geolocationRequest = new GeolocationRequest
                         {
-                            return lastLocation;
+                            DesiredAccuracy = GeolocationAccuracy.Best,
+                            RequestFullAccuracy = true
+                        };
+                        var response = await Geolocation.GetLocationAsync(geolocationRequest, cancellationToken);
+
+                        if (AppConstants.ListaDepuracao.Contains(TipoDepuracao.VisualizarGeolocalizacao))
+                        {
+                            var content = response.ToDictionary().ToString(": ", "\n");
+                            var isCopy = await TaskUIAsync(async () => await AppConstants.CurrentPage.DisplayAlert("Localização", content, "Copiar", "Fechar"), false, cancellationToken);
+
+                            if (isCopy)
+                            {
+                                await Clipboard.SetTextAsync(content);
+                            }
                         }
 
-                        return await Geolocation.GetLocationAsync();
+                        return response;
                     }
 
                     if (openSettings)
                     {
-                        var response = await AppConstants.CurrentPage.DisplayAlert("Localização", AppConstants.Mensagem_Localizacao_Camping, "Habilitar", "Cancelar");
+                        var response = await TaskUIAsync(async () => await AppConstants.CurrentPage.DisplayAlert("Localização", AppConstants.Mensagem_Localizacao_Camping, "Habilitar", "Cancelar"), false, cancellationToken);
 
                         if (response)
                         {
                             await locationService.OpenSettingsAsync();
 
-                            return await GetLocationAsync(message, false);
+                            return await GetLocationAsync(message, false, cancellationToken);
                         }
                     }
                 }

@@ -27,6 +27,33 @@ namespace MaCamp.Utils
             return new Dictionary<string, string>();
         }
 
+        public static string ToString(this Dictionary<string, string>? dictionary, string keyValueSeparator, string pairSeparator)
+        {
+            if (dictionary != null && dictionary.Count != 0)
+            {
+                var first = true;
+                var stringBuilder = new StringBuilder();
+
+                foreach (var keyValuePair in dictionary)
+                {
+                    if (!first)
+                    {
+                        stringBuilder.Append(pairSeparator);
+                    }
+
+                    first = false;
+
+                    stringBuilder.Append(keyValuePair.Key);
+                    stringBuilder.Append(keyValueSeparator);
+                    stringBuilder.Append(keyValuePair.Value);
+                }
+
+                return stringBuilder.ToString();
+            }
+
+            return string.Empty;
+        }
+
         public static void ForEach<T>(this IEnumerable<T>? source, Action<T>? action)
         {
             if (source != null && action != null)

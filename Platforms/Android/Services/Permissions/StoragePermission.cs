@@ -17,6 +17,18 @@ namespace MaCamp.Platforms.Android.Services.Permissions
             TaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
+        public string GetExternalStorageDirectory()
+        {
+            var file = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDocuments);
+
+            if (file != null)
+            {
+                return file.AbsolutePath;
+            }
+
+            return "/storage/emulated/0/Documents";
+        }
+
         public async Task<bool> CheckAsync()
         {
             // Somente necessário no Android 11+

@@ -81,5 +81,13 @@
             Masonary,
             Carousel
         }
+
+        public enum TipoDepuracao
+        {
+            Nenhum,
+            ListagemCampings,
+            CarregamentoMapa,
+            VisualizarGeolocalizacao
+        }
     }
 }

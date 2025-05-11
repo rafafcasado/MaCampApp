@@ -38,5 +38,8 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Este aplicativo precisa salvar arquivos no armazenamento.</string>
 
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<string>Este aplicativo precisa da geolocalização para o mapa.</string>
+
 </dict>
 </plist>
