@@ -1,4 +1,5 @@
-﻿using RGPopup.Maui.Extensions;
+﻿using MaCamp.Views.CustomViews;
+using RGPopup.Maui.Extensions;
 using RGPopup.Maui.Pages;
 using static MaCamp.Utils.Enumeradores;
 

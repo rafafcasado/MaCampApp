@@ -88,7 +88,7 @@ namespace MaCamp.Platforms.Android.Utils
             {
                 OnInfoWindowClickMethod.Invoke(googleMap, new object[]
                 {
-                    pin
+                    pin!
                 });
             }
         }

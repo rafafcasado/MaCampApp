@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui"
     xmlns:local="clr-namespace:MaCamp.CustomControls"
-    xmlns:localViews="clr-namespace:MaCamp.Views"
+    xmlns:localViews="clr-namespace:MaCamp.Views.CustomViews"
     BackgroundColor="White">
 
     <Grid>
@@ -39,7 +39,6 @@
 
                         <Image
                             x:Name="imIconeGaleria" />
-                        <!--<Label Text="Mais fotos" TextColor="White" Font="Bold,15" VerticalOptions="Center" />-->
                     </StackLayout>
 
                     <ffimageloading:CachedImage
@@ -70,7 +69,6 @@
                     BackgroundColor="White"
                     VerticalOptions="FillAndExpand">
 
-                    <!--<Label x:Name="lbDescricao" Type="Html" VerticalOptions="Start" />-->
                     <local:CustomWebView
                         x:Name="wvDetalhes"
                         HorizontalOptions="FillAndExpand"

@@ -16,7 +16,6 @@
                 CornerRadius="5" />
         </Border.StrokeShape>
 
-        <!--<Grid>-->
         <StackLayout
             Padding="0">
 
@@ -29,17 +28,7 @@
                     Aspect="AspectFill"
                     LoadingPlaceholder="placeholder.jpg"
                     Source="{Binding URLImagem}" />
-
-                <!--<BoxView HeightRequest="4" BackgroundColor="DarkGoldenrod" Grid.Row="1" />-->
-                <!--                        <StackLayout BackgroundColor="{Binding ColorTag}" HorizontalOptions="Start" VerticalOptions="End" Padding="8" Margin="0,0,0,10">-->
-                <!--                            <Label Text="{Binding Tag}" TextColor="White" FontSize="16" />-->
-                <!--                        </StackLayout>-->
-                <!--<ContentView x:Name="cvVideo" BackgroundColor="#80000000">
-                    <ffimageloading:CachedImage x:Name="imPlay" HorizontalOptions="Center" VerticalOptions="Center" />
-                </ContentView>-->
             </Grid>
-
-            <!--<BoxView HeightRequest="4" BackgroundColor="{DynamicResource CorPrimaria}" />-->
 
             <StackLayout
                 Padding="20"
@@ -50,7 +39,6 @@
                     FontSize="20"
                     Text="{Binding Nome}"
                     TextColor="{DynamicResource CorTituloCard}" />
-                <!--<Label x:Name="lbSubtitulo" TextColor="{DynamicResource CorSubtituloCard}" FontSize="14" />-->
             </StackLayout>
 
             <BoxView
@@ -70,22 +58,7 @@
                     Text="{Binding TextoDataPublicacao, StringFormat='{0:dd/MM/yy}'}"
                     TextColor="{DynamicResource CorTextoRodapeCard}"
                     VerticalTextAlignment="Center" />
-
-                <!--<ffimageloading:CachedImage Source="ic_visualizacoes.png" Grid.Column="1" HorizontalOptions="End" IsVisible="{Binding PossuiVideo}" />
-                    <Label Text="{Binding Video.VisualizacoesVideo}" FontSize="13" TextColor="{DynamicResource CorTextoRodapeCard}" VerticalTextAlignment="Center" IsVisible="{Binding PossuiVideo}" Grid.Column="2" />-->
-
-                <!--<ffimageloading:CachedImage Source="ic_share_orange.png" Grid.Column="1" WidthRequest="25" HorizontalOptions="End">
-                    <ffimageloading:CachedImage.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="Compartilhar" />
-                    </ffimageloading:CachedImage.GestureRecognizers>
-                </ffimageloading:CachedImage>-->
             </Grid>
-
         </StackLayout>
-
-        <!--<Image Source="ic_visualizada.png" IsVisible="{Binding Visualizado}" VerticalOptions="Start" HorizontalOptions="End" />-->
-        <!--
-            <BoxView BackgroundColor="{DynamicResource CorVisualizada}" VerticalOptions="Fill" HorizontalOptions="FillAndExpand" IsVisible="{Binding Visualizado}" />
-        </Grid>-->
     </Border>
 </ContentView>

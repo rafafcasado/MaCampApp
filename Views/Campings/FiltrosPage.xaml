@@ -235,13 +235,6 @@
                     </StackLayout.GestureRecognizers>
                 </StackLayout>
 
-                <!--<StackLayout x:Name="slBanheiros" Orientation="Horizontal" BackgroundColor="#F5F5F5" Padding="10" ClassId="Sanitarios">
-                        <Label Text="Possui banheiros" FontSize="Small" FontAttributes="Bold" TextColor="Gray" LineBreakMode="WordWrap" HorizontalOptions="FillAndExpand" />
-                        <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="ServicoTapped" />
-                        </StackLayout.GestureRecognizers>
-                    </StackLayout>-->
-
                 <StackLayout
                     x:Name="slPossuiPraiaProxima"
                     Padding="10"

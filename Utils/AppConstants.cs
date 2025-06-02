@@ -8,6 +8,7 @@ namespace MaCamp.Utils
     {
         public static int Delay => 250;
         public static string Path => Workaround.GetPath();
+        public static TimeSpan Tempo_RotinaAtualizacao => TimeSpan.FromDays(20);
         public static Page CurrentPage => Application.Current?.MainPage ?? throw new NullReferenceException();
 
         public static Dictionary<string, object?> DictionaryData => new Dictionary<string, object?>();
@@ -18,16 +19,19 @@ namespace MaCamp.Utils
 
         public static string EmailRegex => @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" + @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$";
 
-        public static string AdmobIdBannerAndroid => Debugger.IsAttached ? "ca-app-pub-8959365990645001/9280664891" : "ca-app-pub-3940256099942544/6300978111";
-        public static string AdmobIdBannerIOs => Debugger.IsAttached ? "ca-app-pub-8959365990645001/7917696236" : "ca-app-pub-3940256099942544/6300978111";
+        public static string AdmobIdBannerAndroid => Debugger.IsAttached ? "ca-app-pub-3940256099942544/6300978111" : "ca-app-pub-8959365990645001/9280664891";
+        public static string AdmobIdBannerIOs => Debugger.IsAttached ? "ca-app-pub-3940256099942544/6300978111" : "ca-app-pub-8959365990645001/7917696236";
 
         public static string FavoritesFilename => "favoritos.json";
         public static string SqliteFilename => "app.db3";
-        public static string SqliteBackupFilename => "backup.db3";
         public static string SqliteTemporaryFilename => "temp.db3";
         public static string NomeApp => "MaCamp";
         public static string ParametroTodasTags => "Todas";
         public static int QuantidadeNoticiasPorLote => 20;
+        public static bool UsarPermissaoExterna => false;
+
+        // API KEY
+        public static string ApiKey_Mapa => "AIzaSyDMgtg637cz-GG0cimn_EXg95idLbaDwOY";
 
         // OneSignal
         public static string OneSignal_AppId => "5b60ade4-26c8-452b-86a8-039457585240";

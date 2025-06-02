@@ -12,9 +12,7 @@ namespace MaCamp.Views.CustomViews
         {
             InitializeComponent();
 
-            //imItem.DownsampleWidth = App.SCREEN_WIDTH * 1.5;
             imItem.HeightRequest = Convert.ToDouble(App.SCREEN_WIDTH * 9 / 16);
-            //imPlay.HeightRequest = App.SCREEN_HEIGHT / 10;
         }
 
         protected override void OnBindingContextChanged()
@@ -28,23 +26,14 @@ namespace MaCamp.Views.CustomViews
                     testeLabel.IsVisible = false;
                 }
 
-                if (itemAtual.image != null && itemAtual.image.Contains(AppConstants.Url_DominioOficial))
+                if (itemAtual.URLImagem != null && itemAtual.URLImagem.Contains(AppConstants.Url_DominioOficial))
                 {
-                    var urlImagem = CampingServices.MontarUrlImagemTemporaria(itemAtual.image);
+                    var urlImagem = CampingServices.MontarUrlImagemTemporaria(itemAtual.URLImagem);
 
                     imItem.Source = urlImagem;
                 }
 
-                grFoto.IsVisible = !string.IsNullOrEmpty(itemAtual.image);
-
-                //lbSubtitulo.Text = ItemAtual.Descricao.Substring(0, 100);
-
-                //if (ItemAtual.hasVideo)
-                //{
-                //    imPlay.Source = "ic_play.png";
-                //    cvVideo.IsVisible = true;
-                //}
-                //else { cvVideo.IsVisible = false; }
+                grFoto.IsVisible = !string.IsNullOrEmpty(itemAtual.URLImagem);
             }
 
             base.OnBindingContextChanged();

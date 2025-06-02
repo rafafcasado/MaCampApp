@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using MaCamp.Models.Anuncios;
 using MaCamp.Utils;
@@ -8,305 +6,160 @@ using SQLite;
 
 namespace MaCamp.Models
 {
-    public class Item : INotifyPropertyChanged
+    public class Item
     {
-        public int id;
-        public int idlocal;
-        public string? title;
-        public string? subtitle;
-        public DateTime? pubdate;
-        public string? image;
-        public string? image_larger;
-        public string? type;
-        public string? tag;
-
-        //public string color_tag;
-        //public bool corporate;
-        public string? url;
-        public string? texturl;
-        public string? visualizacoes;
-        public bool hasVideo;
-        public string? urlExterna;
-
-        //public Video video;
-        public bool foiVisualizado;
-        public bool foiFavoritada;
-
         [PrimaryKey]
         [AutoIncrement]
-        public int Id
-        {
-            get => id;
-            set
-            {
-                id = value;
-                OnPropertyChanged();
-            }
-        }
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
+        public int IdLocal { get; set; }
 
-        public int IdLocal
-        {
-            get => idlocal;
-            set
-            {
-                idlocal = value;
-                OnPropertyChanged();
-            }
-        }
+        [JsonPropertyName("title")]
+        public string? Titulo { get; set; }
 
-        public string? Titulo
-        {
-            get => title;
-            set
-            {
-                title = value;
-                OnPropertyChanged();
-            }
-        }
+        [JsonPropertyName("subtitle")]
+        public string? Subtitulo { get; set; }
 
-        public string? Subtitulo
-        {
-            get => subtitle;
-            set
-            {
-                subtitle = value;
-                OnPropertyChanged();
-            }
-        }
+        [JsonPropertyName("pubdate")]
+        public DateTime? DataPublicacao { get; set; }
 
-        public DateTime? DataPublicacao
-        {
-            get => pubdate;
-            set
-            {
-                pubdate = value;
-                OnPropertyChanged();
-            }
-        }
+        [Ignore]
+        [JsonIgnore]
+        public string TextoDataPublicacao => DataPublicacao != null ? DataPublicacao.Value.ToString("dd 'de' MMMM 'de' yyyy") : string.Empty;
 
-        public string TextoDataPublicacao
-        {
-            get
-            {
-                if (pubdate == null)
-                {
-                    return string.Empty;
-                }
+        [JsonPropertyName("image")]
+        public string? URLImagem { get; set; }
 
-                return pubdate.Value.ToString("dd 'de' MMMM 'de' yyyy");
+        [JsonPropertyName("image_larger")]
+        public string? URLImagemMaior { get; set; }
 
-                //TimeSpan tempoDesdeAPublicacao = DateTime.Now - pubdate.Value;
+        [JsonPropertyName("type")]
+        public string Tipo { get; set; }
 
-                //if (tempoDesdeAPublicacao.TotalMinutes <= 3)
-                //{
-                //    return "Agora";
-                //}
-                //else if (tempoDesdeAPublicacao.TotalMinutes <= 59)
-                //{
-                //    string plural = ((int)tempoDesdeAPublicacao.TotalMinutes) > 1 ? "s" : string.Empty;
-                //    return $"Há {(int)tempoDesdeAPublicacao.TotalMinutes} minuto{plural}";
-                //}
-                //else if (tempoDesdeAPublicacao.TotalHours < 24)
-                //{
-                //    string plural = ((int)tempoDesdeAPublicacao.TotalHours) > 1 ? "s" : string.Empty;
-                //    return $"Há {(int)tempoDesdeAPublicacao.TotalHours} hora{plural}";
-                //}
-                //else if (pubdate.Value.Day == DateTime.Now.Day - 1)
-                //{
-                //    return $"Ontem";
-                //}
-                //else if (pubdate.Value.Day == DateTime.Now.Day - 2)
-                //{
-                //    return $"Há 2 dias";
-                //}
-                //else if (pubdate.Value.Day == DateTime.Now.Day - 3)
-                //{
-                //    return $"Há 3 dias";
-                //}
-                //else
-                //{
-                //    return pubdate.Value.ToString("dd/MM/yyyy");
-                //}
-            }
-        }
+        [JsonPropertyName("color_tag")]
+        public string? CorTag { get; set; }
 
-        public string? URLImagem
-        {
-            get => image;
-            set
-            {
-                image = value;
-                OnPropertyChanged();
-            }
-        }
+        [JsonPropertyName("tag")]
+        public string? Tag { get; set; }
 
-        public string? URLImagemMaior
-        {
-            get => image_larger;
-            set
-            {
-                image_larger = value;
-                OnPropertyChanged();
-            }
-        }
+        [JsonPropertyName("url")]
+        public string? UrlSite { get; set; }
 
-        public string? Tag
-        {
-            get => tag;
-            set
-            {
-                tag = value;
-                OnPropertyChanged();
-            }
-        }
+        public bool Visualizado { get; set; }
 
-        //public string ColorTag
-        //{
-        //    get { return (!string.IsNullOrEmpty(color_tag)) ? color_tag : "#000"; }
-        //    set { color_tag = value; OnPropertyChanged(); }
-        //}
+        public bool Favoritado { get; set; }
 
-        public string? Tipo
-        {
-            get => type;
-            set
-            {
-                type = value;
-                OnPropertyChanged();
-            }
-        }
+        [JsonPropertyName("urlExterna")]
+        public string? UrlExterna { get; set; }
 
-        //public bool IsCorporate
-        //{
-        //    get { return corporate; }
-        //    set { corporate = value; OnPropertyChanged(); }
-        //}
-        public string? UrlSite
-        {
-            get => url;
-            set
-            {
-                url = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string? LinkTexto
-        {
-            get => texturl;
-            set
-            {
-                texturl = value;
-                OnPropertyChanged();
-            }
-        }
-
-        //public string Visualizacoes
-        //{
-        //    get
-        //    {
-        //        if (string.IsNullOrEmpty(visualizacoes))
-        //        {
-        //             return string.Empty
-        //        }
-
-        //        var qtd = Convert.ToInt32(visualizacoes);
-        //        if (qtd < 1000) return qtd.ToString();
-        //        var exp = Convert.ToInt32(Math.Log(qtd) / Math.Log(1000));
-        //        return $"{(qtd / Math.Pow(1000, exp)).ToString("#.#")} {"kMGTPE"[exp - 1]}";
-        //    }
-        //    set { visualizacoes = value; OnPropertyChanged(); }
-        //}
-
-        public bool PossuiVideo
-        {
-            get => hasVideo;
-            set
-            {
-                hasVideo = value;
-                OnPropertyChanged();
-            }
-        }
-
-        //[Ignore]
-        //public Video Video
-        //{
-        //    get { return video; }
-        //    set { video = value; OnPropertyChanged(); }
-        //}
-        public bool Visualizado
-        {
-            get => foiVisualizado;
-            set
-            {
-                foiVisualizado = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool Favoritado
-        {
-            get => foiFavoritada;
-            set
-            {
-                foiFavoritada = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string? UrlExterna
-        {
-            get => urlExterna;
-            set => urlExterna = value;
-        }
-
-        public bool DeveAbrirExternamente { get; set; } = false;
+        public bool DeveAbrirExternamente { get; set; }
 
         [Indexed]
+        [JsonPropertyName("IdPost")]
         public int IdPost { get; set; }
 
-        #region Infos Camping
-
         [Indexed]
+        [JsonPropertyName("IdCamping")]
         public int IdCamping { get; set; }
 
         [Indexed]
+        [JsonPropertyName("Nome")]
         public string? Nome { get; set; }
 
+        [JsonPropertyName("Descricao")]
         public string? Descricao { get; set; }
+
+        [JsonPropertyName("Endereco")]
         public string? Endereco { get; set; }
+
+        [JsonPropertyName("Cidade")]
         public string? Cidade { get; set; }
+
+        [JsonPropertyName("Estado")]
         public string? Estado { get; set; }
+
+        [JsonPropertyName("Pais")]
         public string? Pais { get; set; }
+
+        [JsonPropertyName("UF")]
         public string? UF { get; set; }
 
         [Ignore]
+        [JsonIgnore]
         public string CidadeEstado => Cidade + "/" + UF;
 
         [Ignore]
+        [JsonIgnore]
         public string EnderecoCompleto => Endereco + ". " + Cidade + "/" + UF;
 
-        public string? Telefone { get; set; }
+        [JsonPropertyName("Telefone")]
+        public string? Telefone1 { get; set; }
+
+        [JsonPropertyName("Telefone2")]
         public string? Telefone2 { get; set; }
+
+        [JsonPropertyName("Telefone3")]
         public string? Telefone3 { get; set; }
+
+        [JsonPropertyName("Telefone4")]
         public string? Telefone4 { get; set; }
+
+        [JsonPropertyName("Funcionamento")]
         public string? Funcionamento { get; set; }
+
+        [JsonPropertyName("Site")]
         public string? Site { get; set; }
+
+        [JsonPropertyName("Facebook")]
         public string? Facebook { get; set; }
+
+        [JsonPropertyName("Instagram")]
         public string? Instagram { get; set; }
+
+        [JsonPropertyName("Youtube")]
         public string? Youtube { get; set; }
+
+        [JsonPropertyName("LinkPrecos")]
         public string? LinkPrecos { get; set; }
+
+        [JsonPropertyName("Email")]
         public string? Email { get; set; }
-        public int? QuantidadeEstrelas { get; set; } = 0;
-        public double? Latitude { get; set; } = 0;
-        public double? Longitude { get; set; } = 0;
+
+        [JsonPropertyName("QuantidadeEstrelas")]
+        public int? QuantidadeEstrelas { get; set; }
+
+        [JsonPropertyName("Latitude")]
+        public double? Latitude { get; set; }
+
+        [JsonPropertyName("Longitude")]
+        public double? Longitude { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
         public string LatitudeLongitude => Latitude.ToString()?.Replace(",", ".") + "," + Longitude.ToString()?.Replace(",", ".");
-        public int Ordem { get; set; }
+
+        [JsonPropertyName("LinksFotos")]
         public string? LinksFotos { get; set; }
+
+        [JsonPropertyName("Ordem")]
+        public int Ordem { get; set; }
+
+        [JsonPropertyName("texturl")]
+        public string? LinkTexto { get; set; }
+
+        [JsonPropertyName("visualizacoes")]
+        public string? Visualizacoes { get; set; }
+
+        [JsonPropertyName("hasVideo")]
+        public bool PossuiVideo { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
         public string? LinkUltimaFoto => LinksFotos?.Split('|').LastOrDefault();
 
         [Ignore]
+        [JsonPropertyName("Identificadores")]
         public List<ItemIdentificador> Identificadores
         {
             get
@@ -329,90 +182,23 @@ namespace MaCamp.Models
         }
 
         [JsonIgnore]
-        public string? IdentificadoresSerializado { get; set; }
-
-        #endregion
-
-        public bool EhAdMobRetangulo { get; set; } = false;
-        public bool EhAnuncio { get; set; } = false;
+        private string? IdentificadoresSerializado { get; set; }
 
         [Ignore]
+        [JsonIgnore]
+        public bool EhAdMobRetangulo { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
+        public bool EhAnuncio { get; set; }
+
+        [JsonPropertyName("corporate")]
+        public bool EhCorporativo { get; set; }
+
+        [Ignore]
+        [JsonIgnore]
         public Anuncio? Anuncio { get; set; }
 
-        public override string? ToString()
-        {
-            return Nome;
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public class Video : INotifyPropertyChanged
-    {
-        public string? id;
-        public string? views;
-        public string? url;
-
-        public string? IdVideo
-        {
-            get => id;
-            set
-            {
-                id = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string VisualizacoesVideo
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(views))
-                {
-                    return string.Empty;
-                }
-
-                var qtd = Convert.ToInt32(views);
-
-                if (qtd < 1000)
-                {
-                    return qtd.ToString();
-                }
-
-                var exp = Convert.ToInt32(Math.Log(qtd) / Math.Log(1000));
-
-                return $"{(qtd / Math.Pow(1000, exp)).ToString("#.#").Replace(".", ",")}{"kMGTPE"[exp - 1]}";
-            }
-            set
-            {
-                views = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string? UrlVideo
-        {
-            get => url;
-            set
-            {
-                url = value;
-                OnPropertyChanged();
-            }
-        }
-
-        [PrimaryKey]
-        public string? IdItem { get; set; }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public override string? ToString() => Nome;
     }
 }

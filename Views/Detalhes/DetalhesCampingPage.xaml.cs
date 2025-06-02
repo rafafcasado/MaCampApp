@@ -4,6 +4,7 @@ using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.Services;
 using MaCamp.Utils;
+using MaCamp.Views.CustomViews;
 using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Views.Detalhes
@@ -105,7 +106,7 @@ namespace MaCamp.Views.Detalhes
 
             var listaTelefones = new List<string?>
             {
-                ItemAtual.Telefone,
+                ItemAtual.Telefone1,
                 ItemAtual.Telefone2,
                 ItemAtual.Telefone3,
                 ItemAtual.Telefone4,

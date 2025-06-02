@@ -72,7 +72,7 @@ namespace MaCamp.ViewModels
             DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, estadoSelecionado);
             DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, cidadeSelecionada);
             DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, nomeCampingSelecionado);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "false");
+            DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, Convert.ToString(false));
         }
 
         public async Task UsarLocalizacaoAtualAsync()
@@ -81,7 +81,7 @@ namespace MaCamp.ViewModels
             {
                 App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Busca);
 
-                DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, "true");
+                DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, Convert.ToString(true));
                 DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
                 DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
                 DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, null);

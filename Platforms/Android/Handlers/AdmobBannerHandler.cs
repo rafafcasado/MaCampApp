@@ -41,8 +41,8 @@ namespace MaCamp.Platforms.Android.Handlers
                 AdSize = AdSize.Banner,
                 AdUnitId = AppConstants.AdmobIdBannerAndroid
             };
-
             var adRequest = new AdRequest.Builder().Build();
+
             adView.LoadAd(adRequest);
 
             return adView;

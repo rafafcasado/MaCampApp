@@ -49,8 +49,7 @@
                         <Picker
                             x:Name="pkUF"
                             Title="Carregando..."
-                            SelectedIndexChanged="PkUF_OnSelectedIndexChanged"
-                            />
+                            SelectedIndexChanged="PkUF_OnSelectedIndexChanged" />
                     </StackLayout>
                     <StackLayout
                         Spacing="2">
@@ -62,8 +61,7 @@
                         <Picker
                             x:Name="pkCidade"
                             Title="Selecione primeiramente o Estado"
-                            SelectedIndexChanged="PkCidade_OnSelectedIndexChanged"
-                            />
+                            SelectedIndexChanged="PkCidade_OnSelectedIndexChanged" />
                     </StackLayout>
                 </StackLayout>
 
@@ -78,14 +76,6 @@
                     TextColor="{StaticResource CorTextoSobreCorPrimaria}" />
 
             </StackLayout>
-
-            <!--<StackLayout x:Name="slBuscandoPorLocalizacao" IsVisible="False" HorizontalOptions="FillAndExpand">
-                    <Label x:Name="lbUsandoLocalizacao" Text="Estão sendo exibidos os vinte campings mais próximos a você." TextColor="Gray" FontSize="17" FontAttributes="Bold" HorizontalTextAlignment="Center"  Margin="10" />
-
-                    <StackLayout x:Name="slBuscarCidadeEstado" BackgroundColor="{StaticResource CorPrimaria}" Orientation="Horizontal" Padding="15" HorizontalOptions="Center" Spacing="10">
-                        <Label Text="BUSCAR CAMPINGS POR CIDADE E ESTADO" TextColor="{StaticResource CorTextoSobreCorPrimaria}" FontSize="15" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                    </StackLayout>
-                </StackLayout>-->
 
             <StackLayout
                 x:Name="slBuscarPorLocalizacao"
@@ -127,10 +117,7 @@
                             Tapped="TapGestureRecognizer_OnTapped" />
                     </StackLayout.GestureRecognizers>
                 </StackLayout>
-
             </StackLayout>
-
         </StackLayout>
     </ScrollView>
-
 </custom:SmartContentView>

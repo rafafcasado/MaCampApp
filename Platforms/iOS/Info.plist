@@ -29,7 +29,10 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 
-	<key>NSUserNotificationUsageDescription</key>
+  <key>GADApplicationIdentifier</key>
+  <string>ca-app-pub-8959365990645001~1761267526</string>
+
+  <key>NSUserNotificationUsageDescription</key>
 	<string>Este aplicativo usa notificações para alertá-lo sobre eventos importantes.</string>
 	
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -240,8 +240,8 @@ namespace MaCamp.Utils
         {
             try
             {
-                var objType = obj.GetType();
-                var method = objType.GetMethods().FirstOrDefault(x => x.Name == methodName && x.IsGenericMethod && x.GetGenericArguments().Length == genericTypes.Length);
+                var type = obj.GetType();
+                var method = type.GetMethods().FirstOrDefault(x => x.Name == methodName && x.IsGenericMethod && x.GetGenericArguments().Length == genericTypes.Length);
 
                 if (method == null)
                 {
@@ -257,6 +257,25 @@ namespace MaCamp.Utils
                 Console.WriteLine($@"Erro inesperado: {ex.Message}");
 
                 return null;
+            }
+        }
+
+        public static void Execute(this Type type, string methodName, params object[] parameters)
+        {
+            try
+            {
+                var method = type.GetMethods().FirstOrDefault(x => x.Name == methodName && x.GetParameters().Length == parameters.Length);
+
+                if (method == null)
+                {
+                    throw new InvalidOperationException($"Método '{methodName}' não encontrado ou com assinatura inválida.");
+                }
+
+                method.Invoke(null, parameters);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($@"Erro inesperado: {ex.Message}");
             }
         }
 

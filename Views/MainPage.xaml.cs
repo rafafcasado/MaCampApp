@@ -41,7 +41,7 @@ namespace MaCamp.Views
             });
             Children.Add(new ListagemItensPage(AppConstants.Url_PegarPosts, "News", TipoListagem.Noticias, "app-noticias")
             {
-                Title = "Campismo & Caravanismo",
+                Title = "Notícias",
                 IconImageSource = "icone_aba2.png"
             });
             Children.Add(new ListagemItensPage
@@ -56,16 +56,6 @@ namespace MaCamp.Views
             });
 
             SelectedItem = Children[selected];
-
-            //ToolbarItems.Add(new ToolbarItem("Buscar", "icone_busca.png", () =>
-            //{
-            //    DependencyService.Get<CustomControls.AdMobInterstitial>().Exibir();
-            //}));
-        }
-
-        protected override async void OnAppearing()
-        {
-            await App.ExibirNotificacaoPushAsync();
         }
     }
 }

@@ -10,7 +10,6 @@ namespace MaCamp.Views.Campings
     {
         private string? EstadoSelecionado { get; set; }
         private string? CidadeSelecionada { get; set; }
-        private string? NomeDoCamping { get; set; }
         private List<Cidade> ListaCidades { get; set; }
         private string? CidadeSalva { get; set; }
 
@@ -50,30 +49,41 @@ namespace MaCamp.Views.Campings
 
         private void PkUF_OnSelectedIndexChanged(object? sender, EventArgs e)
         {
-            if (BindingContext is BuscaCampingsViewModel viewModel && sender is Picker picker && picker.SelectedItem is string estado)
+            if (BindingContext is BuscaCampingsViewModel viewModel && sender is Picker picker)
             {
-                EstadoSelecionado = estado;
-
-                if (estado == viewModel.ParametroTODOS)
+                if (picker.SelectedItem is string estado)
                 {
+                    EstadoSelecionado = estado;
+
+                    if (estado == viewModel.ParametroTODOS)
+                    {
+                        pkCidade.ItemsSource = null;
+                        pkCidade.Title = " - ";
+                        pkCidade.IsEnabled = false;
+                        CidadeSelecionada = string.Empty;
+                    }
+                    else
+                    {
+                        var cidadesFiltradas = viewModel.FiltrarCidadesPorEstado(estado, ListaCidades);
+
+                        pkCidade.ItemsSource = cidadesFiltradas;
+                        pkCidade.ItemDisplayBinding = new Binding(nameof(Cidade.Nome));
+                        pkCidade.Title = "Selecione a cidade";
+                        pkCidade.IsEnabled = true;
+
+                        if (!string.IsNullOrEmpty(CidadeSalva))
+                        {
+                            pkCidade.SelectedItem = cidadesFiltradas.FirstOrDefault(x => x.Nome == CidadeSalva);
+                        }
+                    }
+                }
+                else
+                {
+                    EstadoSelecionado = null;
                     pkCidade.ItemsSource = null;
                     pkCidade.Title = " - ";
                     pkCidade.IsEnabled = false;
                     CidadeSelecionada = string.Empty;
-                }
-                else
-                {
-                    var cidadesFiltradas = viewModel.FiltrarCidadesPorEstado(estado, ListaCidades);
-
-                    pkCidade.ItemsSource = cidadesFiltradas;
-                    pkCidade.ItemDisplayBinding = new Binding(nameof(Cidade.Nome));
-                    pkCidade.Title = "Selecione a cidade";
-                    pkCidade.IsEnabled = true;
-
-                    if (!string.IsNullOrEmpty(CidadeSalva))
-                    {
-                        pkCidade.SelectedItem = cidadesFiltradas.FirstOrDefault(x => x.Nome == CidadeSalva);
-                    }
                 }
             }
         }
@@ -90,9 +100,8 @@ namespace MaCamp.Views.Campings
         {
             if (BindingContext is BuscaCampingsViewModel viewModel)
             {
-                viewModel.SalvarFiltros(EstadoSelecionado, CidadeSelecionada, NomeDoCamping);
+                viewModel.SalvarFiltros(EstadoSelecionado, CidadeSelecionada, etNomeDoCamping.Text);
 
-                NomeDoCamping = etNomeDoCamping.Text;
                 pkUF.SelectedItem = null;
                 WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscaRealizada);
             }

@@ -57,7 +57,7 @@ namespace MaCamp.Views.Campings
 
                 await Task.WhenAll(
                     CidadesServices.AtualizarListaCidadesAsync(progressoVisual),
-                    CampingServices.BaixarCampingsAsync(false, progressoVisual),
+                    CampingServices.BaixarCampingsAsync(true, progressoVisual),
                     CarregarConteudoAsync(progressoVisual)
                 );
             });

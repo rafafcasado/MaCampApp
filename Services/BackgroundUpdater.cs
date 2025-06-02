@@ -8,7 +8,7 @@ namespace MaCamp.Services
     {
         private static CancellationTokenSource? CancellationTokenSource { get; set; }
 
-        public static async Task StartAsync()
+        public static async Task StartAsync(bool force = false)
         {
             // Já está em execução
             if (CancellationTokenSource != null)
@@ -17,12 +17,16 @@ namespace MaCamp.Services
             }
 
             var versaoAtual = 1.39;
-            var chaveData = DBContract.GetKeyValue(AppConstants.Chave_UltimaAtualizacao);
-            var chaveVersao = DBContract.GetKeyValue(AppConstants.Chave_Versao);
 
-            if (DateTime.TryParse(chaveData, out var data) && data > DateTime.Now.Subtract(TimeSpan.FromDays(30)) && double.TryParse(chaveVersao, out var versao) && versao >= versaoAtual)
+            if (!force)
             {
-                return;
+                var chaveData = DBContract.GetKeyValue(AppConstants.Chave_UltimaAtualizacao);
+                var chaveVersao = DBContract.GetKeyValue(AppConstants.Chave_Versao);
+
+                if (DateTime.TryParse(chaveData, out var data) && data > DateTime.Now.Subtract(AppConstants.Tempo_RotinaAtualizacao) && double.TryParse(chaveVersao, out var versao) && versao >= versaoAtual)
+                {
+                    return;
+                }
             }
 
             CancellationTokenSource = new CancellationTokenSource();
@@ -32,6 +36,7 @@ namespace MaCamp.Services
 
             if (permission)
             {
+
                 await Workaround.TaskWorkAsync(async () =>
                 {
                     while (!cancellationToken.IsCancellationRequested)
@@ -84,7 +89,12 @@ namespace MaCamp.Services
 
                         notificationService.Update(notificationId, notification);
 
-                        await CancellationTokenSource.CancelAsync();
+                        if (CancellationTokenSource != null)
+                        {
+                            await CancellationTokenSource.CancelAsync();
+                        }
+
+                        CancellationTokenSource = null;
                     }
                 }, cancellationToken);
             }

@@ -2,9 +2,10 @@
 {
     public interface IStoragePermission
     {
-        string GetExternalStorageDirectory();
+        string GetExternalDirectory();
+        string GetInternalDirectory();
 
         Task<bool> CheckAsync();
-        Task<bool> RequestAsync();
+        Task<bool> RequestExternalPermissionAsync();
     }
 }

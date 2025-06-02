@@ -8,9 +8,8 @@ namespace MaCamp.Services
 {
     public static class StorageHelper
     {
-        public static ObservableCollection<Item> ListFavorites { get; set; }
-
         private static string FilePath { get; }
+        private static ObservableCollection<Item> ListFavorites { get; }
         private static JsonSerializerOptions JsonSerializerOptions { get; }
 
         static StorageHelper()
@@ -28,7 +27,7 @@ namespace MaCamp.Services
             ListFavorites.CollectionChanged += ListFavorites_CollectionChanged;
         }
 
-        public static void AddOrUpdateItem(Item item) => ListFavorites.ReplaceOrAdd(item, x => x.Id == item.id);
+        public static void AddOrUpdateItem(Item item) => ListFavorites.ReplaceOrAdd(item, x => x.Id == item.Id);
 
         public static Item? GetItemById(int id) => ListFavorites.FirstOrDefault(x => x.Id == id);
 

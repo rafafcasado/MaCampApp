@@ -1,0 +1,34 @@
+﻿using MaCamp.CustomControls;
+using MaCamp.Services;
+using MaCamp.Utils;
+
+namespace MaCamp.Views.Campings
+{
+    public partial class BuscarCampings : SmartContentPage
+    {
+        public BuscarCampings()
+        {
+            InitializeComponent();
+
+            NavigationPage.SetHasNavigationBar(this, false);
+
+            FirstAppeared += ListagemCampingsView_FirstAppeared;
+
+            //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Buscar Campings Atualizados");
+        }
+
+        private async void ListagemCampingsView_FirstAppeared(object? sender, EventArgs e)
+        {
+            var progressoVisual = new ProgressoVisual(progressBar);
+
+            DeviceDisplay.KeepScreenOn = true;
+
+            await Task.WhenAll(
+                CidadesServices.AtualizarListaCidadesAsync(progressoVisual),
+                CampingServices.BaixarCampingsAsync(true, progressoVisual)
+            );
+
+            await Navigation.PopAsync();
+        }
+    }
+}

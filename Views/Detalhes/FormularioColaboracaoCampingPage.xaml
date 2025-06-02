@@ -13,20 +13,17 @@
             Padding="20"
             Spacing="15">
 
-            <!--  Texto Principal  -->
             <Label
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Envie seus comentários sobre este camping, dados que estejam faltando ou correção de alguma informação errada. " />
 
-            <!--  Nome  -->
             <Entry
                 x:Name="etNome"
                 MaxLength="50"
                 Placeholder="Digite seu nome"
                 TextColor="#252525" />
 
-            <!--  Email  -->
             <Entry
                 x:Name="etEmail"
                 Placeholder="Digite seu e-mail"
@@ -37,20 +34,17 @@
                 </Entry.Behaviors>
             </Entry>
 
-            <!--  WhatsApp  -->
             <Entry
                 x:Name="etWhatsApp"
                 Placeholder="Digite seu número de WhatsApp"
                 TextColor="#252525" />
 
-            <!--  Valor pago diária por pessoa  -->
             <Entry
                 x:Name="etValorPagoPorDiaria"
                 Keyboard="Numeric"
                 MaxLength="10"
                 Placeholder="Valor pago na diária por pessoa" />
 
-            <!--  Equipamento  -->
             <Label
                 FontSize="18"
                 Text="Equipamento Utilizado" />
@@ -59,7 +53,6 @@
                 BackgroundColor="#f5f5f5"
                 VerticalOptions="FillAndExpand" />
 
-            <!--  Mensagem Colaboração  -->
             <Label
                 FontSize="18"
                 Text="Seus comentários" />

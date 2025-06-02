@@ -1,4 +1,5 @@
-﻿using Android.App;
+﻿using _Microsoft.Android.Resource.Designer;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
@@ -51,7 +52,7 @@ namespace MaCamp.Platforms.Android.Services
 
             if (notification != null && NotificationManager != null)
             {
-                NotificationManager.Notify(id, notification);
+                NotificationManager.Notify(AppConstants.NomeApp, id, notification);
             }
 
             return id;
@@ -67,7 +68,7 @@ namespace MaCamp.Platforms.Android.Services
 
                 if (listNotifications != null && listNotifications.Any(x => x.Id == id))
                 {
-                    NotificationManager.Notify(id, notification);
+                    NotificationManager.Notify(AppConstants.NomeApp, id, notification);
                 }
             }
         }
@@ -76,7 +77,7 @@ namespace MaCamp.Platforms.Android.Services
         {
             if (NotificationManager != null)
             {
-                NotificationManager.Cancel(id);
+                NotificationManager.Cancel(AppConstants.NomeApp, id);
             }
         }
 
@@ -86,7 +87,7 @@ namespace MaCamp.Platforms.Android.Services
 
             builder.SetContentTitle(data.Title);
             builder.SetContentText(data.Message);
-            builder.SetSmallIcon(Resource.Drawable.icone_aba1);
+            builder.SetSmallIcon(ResourceConstant.Drawable.icone_aba1);
             builder.SetPriority(NotificationCompat.PriorityHigh);
             builder.SetOngoing(data.ProgressValue.HasValue);
             builder.SetAutoCancel(!data.ProgressValue.HasValue);

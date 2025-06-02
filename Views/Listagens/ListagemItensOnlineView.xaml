@@ -24,8 +24,6 @@
             TextColor="{DynamicResource CorTextoMenuLateral}"
             VerticalOptions="CenterAndExpand" />
 
-        <!--<Label x:Name="lbAcao" IsVisible="False" FontSize="Large" TextColor="{DynamicResource CorDestaque}" Margin="10" HorizontalTextAlignment="Center" />-->
-
         <RefreshView
             x:Name="rvItens"
             Refreshing="Handle_Refreshing">
@@ -52,12 +50,6 @@
                 IsVisible="True"
                 Color="{DynamicResource CorPrimaria}" />
         </StackLayout>
-
-        <!--<local:ListViewNonScrollsToTop VerticalOptions="End" ItemsSource="" HeightRequest="53">
-                <local:ListViewNonScrollsToTop.Header>
-                    <local:AdMobView />
-                </local:ListViewNonScrollsToTop.Header>
-            </local:ListViewNonScrollsToTop>-->
     </StackLayout>
 
 </custom:SmartContentView>

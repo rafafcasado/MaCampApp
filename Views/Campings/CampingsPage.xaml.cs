@@ -14,11 +14,6 @@ namespace MaCamp.Views.Campings
 
             Title = "Campings";
 
-            // ToolbarItems.Add(new ToolbarItem("Buscar campings", "icone_busca.png", async () =>
-            //{
-            //    await Navigation.PushPopupAsync(new FormBuscaPopupPage());
-            //}));
-
             FirstAppeared += CampingsPage_FirstAppeared;
 
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings);
@@ -32,7 +27,7 @@ namespace MaCamp.Views.Campings
 
             WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, (recipient, message) =>
             {
-                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
+                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, Convert.ToString(true), TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView();
             });
@@ -41,7 +36,7 @@ namespace MaCamp.Views.Campings
 
             WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, (recipient, message) =>
             {
-                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, "true", TipoChave.ControleInterno);
+                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, Convert.ToString(true), TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView();
             });

@@ -26,29 +26,12 @@ namespace MaCamp.Views.Detalhes
 
         private void FormularioColaboracaoCampingPage_FirstAppeared(object? sender, EventArgs e)
         {
-
-            try
-            {
-                DadosColaborador();
-            }
-            catch
-            {
-                etEmail.Text = string.Empty;
-                etWhatsApp.Text = string.Empty;
-                etNome.Text = string.Empty;
-                Equipamento.Text = string.Empty;
-                Informacao.Text = string.Empty;
-                etValorPagoPorDiaria.Text = string.Empty;
-            }
-        }
-
-        private void DadosColaborador()
-        {
             var colaboracao = DBContract.Get<Colaboracao>();
 
             etEmail.Text = colaboracao?.Email ?? string.Empty;
             etNome.Text = colaboracao?.Nome ?? string.Empty;
             Equipamento.Text = colaboracao?.Equipamento ?? string.Empty;
+            etWhatsApp.Text = colaboracao?.WhatsApp ?? string.Empty;
         }
 
         private async void EnviarColaboracao(object sender, EventArgs e)

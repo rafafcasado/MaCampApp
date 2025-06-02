@@ -16,7 +16,8 @@ namespace MaCamp.Utils
             };
             JsonSerializerOptionsDefault = new JsonSerializerOptions
             {
-                IncludeFields = true
+                IncludeFields = true,
+                PropertyNameCaseInsensitive = true
             };
         }
 

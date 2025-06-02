@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content.PM;
+using Android.Gms.Ads;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
@@ -16,6 +17,8 @@ namespace MaCamp.Platforms.Android
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+
+            MobileAds.Initialize(this);
 
             AndroidEnvironment.UnhandledExceptionRaiser += (sender, args) =>
             {

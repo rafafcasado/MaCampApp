@@ -7,22 +7,4 @@
         Margin="15,0"
         BackgroundColor="#d6d6d6"
         HeightRequest="1" />
-
-    <!--<StackLayout
-            BackgroundColor="#F5F5F5">
-
-            <BoxView
-                BackgroundColor="#d6d6d6"
-                HeightRequest="1" />
-            <ContentView
-                Padding="10,15,0,10">
-                <Label
-                    x:Name="lbTexto"
-                    FontSize="15" />
-            </ContentView>
-            <BoxView
-                BackgroundColor="#d6d6d6"
-                HeightRequest="1" />
-        </StackLayout>-->
-
 </ContentView>

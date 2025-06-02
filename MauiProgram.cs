@@ -23,7 +23,7 @@ namespace MaCamp
             builder.UseMauiMTAdmob();
             builder.UseMauiApp<App>();
             builder.UseFFImageLoading();
-            builder.UseMPowerKitGoogleMaps();
+            builder.UsePlatformMaps();
             builder.UseMauiCommunityToolkit();
             builder.UseMauiRGPopup(config =>
             {

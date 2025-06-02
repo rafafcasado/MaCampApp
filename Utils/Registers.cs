@@ -5,7 +5,7 @@ namespace MaCamp.Utils
 {
     public static class Registers
     {
-        public static bool IsFromRunningPlatform(this Type type)
+        private static bool IsFromRunningPlatform(this Type type)
         {
             var platform = DeviceInfo.Current.Platform.ToString();
             var value = type.Namespace != null && type.Namespace.Contains(platform, StringComparison.OrdinalIgnoreCase);
@@ -13,7 +13,7 @@ namespace MaCamp.Utils
             return value;
         }
 
-        public static bool IsViewHandler(this Type type, Type viewType)
+        private static bool IsViewHandler(this Type type, Type viewType)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ViewHandler<,>))
             {
@@ -56,6 +56,22 @@ namespace MaCamp.Utils
             }
 
             return handlersCollection;
+        }
+
+        public static MauiAppBuilder UsePlatformMaps(this MauiAppBuilder mauiAppBuilder)
+        {
+            var type = typeof(MPowerKit.GoogleMaps.BuilderExtensions);
+
+            if (DeviceInfo.Current.Platform == DevicePlatform.iOS)
+            {
+                type.Execute(nameof(MPowerKit.GoogleMaps.BuilderExtensions.UseMPowerKitGoogleMaps), mauiAppBuilder, AppConstants.ApiKey_Mapa);
+            }
+            else
+            {
+                type.Execute(nameof(MPowerKit.GoogleMaps.BuilderExtensions.UseMPowerKitGoogleMaps), mauiAppBuilder);
+            }
+
+            return mauiAppBuilder;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.CustomControls;
-using MaCamp.Dependencias.Permissions;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
 using MaCamp.Services;
@@ -76,10 +75,10 @@ namespace MaCamp.Views.Listagens
 
         private async Task CarregarConteudoAsync()
         {
-            var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
-            var storagePermissionResult = await storagePermissionService.RequestAsync();
+            //var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
+            //var storagePermissionResult = await storagePermissionService.RequestAsync();
 
-            if (storagePermissionResult)
+            //if (storagePermissionResult)
             {
                 var itensFavoritos = StorageHelper.LoadData<List<Item>>(AppConstants.FavoritesFilename);
 
@@ -103,6 +102,8 @@ namespace MaCamp.Views.Listagens
                     cvItens.IsVisible = false;
                 }
             }
+
+            await Task.CompletedTask;
         }
 
         private async void ListagemItensFavoritosView_FirstAppeared(object? sender, EventArgs e)

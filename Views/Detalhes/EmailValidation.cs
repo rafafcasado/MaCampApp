@@ -5,6 +5,8 @@ namespace MaCamp.Views.Detalhes
 {
     public class EmailValidation : Behavior<Entry>
     {
+        private Color? TextColor { get; set; }
+
         public static bool ValidarEmail(string? email)
         {
             if (email == null)
@@ -19,18 +21,20 @@ namespace MaCamp.Views.Detalhes
 
         protected override void OnAttachedTo(Entry bindable)
         {
-            bindable.TextChanged += HandleTextChanged;
-
             base.OnAttachedTo(bindable);
+
+            TextColor = bindable.TextColor;
+
+            bindable.TextChanged += HandleTextChanged;
         }
 
         private void HandleTextChanged(object? sender, TextChangedEventArgs e)
         {
             var isValid = ValidarEmail(e.NewTextValue);
 
-            if (sender is Entry entry)
+            if (sender is Entry entry && TextColor != null)
             {
-                entry.TextColor = isValid ? Colors.Transparent : Colors.Red;
+                entry.TextColor = isValid ? TextColor : Colors.Red;
             }
         }
 

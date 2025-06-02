@@ -33,13 +33,6 @@ namespace MaCamp.Views.Menu
             Detail = CriarPaginaDetalhes(new MainPage());
         }
 
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            await BackgroundUpdater.StartAsync();
-        }
-
         private async void CollectionView_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             if (e.CurrentSelection.FirstOrDefault() is ItemMenu item && item.TipoLayout != TipoLayoutMenu.Divisoria)
@@ -125,9 +118,10 @@ namespace MaCamp.Views.Menu
                         case TipoAcaoMenu.AtualizarCampings:
                             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
                             {
-                                mainPage.SelectedItem = mainPage.Children[0];
+                                IsPresented = false;
 
-                                WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados);
+                                //await navigationPage.PushAsync(new BuscarCampings());
+                                await BackgroundUpdater.StartAsync(true);
                             }
                             else
                             {

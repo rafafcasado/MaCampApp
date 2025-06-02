@@ -5,7 +5,7 @@
     xmlns:converter="clr-namespace:MaCamp.Utils.Converters"
     xmlns:custom="clr-namespace:MaCamp.CustomControls"
     xmlns:ffimageloading="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Compat.Maui"
-    xmlns:localViews="clr-namespace:MaCamp.Views"
+    xmlns:localViews="clr-namespace:MaCamp.Views.CustomViews"
     xmlns:models="clr-namespace:MaCamp.Models"
     x:DataType="models:Item">
 
@@ -48,7 +48,6 @@
                         <Image
                             x:Name="imIconeGaleria"
                             HeightRequest="35" />
-                        <!--<Label Text="Mais fotos" TextColor="White" Font="Bold,15" VerticalOptions="Center" />-->
                     </StackLayout>
 
                     <ffimageloading:CachedImage

@@ -46,9 +46,9 @@
                 Spacing="5">
 
                 <Image
-                    HeightRequest="170"
                     HorizontalOptions="Center"
-                    Source="logo_patrocinador.jpg">
+                    Source="logo_easytrailers.png">
+
                     <Image.GestureRecognizers>
                         <TapGestureRecognizer
                             Tapped="AbrirPatrocinador" />

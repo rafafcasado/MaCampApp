@@ -17,7 +17,7 @@ namespace MaCamp.Platforms.Android.Services.Permissions
             TaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
-        public string GetExternalStorageDirectory()
+        public string GetExternalDirectory()
         {
             var file = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDocuments);
 
@@ -27,6 +27,11 @@ namespace MaCamp.Platforms.Android.Services.Permissions
             }
 
             return "/storage/emulated/0/Documents";
+        }
+
+        public string GetInternalDirectory()
+        {
+            return FileSystem.AppDataDirectory;
         }
 
         public async Task<bool> CheckAsync()
@@ -40,7 +45,7 @@ namespace MaCamp.Platforms.Android.Services.Permissions
             return await Task.FromResult(Environment.IsExternalStorageManager);
         }
 
-        public async Task<bool> RequestAsync()
+        public async Task<bool> RequestExternalPermissionAsync()
         {
             // Somente necessário no Android 11+
             if (Build.VERSION.SdkInt < BuildVersionCodes.R)
@@ -67,7 +72,7 @@ namespace MaCamp.Platforms.Android.Services.Permissions
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(StoragePermission), nameof(RequestAsync), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(StoragePermission), nameof(RequestExternalPermissionAsync), ex);
 
                 App.Resumed -= OnResumed;
 

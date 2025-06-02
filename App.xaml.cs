@@ -11,11 +11,11 @@ namespace MaCamp
 {
     public partial class App : Application
     {
-        public static string PATH { get; set; }
         public static int SCREEN_HEIGHT;
         public static int SCREEN_WIDTH;
         public static Location? LOCALIZACAO_USUARIO { get; set; }
         public static bool BAIXANDO_CAMPINGS { get; set; }
+        public static string PATH { get; private set; } = string.Empty;
 
         public static event EventHandler? Resumed;
 
@@ -44,26 +44,24 @@ namespace MaCamp
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new SplashScreen(async () =>
+            if (AppConstants.UsarPermissaoExterna)
             {
-                var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
-                var storagePermissionResult = await storagePermissionService.RequestAsync();
-
-                if (storagePermissionResult)
+                return new Window(new SplashScreen(async () =>
                 {
-                    var path = storagePermissionService.GetExternalStorageDirectory();
+                    var result = await InitializeDatabaseAsync(false);
 
-                    PATH = Path.Combine(path, AppConstants.NomeApp);
+                    if (result)
+                    {
+                        return new RootPage();
+                    }
 
-                    DBContract.Initialize();
+                    Environment.Exit(0);
 
-                    return new RootPage();
-                }
+                    return new ContentPage();
+                }));
+            }
 
-                Environment.Exit(0);
-
-                return new ContentPage();
-            }));
+            return new Window(new RootPage());
         }
 
         protected override async void OnStart()
@@ -73,6 +71,10 @@ namespace MaCamp
 
             //OneSignalServices.RegisterIOS();
             //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
+
+            await InitializeDatabaseAsync(!AppConstants.UsarPermissaoExterna);
+            await BackgroundUpdater.StartAsync();
+            await ShowPushNotificationAsync();
 
             AppLanguage.Culture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
@@ -95,7 +97,31 @@ namespace MaCamp
             BackgroundUpdater.Stop();
         }
 
-        public static async Task ExibirNotificacaoPushAsync()
+        private static async Task<bool> InitializeDatabaseAsync(bool useInternalDirectory)
+        {
+            var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
+            var storagePermissionResult = useInternalDirectory || await storagePermissionService.RequestExternalPermissionAsync();
+
+            if (storagePermissionResult)
+            {
+                var path = useInternalDirectory ? storagePermissionService.GetInternalDirectory() : storagePermissionService.GetExternalDirectory();
+
+                PATH = Path.Combine(path, AppConstants.NomeApp);
+
+                if (!Directory.Exists(PATH))
+                {
+                    Directory.CreateDirectory(PATH);
+                }
+
+                DBContract.Initialize();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private static async Task ShowPushNotificationAsync()
         {
             var tituloPush = DBContract.GetKeyValue(AppConstants.Chave_TituloNotificacao);
             var mensagemPush = DBContract.GetKeyValue(AppConstants.Chave_MensagemNotificacao);
@@ -112,16 +138,16 @@ namespace MaCamp
 
             if (itemPush != null)
             {
-                //    string idLoja = itemPush.Split('_')[0];
-                //    string idPedido = itemPush.Split('_')[1];
-
+                //var idLoja = itemPush.Split('_')[0];
+                //var idPedido = itemPush.Split('_')[1];
                 //var pedido = NetUtils.GetAsync<Pedido>($"{AppConstants.URL_API}/PedidosAPI/GetPedido?idOS={idPedido}&idLoja={idLoja}");
 
                 //if (pedido != null)
                 //{
-                //    Current?.Dispatcher.Dispatch(async () =>
+                //    AppConstants.CurrentPage.Dispatch(async () =>
                 //    {
-                //        bool abrir = await AppConstants.CurrentPage.DisplayAlert($"{tituloPush}", $"{mensagemPush} - Deseja visualizar agora?", "Sim", "Não");
+                //        var abrir = await AppConstants.CurrentPage.DisplayAlert($"{tituloPush}", $"{mensagemPush} - Deseja visualizar agora?", "Sim", "Não");
+
                 //        if (abrir)
                 //        {
                 //            await AppConstants.CurrentPage.Navigation.PushAsync(new DetalhesPedidoPage(pedido));

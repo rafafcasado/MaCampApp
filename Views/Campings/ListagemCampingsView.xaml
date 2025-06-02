@@ -60,18 +60,7 @@
                 </Label.GestureRecognizers>
             </Label>
 
-            <!--<Button x:Name="btCarregarNovamente" Text=" Tentar carregar novamente " TextColor="White" BackgroundColor="{DynamicResource CorDestaque}" HorizontalOptions="CenterAndExpand" Clicked="RecarregarConteudo" />-->
         </StackLayout>
-
-        <!--<StackLayout x:Name="slBuscaInicial" BackgroundColor="{StaticResource CorDestaque}" Padding="10" Orientation="Horizontal" HorizontalOptions="CenterAndExpand"  VerticalOptions="CenterAndExpand" IsVisible="False">
-                <BoxView WidthRequest="1" HorizontalOptions="StartAndExpand" />
-                <Image Source="icone_filtrar.png" HeightRequest="20" HorizontalOptions="Center" />
-                <Label Text="BUSCAR CAMPINGS" TextColor="{StaticResource CorTextoSobreCorPrimaria}" FontSize="12" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                <BoxView WidthRequest="1" HorizontalOptions="EndAndExpand" />
-                <StackLayout.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="ExibirBuscaCampings" />
-                </StackLayout.GestureRecognizers>
-            </StackLayout>-->
 
         <Grid
             x:Name="grBotoesFiltroMapa"

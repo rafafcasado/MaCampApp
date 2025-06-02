@@ -45,7 +45,7 @@ namespace MaCamp.Services
 
                     ProgressoVisual.AumentarTotal(progressoVisual, 3);
 
-                    DBContract.UpdateKeyValue(AppConstants.Chave_DownloadCampingsCompleto, "false", TipoChave.ControleInterno);
+                    DBContract.UpdateKeyValue(AppConstants.Chave_DownloadCampingsCompleto, Convert.ToString(false), TipoChave.ControleInterno);
 
                     var campings = new List<Item>();
                     var identificadores = new List<ItemIdentificador>();
