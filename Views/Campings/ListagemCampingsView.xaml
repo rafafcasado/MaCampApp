@@ -6,33 +6,6 @@
     BackgroundColor="{DynamicResource BgListagemNoticias}">
 
     <StackLayout>
-
-        <StackLayout
-            x:Name="slBaixandoCampings"
-            Margin="20,15,20,0"
-            HorizontalOptions="CenterAndExpand"
-            IsVisible="False"
-            Spacing="15">
-
-            <Label
-                FontAttributes="Bold"
-                FontSize="Medium"
-                Text="A lista de campings está sendo atualizada. Isso pode levar alguns minutos. Por favor aguarde..."
-                TextColor="{DynamicResource CorTextoMenuLateral}" />
-
-            <Label
-                FontSize="Medium"
-                Text="Ao concluir, os campings estarão disponíveis de forma off-line para consulta."
-                TextColor="{DynamicResource CorTextoMenuLateral}" />
-
-            <ProgressBar
-                x:Name="progressBar"
-                HeightRequest="15"
-                IsVisible="False"
-                Progress="0"
-                ProgressColor="{DynamicResource CorPrimaria}" />
-        </StackLayout>
-
         <ActivityIndicator
             x:Name="indicadorCarregamento"
             HorizontalOptions="CenterAndExpand"
@@ -59,7 +32,6 @@
                         Tapped="RecarregarConteudo" />
                 </Label.GestureRecognizers>
             </Label>
-
         </StackLayout>
 
         <Grid
@@ -241,7 +213,6 @@
                             Tapped="FiltrarListagem" />
                     </StackLayout.GestureRecognizers>
                 </StackLayout>
-
             </StackLayout>
         </Grid>
     </StackLayout>

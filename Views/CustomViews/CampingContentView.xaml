@@ -59,7 +59,8 @@
                     x:Name="frTipo"
                     Padding="10"
                     BackgroundColor="{StaticResource CorDestaque}"
-                    HorizontalOptions="FillAndExpand">
+                    HorizontalOptions="FillAndExpand"
+                    IsVisible="False">
 
                     <Border.StrokeShape>
                         <RoundRectangle

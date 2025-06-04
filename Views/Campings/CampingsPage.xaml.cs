@@ -16,27 +16,11 @@ namespace MaCamp.Views.Campings
 
             FirstAppeared += CampingsPage_FirstAppeared;
 
-            WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings);
-
-            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings, (recipient, message) =>
-            {
-                cvContent.Content = new FormBuscaView();
-            });
-
             WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada);
 
-            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, (recipient, message) =>
+            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscaRealizada, async (recipient, message) =>
             {
-                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, Convert.ToString(true), TipoChave.ControleInterno);
-
-                cvContent.Content = new ListagemCampingsView();
-            });
-
-            WeakReferenceMessenger.Default.Unregister<object, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados);
-
-            WeakReferenceMessenger.Default.Register<string, string>(this, AppConstants.WeakReferenceMessenger_BuscarCampingsAtualizados, (recipient, message) =>
-            {
-                DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, Convert.ToString(true), TipoChave.ControleInterno);
+                await DBContract.UpdateKeyValue(AppConstants.Busca_InicialRealizada, Convert.ToString(true), TipoChave.ControleInterno);
 
                 cvContent.Content = new ListagemCampingsView();
             });
@@ -44,16 +28,16 @@ namespace MaCamp.Views.Campings
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Página do Camping: ");
         }
 
-        private void CampingsPage_FirstAppeared(object? sender, EventArgs e)
+        private async void CampingsPage_FirstAppeared(object? sender, EventArgs e)
         {
-            CarregarConteudo();
+            await CarregarConteudoAsync();
         }
 
-        private void CarregarConteudo()
+        private async Task CarregarConteudoAsync()
         {
-            var buscaInicialRealizada = DBContract.GetKeyValue(AppConstants.Busca_InicialRealizada);
+            var buscaInicialRealizada = await DBContract.GetKeyValueAsync(AppConstants.Busca_InicialRealizada);
 
-            if (buscaInicialRealizada != null)
+            if (bool.TryParse(buscaInicialRealizada, out var valor) && valor)
             {
                 cvContent.Content = new ListagemCampingsView();
             }
@@ -61,7 +45,7 @@ namespace MaCamp.Views.Campings
             {
                 var valorEstabelecimentos = "Campings,PontodeApoioaRV`s,CampingSelvagem/WildCamping/Bushcfaft,SemFunçãoCamping/ApoioouFechado";
 
-                DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
+                await DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
 
                 if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                 {
@@ -89,9 +73,9 @@ namespace MaCamp.Views.Campings
 
                     var gestureRecognizer = new TapGestureRecognizer();
 
-                    gestureRecognizer.Tapped += delegate
+                    gestureRecognizer.Tapped += async delegate
                     {
-                        CarregarConteudo();
+                        await CarregarConteudoAsync();
                     };
 
                     lbMensagemAviso.GestureRecognizers.Add(gestureRecognizer);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text.Json;
 using static MaCamp.Utils.Enumeradores;
 
 namespace MaCamp.Utils
@@ -114,6 +115,13 @@ namespace MaCamp.Utils
         public static List<TipoDepuracao> ListaDepuracao => new List<TipoDepuracao>
         {
             TipoDepuracao.Nenhum
+        };
+
+        // Json
+        public static JsonSerializerOptions JsonSerializerOptionsDefault => new JsonSerializerOptions
+        {
+            IncludeFields = true,
+            PropertyNameCaseInsensitive = true
         };
 
         static AppConstants()

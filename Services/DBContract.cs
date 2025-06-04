@@ -10,210 +10,132 @@ namespace MaCamp.Services
     public static class DBContract
     {
         private static object SyncLock { get; }
-        private static SQLiteConnection? SqlConnection { get; set; }
+        public static SQLiteAsyncConnection? SqlConnection { get; set; }
+        private static SemaphoreSlim SemaphoreSlim { get; }
 
         static DBContract()
         {
             SyncLock = new object();
+            SemaphoreSlim = new SemaphoreSlim(1, 1);
         }
 
-        public static void Initialize()
+        public static async Task InitializeAsync()
         {
-            SqlConnection = GetConnection(AppConstants.SqliteFilename);
-
-            if (SqlConnection != null)
+            try
             {
-                SqlConnection.InsertOrReplace(new ChaveValor
+                await SemaphoreSlim.WaitAsync();
+
+                SqlConnection = await GetConnectionAsync(AppConstants.SqliteFilename);
+
+                if (SqlConnection != null)
                 {
-                    Chave = AppConstants.Filtro_ServicoSelecionados,
-                    Valor = null
-                });
-                SqlConnection.InsertOrReplace(new ChaveValor
-                {
-                    Chave = AppConstants.Filtro_EstadoSelecionado,
-                    Valor = null
-                });
-                SqlConnection.InsertOrReplace(new ChaveValor
-                {
-                    Chave = AppConstants.Filtro_CidadeSelecionada,
-                    Valor = null
-                });
-                SqlConnection.InsertOrReplace(new ChaveValor
-                {
-                    Chave = AppConstants.Filtro_NomeCamping,
-                    Valor = null
-                });
+                    await UpdateKeyValue(AppConstants.Busca_InicialRealizada, null);
+                    await UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, null);
+                    await UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
+                    await UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
+                    await UpdateKeyValue(AppConstants.Filtro_NomeCamping, null);
+                }
+            }
+            finally
+            {
+                SemaphoreSlim.Release();
             }
         }
 
-        private static SQLiteConnection? GetConnection(string filename)
+        private static async Task<SQLiteAsyncConnection?> GetConnectionAsync(string filename)
         {
             try
             {
                 var path = Path.Combine(App.PATH, filename);
-                var connection = new SQLiteConnection(path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
+                var connection = new SQLiteAsyncConnection(path, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
 
-                connection.CreateTables<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
+                await connection.CreateTablesAsync<Item, ItemIdentificador, ChaveValor, Cidade, Colaboracao>();
 
                 return connection;
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(GetConnection), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(GetConnectionAsync), ex);
             }
 
             return null;
         }
 
-        private static bool VerifyDatabaseIntegrity(string filename)
+        private static async Task<bool> VerifyDatabaseIntegrityAsync(string filename)
         {
             try
             {
                 var path = Path.Combine(App.PATH, filename);
-                var connection = new SQLiteConnection(path);
-                var result = connection.ExecuteScalar<string>("PRAGMA integrity_check;");
+                var connection = new SQLiteAsyncConnection(path);
+                var result = await connection.ExecuteScalarAsync<string>("PRAGMA integrity_check;");
 
-                connection.Close();
+                await connection.CloseAsync();
 
                 return result == "ok";
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(VerifyDatabaseIntegrity), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(VerifyDatabaseIntegrityAsync), ex);
 
                 return false;
             }
         }
 
-        private static bool Update(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
+        private static async Task<bool> UpdateAsync(bool clean, Dictionary<Type, List<object>> dataDictionary, ProgressoVisual? progressoVisual = null)
         {
-            var currentDatabasePath = Path.Combine(App.PATH, AppConstants.SqliteFilename);
-            var temporaryDatabasePath = Path.Combine(App.PATH, AppConstants.SqliteTemporaryFilename);
+            ProgressoVisual.AumentarTotal(progressoVisual, 2 + dataDictionary.Count);
 
-            ProgressoVisual.AumentarTotal(progressoVisual, 8 + dataDictionary.Count);
-
-            lock (SyncLock)
+            if (SqlConnection != null)
             {
                 try
                 {
                     ProgressoVisual.AumentarAtual(progressoVisual);
 
-                    ProgressoVisual.AumentarAtual(progressoVisual);
-
-                    if (File.Exists(temporaryDatabasePath))
-                    {
-                        File.Delete(temporaryDatabasePath);
-                    }
-
-                    ProgressoVisual.AumentarAtual(progressoVisual);
-
-                    if (!clean)
-                    {
-                        File.Copy(currentDatabasePath, temporaryDatabasePath, true);
-                    }
-
-                    ProgressoVisual.AumentarAtual(progressoVisual);
-
-                    var temporaryConnection = GetConnection(AppConstants.SqliteTemporaryFilename);
-
-                    if (temporaryConnection == null)
-                    {
-                        throw new NullReferenceException("Conexão SQL não foi criada");
-                    }
-
-                    ProgressoVisual.AumentarAtual(progressoVisual);
-
                     foreach (var (key, values) in dataDictionary)
                     {
-                        if (!clean)
+                        if (clean)
                         {
-                            var table = temporaryConnection.TableMappings.FirstOrDefault(x => x.MappedType == key);
+                            var table = SqlConnection.TableMappings.FirstOrDefault(x => x.MappedType == key);
 
                             if (table != null)
                             {
-                                temporaryConnection.DeleteAll(table);
+                                await SqlConnection.DeleteAllAsync(table);
                             }
                         }
 
-                        temporaryConnection.RunInTransaction(() =>
+                        await SqlConnection.RunInTransactionAsync(x =>
                         {
                             foreach (var value in values)
                             {
-                                temporaryConnection.InsertOrReplace(value);
+                                x.InsertOrReplace(value);
                             }
                         });
 
                         ProgressoVisual.AumentarAtual(progressoVisual);
                     }
 
-                    temporaryConnection.InsertOrReplace(new ChaveValor(AppConstants.Chave_DownloadCampingsCompleto, Convert.ToString(true), TipoChave.ControleInterno));
-                    temporaryConnection.InsertOrReplace(new ChaveValor
-                    {
-                        Chave = AppConstants.Chave_DataUltimaAtualizacaoConteudo,
-                        Valor = DateTime.Now.ToString("yyyy/MM/dd")
-                    });
-
-                    ProgressoVisual.AumentarAtual(progressoVisual);
-
-                    var checkIntegrity = VerifyDatabaseIntegrity(AppConstants.SqliteTemporaryFilename);
-
-                    if (!checkIntegrity)
-                    {
-                        throw new Exception("Integridade do banco atualizado falhou.");
-                    }
-
-                    ProgressoVisual.AumentarAtual(progressoVisual);
-
-                    if (SqlConnection != null)
-                    {
-                        SqlConnection.Close();
-                    }
-
-                    if (File.Exists(currentDatabasePath))
-                    {
-                        File.Delete(currentDatabasePath);
-                    }
-
-                    File.Move(temporaryDatabasePath, currentDatabasePath);
-
-                    SqlConnection = GetConnection(AppConstants.SqliteFilename);
-
-                    ProgressoVisual.AumentarAtual(progressoVisual);
-
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex, false);
-
-                    if (SqlConnection != null)
-                    {
-                        SqlConnection.Close();
-                    }
-
-                    if (File.Exists(currentDatabasePath))
-                    {
-                        File.Delete(currentDatabasePath);
-                    }
-
-                    SqlConnection = GetConnection(AppConstants.SqliteFilename);
-
-                    return false;
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex, false);
                 }
             }
+
+            return false;
         }
 
-        public static bool Update<T>(bool clean, IEnumerable<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
+        public static async Task<bool> UpdateAsync<T>(bool clean, IEnumerable<T> listPrimaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
                 { typeof(T), listPrimaryData.OfType<object>().ToList() }
             };
 
-            return Update(clean, dataDictionary, progressoVisual);
+            return await UpdateAsync(clean, dataDictionary, progressoVisual);
         }
 
-        public static bool Update<T, TK>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
+        public static async Task<bool> UpdateAsync<T, TK>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
@@ -221,10 +143,10 @@ namespace MaCamp.Services
                 { typeof(TK), listaSecondaryData.OfType<object>().ToList() }
             };
 
-            return Update(clean, dataDictionary, progressoVisual);
+            return await UpdateAsync(clean, dataDictionary, progressoVisual);
         }
 
-        public static bool Update<T, TK, TR>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, IEnumerable<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
+        public static async Task<bool> UpdateAsync<T, TK, TR>(bool clean, IEnumerable<T> listPrimaryData, IEnumerable<TK> listaSecondaryData, IEnumerable<TR> listaTertiaryData, ProgressoVisual? progressoVisual = null)
         {
             var dataDictionary = new Dictionary<Type, List<object>>
             {
@@ -233,32 +155,29 @@ namespace MaCamp.Services
                 { typeof(TR), listaTertiaryData.OfType<object>().ToList() }
             };
 
-            return Update(clean, dataDictionary, progressoVisual);
+            return await UpdateAsync(clean, dataDictionary, progressoVisual);
         }
 
-        public static bool Update<T>(T value)
+        public static async Task<bool> UpdateAsync<T>(T value)
         {
-            lock (SyncLock)
+            try
             {
-                try
+                if (SqlConnection != null)
                 {
-                    if (SqlConnection != null)
-                    {
-                        SqlConnection.InsertOrReplace(value);
+                    await SqlConnection.InsertOrReplaceAsync(value);
 
-                        return true;
-                    }
+                    return true;
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Update), ex, false);
-                }
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex, false);
             }
 
             return false;
         }
 
-        public static bool UpdateKeyValue(string key, string? value, TipoChave type = default)
+        public static async Task<bool> UpdateKeyValue(string key, string? value, TipoChave type = default)
         {
             var keyValue = new ChaveValor
             {
@@ -267,37 +186,36 @@ namespace MaCamp.Services
                 Tipo = type
             };
 
-            return Update(keyValue);
+            return await UpdateAsync(keyValue);
         }
 
-        public static T? Get<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
+        public static async Task<T?> GetAsync<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
         {
-            lock (SyncLock)
+            try
             {
-                try
+                if (SqlConnection != null)
                 {
-                    if (SqlConnection != null)
-                    {
-                        if (predicate != null)
-                        {
-                            return SqlConnection.Table<T>().FirstOrDefault(predicate);
-                        }
+                    var table = SqlConnection.Table<T>();
 
-                        return SqlConnection.Table<T>().FirstOrDefault();
+                    if (predicate != null)
+                    {
+                        return await table.FirstOrDefaultAsync(predicate);
                     }
+
+                    return await table.FirstOrDefaultAsync();
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Get), ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(GetAsync), ex);
             }
 
             return default;
         }
 
-        public static string? GetKeyValue(string key)
+        public static async Task<string?> GetKeyValueAsync(string key)
         {
-            var keyValue = Get<ChaveValor>(x => x.Chave == key);
+            var keyValue = await GetAsync<ChaveValor>(x => x.Chave == key);
 
             if (keyValue != null)
             {
@@ -307,89 +225,82 @@ namespace MaCamp.Services
             return null;
         }
 
-        public static List<T> Query<T>(string query, params object[] args) where T : new()
+        public static async Task<List<T>> QueryAsync<T>(string query, params object[] args) where T : new()
         {
-            lock (SyncLock)
+            try
             {
-                try
+                if (SqlConnection != null)
                 {
-                    if (SqlConnection != null)
-                    {
-                        var list = SqlConnection.Query<T>(query, args);
+                    var list = await SqlConnection.QueryAsync<T>(query, args);
 
-                        return list;
-                    }
+                    return list;
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(Query), ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(QueryAsync), ex);
             }
 
             return new List<T>();
         }
 
-        public static List<T> List<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
+        public static async Task<List<T>> ListAsync<T>(Expression<Func<T, bool>>? predicate = null) where T : new()
         {
-            lock (SyncLock)
+            try
             {
-                try
+                if (SqlConnection != null)
                 {
-                    if (SqlConnection != null)
-                    {
-                        if (predicate != null)
-                        {
-                            return SqlConnection.Table<T>().Where(predicate).ToList();
-                        }
+                    var table = SqlConnection.Table<T>();
 
-                        return SqlConnection.Table<T>().ToList();
+                    if (predicate != null)
+                    {
+                        return await table.Where(predicate).ToListAsync();
                     }
+
+                    return await table.ToListAsync();
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(List), ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListAsync), ex);
             }
 
             return new List<T>();
         }
 
-        public static List<Item> ListCampings(string nomeDoCamping, string? cidade, string? estado)
+        public static async Task<List<Item>> ListCampingsAsync(string nomeDoCamping, string? cidade, string? estado)
         {
-            lock (SyncLock)
+            try
             {
-                try
+                if (SqlConnection != null)
                 {
-                    if (SqlConnection != null)
-                    {
-                        var nomeNormalizado = nomeDoCamping.RemoveDiacritics().ToLower();
-                        var estadoNormalizado = estado?.RemoveDiacritics().ToLower();
-                        var cidadeNormalizada = cidade?.RemoveDiacritics().ToLower();
-                        var list = SqlConnection.Table<Item>().ToList();
-                        var query = list.AsQueryable().Where(x =>
-                            (string.IsNullOrEmpty(estadoNormalizado) || x.Estado != null && x.Estado.RemoveDiacritics().ToLower().Contains(estadoNormalizado)) &&
-                            (string.IsNullOrEmpty(cidadeNormalizada) || x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(cidadeNormalizada)) &&
-                            (string.IsNullOrEmpty(nomeNormalizado) ||
-                                x.Nome != null && x.Nome.RemoveDiacritics().ToLower().Contains(nomeNormalizado) ||
-                                x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(nomeNormalizado)
-                            //precisa converter base64 para string, não compensa
-                            //x.Descricao != null && x.Descricao.RemoveDiacritics().ToLower().Contains(nomeNormalizado)
-                            )
-                        );
+                    var nomeNormalizado = nomeDoCamping.RemoveDiacritics().ToLower();
+                    var estadoNormalizado = estado?.RemoveDiacritics().ToLower();
+                    var cidadeNormalizada = cidade?.RemoveDiacritics().ToLower();
+                    var list = await SqlConnection.Table<Item>().ToListAsync();
+                    var query = list.AsQueryable().Where(x =>
+                        (string.IsNullOrEmpty(estadoNormalizado) || x.Estado != null && x.Estado.RemoveDiacritics().ToLower().Contains(estadoNormalizado)) &&
+                        (string.IsNullOrEmpty(cidadeNormalizada) || x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(cidadeNormalizada)) &&
+                        (string.IsNullOrEmpty(nomeNormalizado) ||
+                            x.Nome != null && x.Nome.RemoveDiacritics().ToLower().Contains(nomeNormalizado) ||
+                            x.Cidade != null && x.Cidade.RemoveDiacritics().ToLower().Contains(nomeNormalizado)
+                        //precisa converter base64 para string, não compensa
+                        //x.Descricao != null && x.Descricao.RemoveDiacritics().ToLower().Contains(nomeNormalizado)
+                        )
+                    );
 
-                        return query.ToList();
-                    }
+                    return query.ToList();
                 }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampingsAsync), ex);
             }
 
             return new List<Item>();
         }
 
-        public static List<int> ListIdCampingsComComodidades(bool possuiFiltroComodidades, string comodidades)
+        public static async Task<List<int>> ListIdCampingsComComodidadesAsync(bool possuiFiltroComodidades, string comodidades)
         {
             try
             {
@@ -419,20 +330,20 @@ namespace MaCamp.Services
                     }
 
                     var query = sbQueryComodidades.ToString();
-                    var list = Query<RetornoIdItem>(query);
+                    var list = await QueryAsync<RetornoIdItem>(query);
 
                     return list.Select(x => x.IdItem).ToList();
                 }
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampingsAsync), ex);
             }
 
             return new List<int>();
         }
 
-        public static List<int> ListIdCampingsComCategorias(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
+        public static async Task<List<int>> ListIdCampingsComCategoriasAsync(string categorias, bool possuiFiltroComodidades, List<int> idsCampingsComComodidades)
         {
             try
             {
@@ -475,13 +386,13 @@ namespace MaCamp.Services
                 sbQueryCategorias.Append($" GROUP BY {nameof(ItemIdentificador.IdItem)} ");
 
                 var query = sbQueryCategorias.ToString();
-                var list = Query<RetornoIdItem>(query);
+                var list = await QueryAsync<RetornoIdItem>(query);
 
                 return list.Select(x => x.IdItem).ToList();
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampings), ex);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(ListCampingsAsync), ex);
             }
 
             return new List<int>();

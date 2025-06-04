@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using MaCamp.Models;
+﻿using MaCamp.Models;
 using MaCamp.Services;
 using MaCamp.Utils;
 using MaCamp.Views.Campings;
@@ -47,8 +46,6 @@ namespace MaCamp.Views.Menu
                             break;
                         case TipoAcaoMenu.AbrirBuscaCamping:
                             mainPage.SelectedItem = mainPage.Children[0];
-
-                            WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings);
                             break;
                         case TipoAcaoMenu.AbrirNoticias:
                             mainPage.SelectedItem = mainPage.Children[1];
@@ -118,10 +115,7 @@ namespace MaCamp.Views.Menu
                         case TipoAcaoMenu.AtualizarCampings:
                             if (Connectivity.NetworkAccess == NetworkAccess.Internet)
                             {
-                                IsPresented = false;
-
-                                //await navigationPage.PushAsync(new BuscarCampings());
-                                await BackgroundUpdater.StartAsync(true);
+                                await navigationPage.PushAsync(new BuscarCampings());
                             }
                             else
                             {

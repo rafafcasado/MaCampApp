@@ -5,9 +5,9 @@ namespace MaCamp.ViewModels
 {
     public class FiltrosViewModel
     {
-        public List<string> ObterFiltrosEstabelecimento()
+        public async Task<List<string>> ObterFiltrosEstabelecimentoAsync()
         {
-            var estabelecimentos = DBContract.GetKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados);
+            var estabelecimentos = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstabelecimentoSelecionados);
 
             if (estabelecimentos != null)
             {
@@ -24,9 +24,9 @@ namespace MaCamp.ViewModels
             };
         }
 
-        public List<string> ObterFiltrosServicos()
+        public async Task<List<string>> ObterFiltrosServicosAsync()
         {
-            var servicos = DBContract.GetKeyValue(AppConstants.Filtro_ServicoSelecionados);
+            var servicos = await DBContract.GetKeyValueAsync(AppConstants.Filtro_ServicoSelecionados);
 
             if (servicos != null)
             {
@@ -36,13 +36,13 @@ namespace MaCamp.ViewModels
             return new List<string>();
         }
 
-        public void SalvarFiltros(List<string> estabelecimentos, List<string> comodidades)
+        public async Task SalvarFiltrosAsync(List<string> estabelecimentos, List<string> comodidades)
         {
             var valorEstabelecimentos = string.Join(",", estabelecimentos);
             var valorComodidades = string.Join(",", comodidades);
 
-            DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, valorComodidades);
+            await DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
+            await DBContract.UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, valorComodidades);
         }
 
         public void AlternarEstabelecimento(List<string> estabelecimentos, string filtro)

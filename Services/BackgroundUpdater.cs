@@ -20,8 +20,8 @@ namespace MaCamp.Services
 
             if (!force)
             {
-                var chaveData = DBContract.GetKeyValue(AppConstants.Chave_UltimaAtualizacao);
-                var chaveVersao = DBContract.GetKeyValue(AppConstants.Chave_Versao);
+                var chaveData = await DBContract.GetKeyValueAsync(AppConstants.Chave_UltimaAtualizacao);
+                var chaveVersao = await DBContract.GetKeyValueAsync(AppConstants.Chave_Versao);
 
                 if (DateTime.TryParse(chaveData, out var data) && data > DateTime.Now.Subtract(AppConstants.Tempo_RotinaAtualizacao) && double.TryParse(chaveVersao, out var versao) && versao >= versaoAtual)
                 {
@@ -36,7 +36,6 @@ namespace MaCamp.Services
 
             if (permission)
             {
-
                 await Workaround.TaskWorkAsync(async () =>
                 {
                     while (!cancellationToken.IsCancellationRequested)
@@ -49,14 +48,14 @@ namespace MaCamp.Services
                             ProgressValue = -1
                         };
                         var notificationId = notificationService.Show(notification);
-                        var openNotification = DBContract.GetKeyValue(AppConstants.Chave_NotificacaoAberta);
+                        var openNotification = await DBContract.GetKeyValueAsync(AppConstants.Chave_NotificacaoAberta);
 
                         if (openNotification != null)
                         {
                             notificationService.Complete(Convert.ToInt32(openNotification));
                         }
 
-                        DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
+                        await DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, Convert.ToString(notificationId));
 
                         try
                         {
@@ -66,9 +65,9 @@ namespace MaCamp.Services
 
                             notificationService.Update(notificationId, notification);
 
-                            DBContract.UpdateKeyValue(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                            DBContract.UpdateKeyValue(AppConstants.Chave_Versao, versaoAtual.ToString(CultureInfo.InvariantCulture));
-                            DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, null);
+                            await DBContract.UpdateKeyValue(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                            await DBContract.UpdateKeyValue(AppConstants.Chave_Versao, versaoAtual.ToString(CultureInfo.InvariantCulture));
+                            await DBContract.UpdateKeyValue(AppConstants.Chave_NotificacaoAberta, null);
 
                             notificationService.Complete(notificationId);
                         }

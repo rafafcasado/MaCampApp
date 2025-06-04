@@ -5,6 +5,7 @@ using MaCamp.Resources.Locale;
 using MaCamp.Services;
 using MaCamp.Utils;
 using MaCamp.Views;
+using MaCamp.Views.Campings;
 using MaCamp.Views.Menu;
 
 namespace MaCamp
@@ -64,6 +65,13 @@ namespace MaCamp
             return new Window(new RootPage());
         }
 
+        public override void CloseWindow(Window window)
+        {
+            base.CloseWindow(window);
+
+            BackgroundUpdater.Stop();
+        }
+
         protected override async void OnStart()
         {
             var localizeService = await Workaround.GetServiceAsync<ILocalize>();
@@ -73,8 +81,9 @@ namespace MaCamp
             //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
 
             await InitializeDatabaseAsync(!AppConstants.UsarPermissaoExterna);
-            await BackgroundUpdater.StartAsync();
-            await ShowPushNotificationAsync();
+            await CheckUpdateDatabaseAsync();
+            //await BackgroundUpdater.StartAsync();
+            //await ShowPushNotificationAsync();
 
             AppLanguage.Culture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
@@ -88,13 +97,6 @@ namespace MaCamp
             base.OnResume();
 
             Resumed?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected override void CleanUp()
-        {
-            base.CleanUp();
-
-            BackgroundUpdater.Stop();
         }
 
         private static async Task<bool> InitializeDatabaseAsync(bool useInternalDirectory)
@@ -113,7 +115,7 @@ namespace MaCamp
                     Directory.CreateDirectory(PATH);
                 }
 
-                DBContract.Initialize();
+                await DBContract.InitializeAsync();
 
                 return true;
             }
@@ -121,15 +123,33 @@ namespace MaCamp
             return false;
         }
 
+        private static async Task CheckUpdateDatabaseAsync()
+        {
+            var chaveData = await DBContract.GetKeyValueAsync(AppConstants.Chave_UltimaAtualizacao);
+
+            if (chaveData == null || DateTime.TryParse(chaveData, out var data) && data < DateTime.Now.Subtract(AppConstants.Tempo_RotinaAtualizacao))
+            {
+                if (Current != null)
+                {
+                    var window = Current.Windows.FirstOrDefault();
+
+                    if (window != null && window.Page is RootPage rootPage && rootPage.Detail is NavigationPage navigationPage)
+                    {
+                        await navigationPage.PushAsync(new BuscarCampings());
+                    }
+                }
+            }
+        }
+
         private static async Task ShowPushNotificationAsync()
         {
-            var tituloPush = DBContract.GetKeyValue(AppConstants.Chave_TituloNotificacao);
-            var mensagemPush = DBContract.GetKeyValue(AppConstants.Chave_MensagemNotificacao);
-            var itemPush = DBContract.GetKeyValue(AppConstants.Chave_IdItemNotificacao);
+            var tituloPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_TituloNotificacao);
+            var mensagemPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_MensagemNotificacao);
+            var itemPush = await DBContract.GetKeyValueAsync(AppConstants.Chave_IdItemNotificacao);
 
-            DBContract.UpdateKeyValue(AppConstants.Chave_TituloNotificacao, null);
-            DBContract.UpdateKeyValue(AppConstants.Chave_MensagemNotificacao, null);
-            DBContract.UpdateKeyValue(AppConstants.Chave_IdItemNotificacao, null);
+            await DBContract.UpdateKeyValue(AppConstants.Chave_TituloNotificacao, null);
+            await DBContract.UpdateKeyValue(AppConstants.Chave_MensagemNotificacao, null);
+            await DBContract.UpdateKeyValue(AppConstants.Chave_IdItemNotificacao, null);
 
             if (mensagemPush != null)
             {

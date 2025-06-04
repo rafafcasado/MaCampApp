@@ -15,10 +15,10 @@ namespace MaCamp.ViewModels
             ParametroTODOS = " - TODOS - ";
         }
 
-        public void InicializarFiltros()
+        public async Task InicializarFiltrosAsync()
         {
-            DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, null);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, null);
+            await DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, null);
+            await DBContract.UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, null);
         }
 
         public List<string> ObterListaEstados(List<Cidade> listaCidades)
@@ -36,13 +36,13 @@ namespace MaCamp.ViewModels
 
         public async Task<List<Cidade>> ObterListaCidadesAsync()
         {
-            var listaCidadesBD = DBContract.List<Cidade>();
+            var listaCidadesBD = await DBContract.ListAsync<Cidade>();
 
             if (listaCidadesBD.Count == 0)
             {
                 var listaCidadesWS = await AppNet.GetListAsync<Cidade>(AppConstants.Url_ListaCidades, x => x.Estado != null && !x.Estado.Contains("_"));
 
-                DBContract.Update(false, listaCidadesWS);
+                await DBContract.UpdateAsync(false, listaCidadesWS);
 
                 return listaCidadesWS;
             }
@@ -63,16 +63,16 @@ namespace MaCamp.ViewModels
             return cidades;
         }
 
-        public void SalvarFiltros(string? estado, string? cidade, string? nomeCamping)
+        public async Task SalvarFiltrosAsync(string? estado, string? cidade, string? nomeCamping)
         {
             var estadoSelecionado = estado == ParametroTODOS ? null : estado;
             var cidadeSelecionada = cidade == ParametroTODOS ? null : cidade;
             var nomeCampingSelecionado = string.IsNullOrEmpty(nomeCamping) ? null : nomeCamping.RemoveDiacritics();
 
-            DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, estadoSelecionado);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, cidadeSelecionada);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, nomeCampingSelecionado);
-            DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, Convert.ToString(false));
+            await DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, estadoSelecionado);
+            await DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, cidadeSelecionada);
+            await DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, nomeCampingSelecionado);
+            await DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, Convert.ToString(false));
         }
 
         public async Task UsarLocalizacaoAtualAsync()
@@ -81,10 +81,10 @@ namespace MaCamp.ViewModels
             {
                 App.LOCALIZACAO_USUARIO = await Workaround.GetLocationAsync(AppConstants.Mensagem_Localizacao_Busca);
 
-                DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, Convert.ToString(true));
-                DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
-                DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
-                DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, null);
+                await DBContract.UpdateKeyValue(AppConstants.Filtro_LocalizacaoSelecionada, Convert.ToString(true));
+                await DBContract.UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
+                await DBContract.UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
+                await DBContract.UpdateKeyValue(AppConstants.Filtro_NomeCamping, null);
             }
             catch (Exception ex)
             {
@@ -92,11 +92,11 @@ namespace MaCamp.ViewModels
             }
         }
 
-        public (string? estado, string? cidade, string? nome) ObterFiltrosSalvos()
+        public async Task<(string? estado, string? cidade, string? nome)> ObterFiltrosSalvosAsync()
         {
-            var estado = DBContract.GetKeyValue(AppConstants.Filtro_EstadoSelecionado);
-            var cidade = DBContract.GetKeyValue(AppConstants.Filtro_CidadeSelecionada);
-            var nomeCamping = DBContract.GetKeyValue(AppConstants.Filtro_NomeCamping);
+            var estado = await DBContract.GetKeyValueAsync(AppConstants.Filtro_EstadoSelecionado);
+            var cidade = await DBContract.GetKeyValueAsync(AppConstants.Filtro_CidadeSelecionada);
+            var nomeCamping = await DBContract.GetKeyValueAsync(AppConstants.Filtro_NomeCamping);
 
             return (estado, cidade, nomeCamping);
         }

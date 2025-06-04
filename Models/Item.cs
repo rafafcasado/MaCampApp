@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using MaCamp.Models.Anuncios;
 using MaCamp.Utils;
 using SQLite;
@@ -162,27 +161,12 @@ namespace MaCamp.Models
         [JsonPropertyName("Identificadores")]
         public List<ItemIdentificador> Identificadores
         {
-            get
-            {
-                try
-                {
-                    if (!string.IsNullOrEmpty(IdentificadoresSerializado))
-                    {
-                        return JsonSerializer.Deserialize<List<ItemIdentificador>>(IdentificadoresSerializado) ?? new List<ItemIdentificador>();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(Item), nameof(Identificadores), ex);
-                }
-
-                return new List<ItemIdentificador>();
-            }
-            set => IdentificadoresSerializado = JsonSerializer.Serialize(value);
+            get => Workaround.DeserializeList<ItemIdentificador>(IdentificadoresSerializado);
+            set => Workaround.SerializeWhere(value, x => x.Any(), x => IdentificadoresSerializado = x);
         }
 
         [JsonIgnore]
-        private string? IdentificadoresSerializado { get; set; }
+        public string? IdentificadoresSerializado { get; set; }
 
         [Ignore]
         [JsonIgnore]

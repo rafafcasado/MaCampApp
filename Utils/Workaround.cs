@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
 using MaCamp.Dependencias.Permissions;
 using static MaCamp.Utils.Enumeradores;
 
@@ -377,5 +378,47 @@ namespace MaCamp.Utils
                 cancellationTokenSource.Dispose();
             }
         }
+
+        public static void SerializeWhere<T>(T value, Func<T, bool>? where, Action<string> setter)
+        {
+            var type = typeof(T);
+
+            try
+            {
+                if (where == null || where(value))
+                {
+                    var json = JsonSerializer.Serialize(value, AppConstants.JsonSerializerOptionsDefault);
+
+                    setter(json);
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowExceptionOnlyDevolpmentMode(nameof(Workaround), $"{nameof(SerializeWhere)}<${type.Name}>", ex);
+            }
+        }
+
+        public static void Serialize<T>(T value, Action<string> setter) => SerializeWhere(value, null, setter);
+
+        public static T Deserialize<T>(string? json, T defaultValue)
+        {
+            var type = typeof(T);
+
+            try
+            {
+                if (!string.IsNullOrEmpty(json))
+                {
+                    return JsonSerializer.Deserialize<T>(json, AppConstants.JsonSerializerOptionsDefault) ?? defaultValue;
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowExceptionOnlyDevolpmentMode(nameof(Workaround), $"{nameof(Deserialize)}<${type.Name}>", ex);
+            }
+
+            return defaultValue;
+        }
+
+        public static List<T> DeserializeList<T>(string? json) => Deserialize(json, new List<T>());
     }
 }

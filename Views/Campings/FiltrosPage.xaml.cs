@@ -31,12 +31,12 @@ namespace MaCamp.Views.Campings
             FirstAppeared += FiltrosPage_FirstAppeared;
         }
 
-        private void FiltrosPage_FirstAppeared(object? sender, EventArgs e)
+        private async void FiltrosPage_FirstAppeared(object? sender, EventArgs e)
         {
             if (BindingContext is FiltrosViewModel viewModel)
             {
-                var listaEstabelecimentos = viewModel.ObterFiltrosEstabelecimento();
-                var listaComodidades = viewModel.ObterFiltrosServicos();
+                var listaEstabelecimentos = await viewModel.ObterFiltrosEstabelecimentoAsync();
+                var listaComodidades = await viewModel.ObterFiltrosServicosAsync();
 
                 ListaEstabelecimentosSelecionados = listaEstabelecimentos;
                 ListaComodidadesSelecionadas = listaComodidades;
@@ -188,7 +188,7 @@ namespace MaCamp.Views.Campings
         {
             if (BindingContext is FiltrosViewModel viewModel)
             {
-                viewModel.SalvarFiltros(ListaEstabelecimentosSelecionados, ListaComodidadesSelecionadas);
+                await viewModel.SalvarFiltrosAsync(ListaEstabelecimentosSelecionados, ListaComodidadesSelecionadas);
 
                 //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendEvent("Filtro Estabelecimentos e Serviços", "Filtrar", valorEstabelecimentos + " - " + valorComodidades);
                 WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_BuscaRealizada);

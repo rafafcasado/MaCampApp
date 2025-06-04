@@ -6,18 +6,12 @@ namespace MaCamp.Utils
     public static class AppNet
     {
         private static HttpClient Client { get; }
-        private static JsonSerializerOptions JsonSerializerOptionsDefault { get; }
 
         static AppNet()
         {
             Client = new HttpClient
             {
                 Timeout = TimeSpan.FromSeconds(120)
-            };
-            JsonSerializerOptionsDefault = new JsonSerializerOptions
-            {
-                IncludeFields = true,
-                PropertyNameCaseInsensitive = true
             };
         }
 
@@ -26,7 +20,7 @@ namespace MaCamp.Utils
             try
             {
                 var response = await Client.GetStreamAsync(url);
-                var data = await JsonSerializer.DeserializeAsync<T>(response, JsonSerializerOptionsDefault);
+                var data = await JsonSerializer.DeserializeAsync<T>(response, AppConstants.JsonSerializerOptionsDefault);
 
                 return data;
             }
@@ -47,7 +41,7 @@ namespace MaCamp.Utils
                 response.EnsureSuccessStatusCode();
 
                 await using var stream = await response.Content.ReadAsStreamAsync();
-                var data = await JsonSerializer.DeserializeAsync<List<T>>(stream, JsonSerializerOptionsDefault);
+                var data = await JsonSerializer.DeserializeAsync<List<T>>(stream, AppConstants.JsonSerializerOptionsDefault);
 
                 if (data != null)
                 {

@@ -12,12 +12,12 @@ namespace MaCamp.Views.Campings
 
             NavigationPage.SetHasNavigationBar(this, false);
 
-            FirstAppeared += ListagemCampingsView_FirstAppeared;
+            FirstAppeared += BuscarCampings_FirstAppeared;
 
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Buscar Campings Atualizados");
         }
 
-        private async void ListagemCampingsView_FirstAppeared(object? sender, EventArgs e)
+        private async void BuscarCampings_FirstAppeared(object? sender, EventArgs e)
         {
             var progressoVisual = new ProgressoVisual(progressBar);
 
@@ -27,7 +27,7 @@ namespace MaCamp.Views.Campings
                 CidadesServices.AtualizarListaCidadesAsync(progressoVisual),
                 CampingServices.BaixarCampingsAsync(true, progressoVisual)
             );
-
+            await DBContract.UpdateKeyValue(AppConstants.Chave_UltimaAtualizacao, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             await Navigation.PopAsync();
         }
     }

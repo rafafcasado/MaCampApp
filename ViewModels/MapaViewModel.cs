@@ -82,7 +82,7 @@ namespace MaCamp.ViewModels
             }
             else
             {
-                Itens = DBContract.List<Item>();
+                Itens = await DBContract.ListAsync<Item>();
             }
         }
 

@@ -89,6 +89,7 @@ namespace MaCamp.Views.CustomViews
 
             imIconeTipo1.Source = sourceIconeTipo1;
             lbTipo1.Text = textoTipo1 ?? string.Empty;
+            frTipo.IsVisible = !string.IsNullOrEmpty(textoTipo1);
 
             if (textoTipo2 != null)
             {

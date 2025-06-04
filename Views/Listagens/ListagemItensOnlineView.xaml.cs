@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.Messaging;
 using MaCamp.CustomControls;
 using MaCamp.Models;
 using MaCamp.Models.Anuncios;
@@ -109,7 +108,7 @@ namespace MaCamp.Views.Listagens
                 var formattedString = new FormattedString();
                 var gestureRecognizer = new TapGestureRecognizer();
                 //Verifica se existem Campings baixados
-                var existemCampings = CampingServices.ExistemCampings();
+                var existemCampings = await CampingServices.ExistemCampingsAsync();
 
                 formattedString.Spans.Add(new Span
                 {
@@ -131,14 +130,11 @@ namespace MaCamp.Views.Listagens
                         FontAttributes = FontAttributes.Bold
                     });
 
-                    gestureRecognizer.Tapped += delegate
+                    gestureRecognizer.Tapped += async delegate
                     {
-                        WeakReferenceMessenger.Default.Send(string.Empty, AppConstants.WeakReferenceMessenger_ExibirBuscaCampings);
-
                         if (AppConstants.CurrentPage is RootPage rootPage && rootPage.Detail is NavigationPage navigationPage && navigationPage.CurrentPage is MainPage mainPage)
                         {
-                            mainPage.SelectedItem = null;
-                            mainPage.SelectedItem = mainPage.Children[0];
+                            await navigationPage.PushAsync(mainPage.Children[0]);
                         }
                     };
 

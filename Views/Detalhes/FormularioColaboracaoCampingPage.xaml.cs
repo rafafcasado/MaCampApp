@@ -24,9 +24,9 @@ namespace MaCamp.Views.Detalhes
             //Plugin.GoogleAnalytics.GoogleAnalytics.Current.Tracker.SendView("Formulário de colaboração: " + nomeDoCamping);
         }
 
-        private void FormularioColaboracaoCampingPage_FirstAppeared(object? sender, EventArgs e)
+        private async void FormularioColaboracaoCampingPage_FirstAppeared(object? sender, EventArgs e)
         {
-            var colaboracao = DBContract.Get<Colaboracao>();
+            var colaboracao = await DBContract.GetAsync<Colaboracao>();
 
             etEmail.Text = colaboracao?.Email ?? string.Empty;
             etNome.Text = colaboracao?.Nome ?? string.Empty;
@@ -68,7 +68,7 @@ namespace MaCamp.Views.Detalhes
                     Equipamento = Equipamento.Text
                 };
 
-                DBContract.Update(colaboracao);
+                await DBContract.UpdateAsync(colaboracao);
 
                 await Navigation.PushPopupAsync(new LoadingPopupPage(AppColors.CorPrimaria));
 
