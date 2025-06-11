@@ -45,24 +45,30 @@ namespace MaCamp
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            if (AppConstants.UsarPermissaoExterna)
+            return new Window(new SplashScreen(async () =>
             {
-                return new Window(new SplashScreen(async () =>
+                var result = await InitializeDatabaseAsync(AppConstants.UsarPermissaoExterna);
+
+                if (result)
                 {
-                    var result = await InitializeDatabaseAsync(false);
+                    var page = new RootPage();
 
-                    if (result)
+                    page.Appearing += async delegate
                     {
-                        return new RootPage();
-                    }
+                        //OneSignalServices.RegisterIOS();
+                        //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
 
-                    Environment.Exit(0);
+                        await CheckUpdateDatabaseAsync();
+                        //await ShowPushNotificationAsync();
+                    };
 
-                    return new ContentPage();
-                }));
-            }
+                    return page;
+                }
 
-            return new Window(new RootPage());
+                Environment.Exit(0);
+
+                return new ContentPage();
+            }));
         }
 
         public override void CloseWindow(Window window)
@@ -76,14 +82,6 @@ namespace MaCamp
         {
             var localizeService = await Workaround.GetServiceAsync<ILocalize>();
             var cultureInfo = localizeService.PegarCultureInfoUsuario();
-
-            //OneSignalServices.RegisterIOS();
-            //new OneSignalServices(AppConstants.OnesignalAppId).InicializarOneSignal();
-
-            await InitializeDatabaseAsync(!AppConstants.UsarPermissaoExterna);
-            await CheckUpdateDatabaseAsync();
-            //await BackgroundUpdater.StartAsync();
-            //await ShowPushNotificationAsync();
 
             AppLanguage.Culture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
@@ -99,14 +97,14 @@ namespace MaCamp
             Resumed?.Invoke(this, EventArgs.Empty);
         }
 
-        private static async Task<bool> InitializeDatabaseAsync(bool useInternalDirectory)
+        private static async Task<bool> InitializeDatabaseAsync(bool useExternalDirectory)
         {
             var storagePermissionService = await Workaround.GetServiceAsync<IStoragePermission>();
-            var storagePermissionResult = useInternalDirectory || await storagePermissionService.RequestExternalPermissionAsync();
+            var storagePermissionResult = !useExternalDirectory || await storagePermissionService.RequestExternalPermissionAsync();
 
             if (storagePermissionResult)
             {
-                var path = useInternalDirectory ? storagePermissionService.GetInternalDirectory() : storagePermissionService.GetExternalDirectory();
+                var path = useExternalDirectory ? storagePermissionService.GetExternalDirectory() : storagePermissionService.GetInternalDirectory();
 
                 PATH = Path.Combine(path, AppConstants.NomeApp);
 

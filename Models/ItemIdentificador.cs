@@ -30,7 +30,6 @@ namespace MaCamp.Models
         [JsonPropertyName("Opcao")]
         public int Opcao { get; set; }
 
-        [JsonIgnore]
         public TipoIdentificador? TipoIdentificador { get; set; }
     }
 }

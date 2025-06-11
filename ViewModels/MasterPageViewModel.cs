@@ -64,12 +64,12 @@ namespace MaCamp.ViewModels
                     TipoLayout = TipoLayoutMenu.Item,
                     TipoAcao = TipoAcaoMenu.AbrirEventos
                 },
-                new ItemMenu
-                {
-                    Titulo = "Classificados",
-                    TipoLayout = TipoLayoutMenu.Item,
-                    TipoAcao = TipoAcaoMenu.AbrirClassificados
-                },
+                //new ItemMenu
+                //{
+                //    Titulo = "Classificados",
+                //    TipoLayout = TipoLayoutMenu.Item,
+                //    TipoAcao = TipoAcaoMenu.AbrirClassificados
+                //},
                 new ItemMenu
                 {
                     TipoLayout = TipoLayoutMenu.Divisoria

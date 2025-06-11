@@ -44,6 +44,7 @@ namespace MaCamp.ViewModels
                 foreach (var itemCamping in listaItensCampingsOrdenados)
                 {
                     itemCamping.IdLocal = ++idLocal;
+
                     Itens.Add(itemCamping);
 
                     // Insere Anúncio Customizado

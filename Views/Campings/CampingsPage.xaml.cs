@@ -47,44 +47,44 @@ namespace MaCamp.Views.Campings
 
                 await DBContract.UpdateKeyValue(AppConstants.Filtro_EstabelecimentoSelecionados, valorEstabelecimentos);
 
-                if (Connectivity.NetworkAccess != NetworkAccess.Internet)
-                {
-                    var lbMensagemAviso = new Label
-                    {
-                        TextColor = Color.FromArgb("#414141"),
-                        HorizontalTextAlignment = TextAlignment.Center,
-                        VerticalOptions = LayoutOptions.Center,
-                        Margin = 20
-                    };
-                    var formattedString = new FormattedString();
+                //if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                //{
+                //    var lbMensagemAviso = new Label
+                //    {
+                //        TextColor = Color.FromArgb("#414141"),
+                //        HorizontalTextAlignment = TextAlignment.Center,
+                //        VerticalOptions = LayoutOptions.Center,
+                //        Margin = 20
+                //    };
+                //    var formattedString = new FormattedString();
 
-                    formattedString.Spans.Add(new Span
-                    {
-                        Text = "O primeiro acesso requer conexão com a internet.\n\n",
-                        FontAttributes = FontAttributes.Bold,
-                        FontSize = 20
-                    });
-                    formattedString.Spans.Add(new Span
-                    {
-                        Text = AppConstants.Descricao_SemInternet
-                    });
+                //    formattedString.Spans.Add(new Span
+                //    {
+                //        Text = "O primeiro acesso requer conexão com a internet.\n\n",
+                //        FontAttributes = FontAttributes.Bold,
+                //        FontSize = 20
+                //    });
+                //    formattedString.Spans.Add(new Span
+                //    {
+                //        Text = AppConstants.Descricao_SemInternet
+                //    });
 
-                    lbMensagemAviso.FormattedText = formattedString;
+                //    lbMensagemAviso.FormattedText = formattedString;
 
-                    var gestureRecognizer = new TapGestureRecognizer();
+                //    var gestureRecognizer = new TapGestureRecognizer();
 
-                    gestureRecognizer.Tapped += async delegate
-                    {
-                        await CarregarConteudoAsync();
-                    };
+                //    gestureRecognizer.Tapped += async delegate
+                //    {
+                //        await CarregarConteudoAsync();
+                //    };
 
-                    lbMensagemAviso.GestureRecognizers.Add(gestureRecognizer);
+                //    lbMensagemAviso.GestureRecognizers.Add(gestureRecognizer);
 
-                    BackgroundColor = Color.FromArgb("#E4E4E4");
-                    cvContent.Content = lbMensagemAviso;
+                //    BackgroundColor = Color.FromArgb("#E4E4E4");
+                //    cvContent.Content = lbMensagemAviso;
 
-                    return;
-                }
+                //    return;
+                //}
 
                 BackgroundColor = Colors.White;
                 cvContent.Content = new FormBuscaView();
