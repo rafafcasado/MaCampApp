@@ -30,9 +30,6 @@
 		<NoWarn>CS0618;NU1608;</NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='net9.0-android|AnyCPU'">
-	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
 	</PropertyGroup>
@@ -42,18 +39,18 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" BaseSize="500,500" Color="#512BD4" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" BaseSize="1599,2819" Resize="True" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Resize="True" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<EmbeddedResource Include="Resources\Images\*" />
+		<!-- <EmbeddedResource Include="Resources\Images\*" /> -->
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-		<EmbeddedResource Include="Resources\Raw\**" />
+		<!-- <EmbeddedResource Include="Resources\Raw\**" /> -->
 	</ItemGroup>
 
 	<ItemGroup>
@@ -78,73 +75,9 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
 		<PackageReference Include="MPowerKit.GoogleMaps" Version="3.0.0" />
 		<PackageReference Include="Plugin.MauiMTAdmob" Version="2.0.1.1" />
-		<PackageReference Include="ReactiveUI" Version="20.2.45" />
-		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
 		<PackageReference Include="RGPopup.Maui" Version="1.1.2" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="System.Text.Json" Version="9.0.5" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
-	  <PackageReference Include="GoogleMapsUtils.Android.Maui">
-	    <Version>1.0.2</Version>
-	  </PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Views\Campings\BuscarCampings.xaml.cs">
-	    <DependentUpon>BuscarCampings.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Campings\ListagemCampingsView.xaml.cs">
-	    <DependentUpon>ListagemCampingsView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Campings\MapaPage.xaml.cs">
-	    <DependentUpon>MapaPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\AdMobRectangleContentView.xaml.cs">
-	    <DependentUpon>AdMobRectangleContentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\AnuncioCardContentView.xaml.cs">
-	    <DependentUpon>AnuncioCardContentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\AnuncioContentView.xaml.cs">
-	    <DependentUpon>AnuncioContentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\CampingContentView.xaml.cs">
-	    <DependentUpon>CampingContentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\DivisoriaMenuContentView.xaml.cs">
-	    <DependentUpon>DivisoriaMenuContentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\ItemContentView.xaml.cs">
-	    <DependentUpon>ItemContentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\MasterPageItemContentView.xaml.cs">
-	    <DependentUpon>MasterPageItemContentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\MasterPageSubItemContentView.xaml.cs">
-	    <DependentUpon>MasterPageSubItemContentView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\CustomViews\ZoomableView.xaml.cs">
-	    <DependentUpon>ZoomableView.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\Menu\MasterPage.xaml.cs">
-	    <DependentUpon>MasterPage.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\SplashScreen.xaml.cs">
-	    <DependentUpon>SplashScreen.xaml</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Update="Views\Campings\BuscarCampings.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\CustomViews\ZoomableView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\SplashScreen.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	</ItemGroup>
 </Project>
