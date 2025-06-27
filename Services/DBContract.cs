@@ -9,36 +9,19 @@ namespace MaCamp.Services
 {
     public static class DBContract
     {
-        private static object SyncLock { get; }
-        public static SQLiteAsyncConnection? SqlConnection { get; set; }
-        private static SemaphoreSlim SemaphoreSlim { get; }
-
-        static DBContract()
-        {
-            SyncLock = new object();
-            SemaphoreSlim = new SemaphoreSlim(1, 1);
-        }
+        private static SQLiteAsyncConnection? SqlConnection { get; set; }
 
         public static async Task InitializeAsync()
         {
-            try
-            {
-                await SemaphoreSlim.WaitAsync();
+            SqlConnection = await GetConnectionAsync(AppConstants.SqliteFilename);
 
-                SqlConnection = await GetConnectionAsync(AppConstants.SqliteFilename);
-
-                if (SqlConnection != null)
-                {
-                    await UpdateKeyValue(AppConstants.Busca_InicialRealizada, null);
-                    await UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, null);
-                    await UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
-                    await UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
-                    await UpdateKeyValue(AppConstants.Filtro_NomeCamping, null);
-                }
-            }
-            finally
+            if (SqlConnection != null)
             {
-                SemaphoreSlim.Release();
+                await UpdateKeyValue(AppConstants.Busca_InicialRealizada, null);
+                await UpdateKeyValue(AppConstants.Filtro_ServicoSelecionados, null);
+                await UpdateKeyValue(AppConstants.Filtro_EstadoSelecionado, null);
+                await UpdateKeyValue(AppConstants.Filtro_CidadeSelecionada, null);
+                await UpdateKeyValue(AppConstants.Filtro_NomeCamping, null);
             }
         }
 
@@ -118,7 +101,7 @@ namespace MaCamp.Services
                 }
                 catch (Exception ex)
                 {
-                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex, false);
+                    Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex);
                 }
             }
 
@@ -171,7 +154,7 @@ namespace MaCamp.Services
             }
             catch (Exception ex)
             {
-                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex, false);
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(DBContract), nameof(UpdateAsync), ex);
             }
 
             return false;

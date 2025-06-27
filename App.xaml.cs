@@ -80,14 +80,21 @@ namespace MaCamp
 
         protected override async void OnStart()
         {
-            var localizeService = await Workaround.GetServiceAsync<ILocalize>();
-            var cultureInfo = localizeService.PegarCultureInfoUsuario();
+            try
+            {
+                var localizeService = await Workaround.GetServiceAsync<ILocalize>();
+                var cultureInfo = localizeService.PegarCultureInfoUsuario();
 
-            AppLanguage.Culture = cultureInfo;
-            Thread.CurrentThread.CurrentCulture = cultureInfo;
-            Thread.CurrentThread.CurrentUICulture = cultureInfo;
-            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+                AppLanguage.Culture = cultureInfo;
+                Thread.CurrentThread.CurrentCulture = cultureInfo;
+                Thread.CurrentThread.CurrentUICulture = cultureInfo;
+                CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+                CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+            }
+            catch (Exception ex)
+            {
+                Workaround.ShowExceptionOnlyDevolpmentMode(nameof(App), nameof(OnStart), ex);
+            }
         }
 
         protected override void OnResume()
