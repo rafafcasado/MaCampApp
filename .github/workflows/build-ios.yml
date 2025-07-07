@@ -1,0 +1,33 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install MAUI Workload
+        run: dotnet workload install maui
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build IPA
+        run: >
+          dotnet publish MaCamp.csproj
+          -f net9.0-ios
+          -c Release
+          -p:ArchiveOnBuild=true
+          -p:RuntimeIdentifier=ios-arm64
+          -p:CodesignKey="Apple Distribution: SEU_NOME (TEAMID)"
+          -p:CodesignProvision="NomeDoProvisioningProfile"

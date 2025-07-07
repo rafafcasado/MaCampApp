@@ -1,48 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>UIDeviceFamily</key>
-	<array>
-		<integer>1</integer>
-		<integer>2</integer>
-	</array>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>arm64</string>
-	</array>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>XSAppIconAssets</key>
-	<string>Assets.xcassets/appicon.appiconset</string>
+	<dict>
+		<key>LSRequiresIPhoneOS</key>
+		<true/>
 
-  <key>GADApplicationIdentifier</key>
-  <string>ca-app-pub-8959365990645001~1761267526</string>
+		<key>UIDeviceFamily</key>
+		<array>
+			<integer>1</integer>
+			<integer>2</integer>
+		</array>
 
-  <key>NSUserNotificationUsageDescription</key>
-	<string>Este aplicativo usa notificações para alertá-lo sobre eventos importantes.</string>
-	
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Este aplicativo precisa acessar o armazenamento para salvar arquivos offline.</string>
-	
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Este aplicativo precisa salvar arquivos no armazenamento.</string>
+		<key>UIRequiredDeviceCapabilities</key>
+		<array>
+			<string>arm64</string>
+		</array>
 
-	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
-	<string>Este aplicativo precisa da geolocalização para o mapa.</string>
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
 
-</dict>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+		</array>
+
+		<key>GADApplicationIdentifier</key>
+		<string>ca-app-pub-8959365990645001~1761267526</string>
+
+		<key>NSUserNotificationUsageDescription</key>
+		<string>Este aplicativo usa notificações para alertá-lo sobre eventos importantes.</string>
+
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Este aplicativo precisa acessar o armazenamento para salvar arquivos offline.</string>
+		
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Este aplicativo precisa salvar arquivos no armazenamento.</string>
+
+		<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+		<string>Este aplicativo precisa da geolocalização para o mapa.</string>
+	</dict>
 </plist>
